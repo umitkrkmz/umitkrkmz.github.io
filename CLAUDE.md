@@ -1,6 +1,6 @@
 # Mikro Şehir: proje notları
 
-Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayıcıda aç (veya `python -m http.server 8123`). Three.js r128 CDN'den gelir. Arayüz Türkçe. Tam şartname için `PROMPT.md`.
+Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayıcıda aç (veya `python -m http.server 8123`). Geliştirirken `.claude/devserver.py` kullan (önbelleği kapatır; `python -m http.server` ile tarayıcı eski JS'yi tutabiliyor). Three.js r128 CDN'den gelir. Arayüz Türkçe. Tam şartname için `PROMPT.md`.
 
 ## Dosya haritası (yükleme sırası önemli, hepsi `window.C` kullanır)
 | Dosya | Ne yapar |
@@ -9,8 +9,10 @@ Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayı
 | `js/details.js` | Tabela dokuları, `C.buildDetail(bina)` (tabela, tente, balkon, çatı donanımı), `C.makePark`, `C.makePlaza`, saat kulesi, `C.drawClock` |
 | `js/landmarks.js` | Önemli yapılar: `C.makeLandmark(blok, tür)` (cami, hastane, itfaiye, karakol, stadyum), `C.finishLandmark` (meydan da bunu kullanır), `C.landmarks`, `C.landmarkMeshes` |
 | `js/buildings.js` | Cephe dokuları ve malzemeler, `C.boxGeo`, blok/parsel üretimi (`C.genBlocks`; park ve yapı yerleri `PARKS`, `LANDMARKS`), `C.specFor`, `C.placeBuilding`, `C.removeBuilding`, `C.populate(tohum)`, bina kademe döngüsü `C.updateBuildingsLOD` |
+| `js/interiors.js` | Pencere arkasında sahte odalar: cephe malzemelerine `onBeforeCompile` ile interior mapping (yakın malzemeler, `INTERIOR`/`CW` tanımları, 220 m'de söner). Kesit: `C.cutaway.open(bina)`/`close()`/`heightOf`; katlar ızgaraya bölünür (daire ~11 m, dükkân ~12 m), tüm kutular tek InstancedMesh, insanlar ikinci bir çift |
 | `js/street.js` | Ağaç, lamba, ışık havuzu, bank (örnekli): `C.buildStreet()` |
 | `js/traffic.js` | Yol ağı (`C.roads`: kavşak düğümleri, yönlü kenarlar, Bezier dönüşler), araçlar (`C.cars`), trafik ışıkları, yayalar: `C.setDensity`, `C.updateTraffic(dt)`, `C.buildPeople`, `C.updatePeople(dt)`. Özel araç API'si: `C.spawnCar`, `C.despawnCar`, `C.setRoute(araç, kenar, s)` (kenar grafiğinde BFS), `C.parkCar`/`C.unparkCar`, `C.blockEdge`, `C.carPos` |
+| `js/life.js` | Otobüs hatları (`C.transit`: `LINES` durak listesi blok, yüz), durak sığınakları, bekleyen yolcular; otobüsler özel araçtır, durakta kaldırıma park eder |
 | `js/events.js` | Olaylar (`C.startEvent(tür)`: `fire`, `accident`, `crime`; `C.eventsOn`), acil durum araçları (istasyonları önemli yapıların +z yüzündeki şerit), parçacık yayıcıları (duman, alev, su), sokak adları (`C.placeName`), sol üstteki olay akışı |
 | `js/hero.js` | Örümcek Adam (`C.hero`: `pos`, `root`, `state()`, `alert(olay)`): canvas kostüm dokuları, kalça > gövde > kol/baş hiyerarşisi, hareket parçaları (`hop` zıplama, `swing` sallanma, `zip` ağla çekilme), devriye (kameranın baktığı yere yönelir), hırsızlıkta kavşaktan kavşağa kovalama ve ağla yakalama |
 | `js/ui.js` | Dünyayı kurar, OrbitControls (`C.controls`), imlece yakınlaşma, yön tuşları/WASD ile kaydırma, uçuş animasyonu (`C.flyTo`; `keep` verilmezse kahraman takibini bırakır), kahraman takibi ("Örümcek Adam'ı izle"), engelsiz bakış noktası (`C.clearView`), bina ve yapı seçimi, kart, kontroller, kademe göstergesi, ana döngü |
@@ -28,6 +30,9 @@ Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayı
 - Özel araç nesneleri `special: true` taşır, `C.setDensity` onları silmez. `siren` kırmızıda geçirir ve öndeki araçları kenara çektirir (`car.pull`), `crashed` aracı yerinde tutar, `yaw` görüntüyü döndürür.
 - Sahneye çalışırken ışık ekleme ya da çıkarma: tüm malzemeler yeniden derlenir. Yangın ışıkları `events.js` içinde baştan iki tane hazır.
 - Hırsızlık olayı kahraman kancaları taşır: `heroComing()`, `heroCatch()` (şüpheliyi kozaya sarar); polis gelince `arrive()` teslim alır. Kahraman aynı anda tek göreve gider, meşgulse yalnızca polis gelir.
+- Özel araç nesnesinde `next` alanını kullanma: trafik sistemi onu sıradaki kenar için kullanır (otobüslerde durak sırası `stopNo`).
+- Kesitteki bina `b.cut` taşır: bina grubu ve ayrıntısı gizlenir; kat ekleme/yıkma ve başka seçim kesiti kapatır.
+- Yayalar köşede `tryCross` ile karşıya geçer; yalnızca kestikleri yolun kırmızısı geçişe yetecek kadar uzunsa yürürler (`redLeft`).
 - `C.updateTraffic` her kademede çalışır (araçlar şehir kademesinde gizli ama hareket eder).
 - Kullanıcı arayüzü metinleri Türkçe. Renkler `index.html` içindeki CSS değişkenlerinden gelir.
 
@@ -35,7 +40,6 @@ Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayı
 - Kesişen yönlerdeki araçlar birbirine bakmaz; sirenli araç kırmızıda geçerken yan yoldan gelenin içinden geçebilir.
 - Araçlar yalnızca kendi yolundaki öndeki araca bakar. Aynı kenara aynı anda giren iki araç (ör. sağa dönen ile karşıdan sola dönen) kısa bir an iç içe geçebilir.
 - 13×13'te kuş bakışında yaklaşık 3.500 çizim çağrısı var (gölge geçişi dahil). Güçlü makinede kare 6–8 ms, zayıf dizüstünde yavaşlarsa bina geometrilerini birleştirmek ilk adım.
-- Yayalar yalnızca bloğun kaldırım halkasında yürür, yol karşısına geçmez.
 - 1. kat balkonları zemin kattaki dükkân tabelalarının önüne düşüyor (`details.js` balkon döngüsü `fi = 1`'den başlıyor). Henüz düzeltilmedi.
 - 2026-10-14'te tarayıcıda uçtan uca denendi: konsol temiz; kademeler, gece, kat ekleme/yıkma/yeniden dikme çalışıyor.
 - Tarayıcı paneli gizliyken `requestAnimationFrame` durur; otomatik testte bina ayrıntıları eksik görünebilir, bu bir hata değildir.

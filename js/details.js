@@ -31,6 +31,30 @@ const mastMat = std('#8d9298', 0.6), doorMat = std('#4a3a2c');
 C.blinkMat = new THREE.MeshBasicMaterial({ color: 0xff3b30, transparent: true, opacity: 1, fog: false });
 C.updaters.push((dt, t) => { C.blinkMat.opacity = Math.sin(t * 3) > 0 ? 1 : 0.25; });
 
+/* ---------- kafe önü: iki yuvarlak masa, sandalyeler, fincanlar, oturan insanlar ---------- */
+const CAFE = new Set([3, 7, 11]);                       // ÇAY OCAĞI, KAFE, SİMİT SARAYI
+const tableMat = std('#e8e2d0', 0.6), chairMat = std('#7a5a3a'), cupMat = std('#f6f3ea', 0.4);
+const shirtMats = ['#c9372c', '#2f6f8f', '#e8e2d0', '#3b7a57', '#d29a2d', '#6b4e8f', '#222b33'].map(h => std(h, 0.9));
+const skinMats = ['#f1c9a5', '#d9a37c', '#a8734f', '#7a4e33'].map(h => std(h, 0.9));
+function cafe(g, px, pz, f, tx, tz, rnd) {
+  const add = (geo, mat, x, y, z, sx, sy, sz) => { const m = new THREE.Mesh(geo, mat); m.scale.set(sx, sy, sz); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };
+  for (const s of [-1, 1]) {
+    const cx = px + f.nx * 1.7 + tx * s * 1.5, cz = pz + f.nz * 1.7 + tz * s * 1.5;
+    add(cylG, tableMat, cx, C.SW + 0.36, cz, 0.05, 0.72, 0.05);
+    add(cylG, tableMat, cx, C.SW + 0.74, cz, 0.42, 0.04, 0.42);
+    for (const c of [-1, 1]) {
+      const sx = cx + tx * c * 0.72, sz = cz + tz * c * 0.72;
+      add(boxG, chairMat, sx, C.SW + 0.225, sz, 0.42, 0.45, 0.42);
+      add(boxG, chairMat, sx + tx * c * 0.2, C.SW + 0.67, sz + tz * c * 0.2, Math.abs(tz) * 0.42 + 0.06, 0.45, Math.abs(tx) * 0.42 + 0.06);
+      if (rnd() < 0.7) {
+        add(boxG, shirtMats[(rnd() * shirtMats.length) | 0], sx, C.SW + 0.83, sz, 0.32, 0.75, 0.32);
+        add(sphG, skinMats[(rnd() * skinMats.length) | 0], sx, C.SW + 1.34, sz, 0.13, 0.13, 0.13);
+        add(cylG, cupMat, cx + tx * c * 0.2, C.SW + 0.8, cz + tz * c * 0.2, 0.05, 0.09, 0.05);
+      }
+    }
+  }
+}
+
 /* ---------- bina ayrıntısı (yalnızca yakınlaşınca kurulur) ---------- */
 C.buildDetail = function (b) {
   const g = new THREE.Group(), rnd = C.rng(b.seed + 777), lot = b.lot, bt = b.baseTier, tt = b.topTier;
@@ -54,7 +78,7 @@ C.buildDetail = function (b) {
     for (let k = 0; k < nS; k++) {
       const off = nS === 2 ? (k ? 1 : -1) * f.len * 0.22 : 0;
       const px = f.cx + tx * off, pz = f.cz + tz * off;
-      const sign = new THREE.Mesh(planeG, signMats[Math.floor(rnd() * signMats.length)]);
+      const si = Math.floor(rnd() * signMats.length), sign = new THREE.Mesh(planeG, signMats[si]);
       sign.scale.set(5.2, 1.1, 1); sign.rotation.y = f.ry;
       sign.position.set(px + f.nx * 0.08, C.SW + 3.55, pz + f.nz * 0.08); g.add(sign);
       const shop = new THREE.Mesh(planeG, shopMat);
@@ -63,6 +87,7 @@ C.buildDetail = function (b) {
       const aw = new THREE.Mesh(boxG, awnMats[Math.floor(rnd() * awnMats.length)]);
       aw.rotation.order = 'YXZ'; aw.rotation.set(0.22, f.ry, 0); aw.scale.set(5.6, 0.12, 1.4);
       aw.position.set(px + f.nx * 0.75, C.SW + 2.8, pz + f.nz * 0.75); aw.castShadow = true; g.add(aw);
+      if (CAFE.has(si)) cafe(g, px, pz, f, tx, tz, rnd);
     }
   }
   /* çatı donanımı */

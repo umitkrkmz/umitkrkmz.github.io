@@ -250,7 +250,7 @@ C.updateTraffic = function (dt) {
 };
 
 /* ---------- yayalar: her bloğun kaldırımında dolaşır ---------- */
-const people = [];
+const people = C.people = [];
 const pt = {};
 C.buildPeople = function () {
   const r = C.rng(77);
@@ -277,19 +277,45 @@ C.buildPeople = function () {
 };
 const pd = new THREE.Object3D(); pd.rotation.order = 'YXZ';
 function put(mesh, i, x, y, z, ry, rz) { pd.position.set(x, y, z); pd.rotation.set(0, ry, rz || 0); pd.updateMatrix(); mesh.setMatrixAt(i, pd.matrix); }
+/* karşıya geçiş: köşede, yürüme yönündeki yolun araçlarına kırmızı yanıyor ve kalan süre yetiyorsa */
+const SIDE_D = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+const CORNER_END = [[1, -1], [1, 1], [-1, 1], [-1, -1]], CORNER_START = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
+function redLeft(dx) {                                   // dx: x yönünde geçiş z yolunu keser, z trafiğinin kırmızısı gerekir
+  const tc = simT % CYCLE;
+  if (dx) return tc >= 18.5 ? CYCLE - tc + 10 : tc < 10 ? 10 - tc : 0;
+  return tc >= 8.5 ? CYCLE - tc : 0;
+}
+function tryCross(p, k, h) {
+  const D = SIDE_D[k].map(v => v * p.dir), bi = p.blk.i + D[0], bj = p.blk.j + D[1];
+  if (bi < 0 || bj < 0 || bi >= N || bj >= N) return;
+  const c = (p.dir > 0 ? CORNER_END : CORNER_START)[k], len = C.PITCH - 2 * h;
+  const ax = p.blk.bx + c[0] * h, az = p.blk.bz + c[1] * h;
+  p.cross = { ax, az, bx: ax + D[0] * len, bz: az + D[1] * len, dx: D[0], len, t: 0, go: false,
+    to: C.blocks[bi * N + bj], f: p.dir > 0 ? k / 4 + 1e-4 : (k + 1) / 4 - 1e-4, ry: Math.atan2(D[0], D[1]) };
+}
 C.updatePeople = function (dt) {
   for (let i = 0; i < people.length; i++) {
     const p = people[i], h = 20.5 + p.lat;
-    p.f = (p.f + p.dir * p.sp * dt / (8 * h) + 1) % 1;
-    const side = Math.floor(p.f * 4), t = (p.f * 4) % 1;
-    let x, z, ry;
-    if (side === 0) { x = -h + 2 * h * t; z = -h; ry = 0; }
-    else if (side === 1) { x = h; z = -h + 2 * h * t; ry = -Math.PI / 2; }
-    else if (side === 2) { x = h - 2 * h * t; z = h; ry = Math.PI; }
-    else { x = -h; z = h - 2 * h * t; ry = Math.PI / 2; }
-    if (p.dir < 0) ry += Math.PI;
-    x += p.blk.bx; z += p.blk.bz;
-    p.ph += p.sp * dt * 4.2;
+    let x, z, ry, moving = true;
+    if (p.cross) {
+      const c = p.cross;
+      if (!c.go) { c.go = redLeft(c.dx) > c.len / (p.sp * 1.25) + 0.5; moving = c.go; }
+      if (c.go) c.t = Math.min(1, c.t + p.sp * 1.25 * dt / c.len);
+      x = c.ax + (c.bx - c.ax) * c.t; z = c.az + (c.bz - c.az) * c.t; ry = c.ry - Math.PI / 2;
+      if (c.t >= 1) { p.blk = c.to; p.f = c.f; p.cross = null; }
+    } else {
+      const was = Math.floor(p.f * 4);
+      p.f = (p.f + p.dir * p.sp * dt / (8 * h) + 1) % 1;
+      const side = Math.floor(p.f * 4), t = (p.f * 4) % 1;
+      if (side !== was && Math.random() < 0.35) tryCross(p, was, h);
+      if (side === 0) { x = -h + 2 * h * t; z = -h; ry = 0; }
+      else if (side === 1) { x = h; z = -h + 2 * h * t; ry = -Math.PI / 2; }
+      else if (side === 2) { x = h - 2 * h * t; z = h; ry = Math.PI; }
+      else { x = -h; z = h - 2 * h * t; ry = Math.PI / 2; }
+      if (p.dir < 0) ry += Math.PI;
+      x += p.blk.bx; z += p.blk.bz;
+    }
+    if (moving) p.ph += p.sp * dt * 4.2; else p.ph *= 0.9;          // beklerken bacaklar durur
     const sw = Math.sin(p.ph) * 0.55, bob = Math.abs(Math.sin(p.ph)) * 0.03;
     const hip = C.SW + 0.85 + bob, lx = Math.sin(ry), lz = Math.cos(ry);
     put(pt.torso, i, x, hip, z, ry);

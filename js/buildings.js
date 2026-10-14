@@ -238,7 +238,7 @@ C.updateBuildingsLOD = function (cam) {
     if (far !== b.isFar) { b.isFar = far; const mt = far ? b.farMats : b.nearMats; for (const m of b.meshes) if (!m.userData.roof) m.material = mt; }
     if (d2 < NEAR2) {
       if (!b.detail && made < 3) { C.buildDetail(b); made++; }
-      if (b.detail) b.detail.visible = true;
+      if (b.detail) b.detail.visible = !b.cut;          // kesitteyken bina ve ayrıntısı gizli
     } else if (b.detail) b.detail.visible = false;
   }
 };

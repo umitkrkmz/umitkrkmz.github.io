@@ -75,6 +75,7 @@ let sel = null;
 function showOutline() {
   outline.geometry.dispose();
   if (!sel) { outline.visible = false; return; }
+  if (sel.b && sel.b.cut) { outline.visible = false; return; }        // kesitte çerçeve kalabalık yapar
   const lot = sel.lot, h = sel.b ? sel.b.height + 0.8 : sel.L ? sel.L.height + 0.8 : 0.6;
   outline.geometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(lot.w, h, lot.d));
   outline.position.set(lot.cx, C.SW + h / 2, lot.cz); outline.visible = true;
@@ -96,14 +97,18 @@ function renderSel() {
     $('selTitle').textContent = C.typeName(b);
     rows.innerHTML = `<div><dt>Yükseklik</dt><dd>${fmt.format(Math.round(b.height))} m</dd></div><div><dt>Kat</dt><dd>${b.floors}</dd></div>` +
       `<div><dt>Parsel</dt><dd>${Math.round(sel.lot.w)} × ${Math.round(sel.lot.d)} m</dd></div><div><dt>${b.type === 'tower' ? 'Çalışan' : 'Sakin'}</dt><dd>~${fmt.format(pop)}</dd></div>`;
-    act.innerHTML = `<button class="btn" data-act="up"${b.floors >= LIM[b.type] ? ' disabled' : ''}>+ Kat</button><button class="btn" data-act="down"${b.floors <= 1 ? ' disabled' : ''}>− Kat</button><button class="btn danger" data-act="demolish">Yık</button>`;
+    act.innerHTML = `<button class="btn" data-act="up"${b.floors >= LIM[b.type] ? ' disabled' : ''}>+ Kat</button><button class="btn" data-act="down"${b.floors <= 1 ? ' disabled' : ''}>− Kat</button><button class="btn danger" data-act="demolish">Yık</button>` +
+      `<button class="btn" data-act="cut" aria-pressed="${!!b.cut}">${b.cut ? 'Kesiti kapat' : 'Kesit'}</button>`;
   } else {
     $('selTitle').textContent = 'Boş arsa';
     rows.innerHTML = `<div><dt>Parsel</dt><dd>${Math.round(sel.lot.w)} × ${Math.round(sel.lot.d)} m</dd></div><div><dt>Alan</dt><dd>${fmt.format(Math.round(sel.lot.w * sel.lot.d))} m²</dd></div>`;
     act.innerHTML = `<button class="btn" data-act="build:house">Müstakil ev</button><button class="btn" data-act="build:mid">Apartman</button><button class="btn" data-act="build:tower">Ofis kulesi</button>`;
   }
 }
-function select(s) { sel = s; showOutline(); renderSel(); }
+function select(s) {
+  if (C.cutaway.building && (!s || s.b !== C.cutaway.building)) C.cutaway.close();
+  sel = s; showOutline(); renderSel();
+}
 /* yapıyı en az engelle gösteren bakış noktası: aday noktalardan yapının dokuz noktasına ışın atar,
    en az ışını kesilen (eşitlikte en alçak) adayı seçer */
 const vrc = new THREE.Raycaster(), vdir = new THREE.Vector3(), vpt = new THREE.Vector3();
@@ -132,11 +137,21 @@ window.addEventListener('keydown', e => { if (e.key === 'Escape') { select(null)
 $('selActions').addEventListener('click', e => {
   const btn = e.target.closest('button[data-act]'); if (!btn || !sel) return;
   const a = btn.dataset.act, lot = sel.lot;
-  if (a === 'visit') { const [pos, tgt] = clearView(sel.L); flyTo(pos, tgt, 2200); } else if (a === 'up' || a === 'down') {
-    const b = sel.b; b.floors = C.clamp(b.floors + (a === 'up' ? 1 : -1), 1, LIM[b.type]);
+  if (a === 'visit') { const [pos, tgt] = clearView(sel.L); flyTo(pos, tgt, 2200); }
+  else if (a === 'cut') {
+    const b = sel.b;
+    if (b.cut) C.cutaway.close();
+    else {
+      C.cutaway.open(b);
+      const H = Math.min(36, C.cutaway.heightOf(b)), [pos, tgt] = clearView({ bx: lot.cx, bz: lot.cz, height: H, r: 8, building: b });
+      flyTo(pos, tgt, 2000);
+    }
+    select({ b, lot });
+  } else if (a === 'up' || a === 'down') {
+    const b = sel.b; C.cutaway.close(); b.floors = C.clamp(b.floors + (a === 'up' ? 1 : -1), 1, LIM[b.type]);
     C.rebuildBuilding(b); select({ b, lot });
   } else if (a === 'demolish') {
-    C.removeBuilding(lot); C.refreshPickables(); select({ b: null, lot });
+    C.cutaway.close(); C.removeBuilding(lot); C.refreshPickables(); select({ b: null, lot });
   } else if (a.startsWith('build:')) {
     const type = a.split(':')[1], spec = C.specFor(lot, C.rng((Math.random() * 1e9) | 0), type);
     if (type === 'tower') spec.floors = 24 + Math.floor(Math.random() * 14);
