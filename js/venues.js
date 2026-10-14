@@ -1,4 +1,4 @@
-/* ===== venues.js: girilebilir mekanlar (dükkanlar, kafe, karakol, hastane, itfaiye, cami) ===== */
+/* ===== venues.js: girilebilir mekanlar (dükkanlar, kafe, karakol, hastane, itfaiye) ===== */
 (function () {
 'use strict';
 if (!window.C || C.failed) return;
@@ -21,7 +21,7 @@ const lampMat = new THREE.MeshBasicMaterial({ color: C.col('#fff6df') });
 const pick = (r, a) => a[(r() * a.length) | 0];
 
 /* ---------- mekan türleri ---------- */
-const KIND = { 'ÇAY OCAĞI': 'cafe', 'KAFE': 'cafe', 'SİMİT SARAYI': 'cafe', 'FIRIN': 'bakery', 'ECZANE': 'pharmacy', 'OPTİK': 'pharmacy',
+const KIND = { 'ÇAY OCAĞI': 'cafe', 'KAFE': 'cafe', 'ANKARA SİMİDİ': 'cafe', 'FIRIN': 'bakery', 'ECZANE': 'pharmacy', 'OPTİK': 'pharmacy',
   'MARKET': 'market', 'KIRTASİYE': 'market', 'KUAFÖR': 'barber', 'KEBAP': 'kebab', 'ÇİÇEKÇİ': 'florist', 'TAMİRCİ': 'repair' };
 const TALK = {
   cafe: ['Hoş geldiniz! Çay mı kahve mi?', 'Simitler taze, çay demli.', 'Bugün tatlı yok, kusura bakmayın.'],
@@ -34,28 +34,11 @@ const TALK = {
   florist: ['Lale mi gül mü?', 'Hediye paketi yapayım mı?', 'Saksı çiçekleri de var.'],
   repair: ['Yarın gelin, hazır olur.', 'Bunun parçası yok, sipariş edeceğiz.', 'Eski ama sağlam alet bu.'],
   police: ['Kayıp eşya mı bildireceksiniz?', 'Şikâyetinizi yazalım.', 'Şehir güvende, merak etmeyin.'],
-  inmate: ['Ben bir şey yapmadım!', 'Avukatımı istiyorum!', 'Örümcek Adam beni ağına sardı…'],
+  inmate: ['Ben bir şey yapmadım!', 'Avukatımı istiyorum!', 'Pijamalı bir çocuk beni ağına sardı…'],
   hospital: ['Acil servise hoş geldiniz.', 'Sıra numaranızı alın lütfen.', 'Doktor birazdan sizi çağıracak.'],
   patient: ['Bir saattir bekliyorum…', 'Sadece biraz başım ağrıyor.', 'Geçmiş olsun bana da.'],
-  fire: ['Alarm çalarsa iki dakikada çıkarız!', 'Hortumları yeni kontrol ettik.', 'Yangın tüpünüz var mı evde?'],
-  mosque: ['Hoş geldiniz.', 'Ayakkabılarınızı rafa bırakabilirsiniz.', 'Kubbedeki süslemeler yeni yenilendi.']
+  fire: ['Alarm çalarsa iki dakikada çıkarız!', 'Hortumları yeni kontrol ettik.', 'Yangın tüpünüz var mı evde?']
 };
-
-/* kubbe içi: kaburgalar, tepede madalyon, etekte altın süslemeli mavi bant ve ışık alan pencereler (küre UV'sinin üst yarısı) */
-let domeT = null;
-function domeTex() {
-  if (domeT) return domeT;
-  const W = 1024, H = 384, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const x = cv.getContext('2d');
-  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#f3ead6'); g.addColorStop(1, '#e6d8b8');
-  x.fillStyle = g; x.fillRect(0, 0, W, H);
-  x.strokeStyle = 'rgba(160,120,60,.45)'; x.lineWidth = 3;
-  for (let k = 0; k < 32; k++) { const u = k / 32 * W; x.beginPath(); x.moveTo(u, 40); x.lineTo(u, H - 50); x.stroke(); }
-  for (let k = 0; k < 16; k++) { const u = (k + 0.5) / 16 * W; x.fillStyle = 'rgba(47,111,143,.55)'; x.beginPath(); x.ellipse(u, H / 2, 14, 40, 0, 0, Math.PI * 2); x.fill(); }
-  x.fillStyle = '#2f6f8f'; x.fillRect(0, 0, W, 34); x.fillStyle = '#d4a73c'; x.fillRect(0, 34, W, 6);
-  x.fillStyle = '#2f6f8f'; x.fillRect(0, H - 48, W, 48); x.fillStyle = '#d4a73c'; x.fillRect(0, H - 54, W, 6);
-  for (let k = 0; k < 24; k++) { const u = (k + 0.5) / 24 * W; x.fillStyle = '#fff3c8'; x.fillRect(u - 9, H - 42, 18, 32); x.beginPath(); x.arc(u, H - 42, 9, Math.PI, 0); x.fill(); }
-  domeT = new THREE.CanvasTexture(cv); domeT.encoding = THREE.sRGBEncoding; domeT.anisotropy = C.maxAniso; return domeT;
-}
 
 /* ---------- yerleşim yardımcıları (yerel çerçeve: x kapı boyunca, z içeri, y yukarı; kapı z=0) ---------- */
 function Kit(seed) { this.r = C.rng(seed); this.boxes = []; this.people = []; this.cols = []; this.extra = []; }
@@ -194,19 +177,9 @@ const LAYOUT = {
     k.box(4, 0, 3, 0.12, 5.4, 0.12, '#c9ccd0', true);
     for (let i = 0; i < 3; i++) k.man(1.5 + i * 1.2, D * 0.5, k.r() * 6, i === 1 ? 'talk' : 'stand', TALK.fire, { skin: pick(k.r, ['#e8b88f', '#b98260', '#8d5a3c']), shirt: '#2a2e33', pants: '#2a2e33', shoes: '#1b1b1d', hair: '#1d1612', long: true });
   },
-  mosque(k, W, D) {
-    shell(k, W, D, 10, '#8a2d2d', '#efe8d8', { window: false, noLamps: true, noCeiling: true, door: 2.2 });
-    for (let z = 1.2; z < D - 0.5; z += 1.25) k.box(0, 0.001, z, W - 0.4, 0.012, 0.06, '#d4a73c');   // halı safları
-    k.box(0, 0, D - 0.12, 2.2, 3.4, 0.2, '#2f6f8f'); k.box(0, 0, D - 0.25, 1.4, 2.8, 0.1, '#d4a73c');   // mihrap
-    for (let i = 0; i < 6; i++) k.box(W / 2 - 3 + i * 0.3, 0, D - 2.2 + i * 0.25, 1.0, 0.3 + i * 0.35, 0.3, '#7a5a3a', i === 0);   // minber
-    k.extra.push(['dome', 0, 10, D / 2, Math.hypot(W, D) / 2 + 0.3], ['ring', 0, 3.6, D / 2, 4.0]);   // kubbe duvarların üstünü tümüyle örter
-    for (let i = 0; i < 7; i++) k.man(-4 + i * 1.3, D - 3.2 - (i % 2) * 1.4, -Math.PI / 2, 'kneel', TALK.mosque);
-    k.man(0, 1.6, -Math.PI / 2, 'stand', TALK.mosque, { skin: '#d9a37c', shirt: '#f2f2ee', pants: '#2d3b55', shoes: '#1b1b1d', hair: '#a8a29a', long: true });
-  }
 };
 /* önemli yapıların kapıları (blok merkezine göre): dış kapı noktası, iç mekan ön duvarı, ölçüler */
 const LANDMARK_DOOR = {
-  mosque: { door: [0, 13.6], anchor: [0, 7.9], W: 20, D: 19.5, name: 'MERKEZ CAMİİ' },
   hospital: { door: [-9, 14.3], anchor: [-9, 9.9], W: 12, D: 8.4, name: 'ACİL' },
   police: { door: [0, 5.6], anchor: [0, 1.9], W: 12, D: 10, name: 'KARAKOL' },
   fire: { door: [0, 4.8], anchor: [0, 3.9], W: 16, D: 13, name: 'İTFAİYE' }
@@ -247,21 +220,11 @@ C.venues = {
     for (const e of k.extra) {
       if (e[0] === 'glass') { const m = new THREE.Mesh(new THREE.PlaneGeometry(e[4], e[5]), glassMat); m.position.set(e[1], e[2], e[3] + 0.08); g.add(m); }
       else if (e[0] === 'lamp') { const m = new THREE.Mesh(unit, lampMat); m.scale.set(0.9, 0.04, 0.3); m.position.set(e[1], e[2], e[3]); g.add(m); }
-      else if (e[0] === 'dome') {
-        const m = new THREE.Mesh(new THREE.SphereGeometry(e[4], 48, 16, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshBasicMaterial({ map: domeTex(), side: THREE.BackSide }));
-        m.scale.y = 0.62; m.position.set(e[1], e[2], e[3]); g.add(m);
-        const band = new THREE.Mesh(new THREE.CylinderGeometry(e[4], e[4], 0.6, 32, 1, true), litMat({ color: C.col('#2f6f8f'), side: THREE.BackSide }));
-        band.position.set(e[1], e[2] + 0.3, e[3]); g.add(band);
-      } else if (e[0] === 'ring') {
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(e[4], 0.05, 6, 48), new THREE.MeshBasicMaterial({ color: C.col('#3b3020') })); ring.rotation.x = Math.PI / 2; ring.position.set(e[1], e[2], e[3]); g.add(ring);
-        for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2, m = new THREE.Mesh(unit, lampMat); m.scale.set(0.12, 0.2, 0.12); m.position.set(e[1] + Math.cos(a) * e[4], e[2], e[3] + Math.sin(a) * e[4]); g.add(m); }
-        for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2, m = new THREE.Mesh(unit, boxMat); m.scale.set(0.02, 6.4, 0.02); m.position.set(e[1] + Math.cos(a) * e[4], e[2], e[3] + Math.sin(a) * e[4]); g.add(m); }
-      }
     }
     const crowd = new C.Crowd(Math.max(1, k.people.length), { glow });
     k.people.forEach((p, i) => crowd.look(i, Object.assign(C.randomLook(k.r), p.look)));
     g.add(crowd.group); scene.add(g);
-    if (v.L) v.L.group.visible = false;               // içeriden dış kabuğun alt yüzleri görünmesin (cami kubbesi)
+    if (v.L) v.L.group.visible = false;               // içeriden dış kabuğun alt yüzleri görünmesin
     const t = { x: Math.cos(th), z: -Math.sin(th) }, n = { x: v.nx, z: v.nz };
     cur = { v, g, k, crowd, t, n, W, D, boxes };
     const P = C.player;

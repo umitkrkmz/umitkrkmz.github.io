@@ -10,10 +10,10 @@ const pad = n => String(n).padStart(2, '0');
 const clock = () => pad(Math.floor(C.hour)) + ':' + pad(Math.floor((C.hour % 1) * 60));
 
 /* ---------- sokak adları: x yönündeki yollar cadde, z yönündekiler sokak ---------- */
-const CADDE = ['Kordon', 'Çınar', 'Ihlamur', 'Meşe', 'Kestane', 'Zeytin', 'İstasyon', 'Cumhuriyet', 'Bağlar', 'Değirmen', 'Sahil', 'Pazar', 'Çarşı', 'Okul'];
-const SOKAK = ['Lale', 'Gül', 'Menekşe', 'Papatya', 'Nergis', 'Sümbül', 'Karanfil', 'Leylak', 'Yasemin', 'Zambak', 'Erguvan', 'Manolya', 'Begonya', 'Mimoza'];
+const CADDE = ['Kordon', 'Çınar', 'Ihlamur', 'Meşe', 'Kestane', 'Zeytin', 'İstasyon', 'Cumhuriyet', 'Bağlar', 'Değirmen', 'Sahil', 'Pazar', 'Çarşı', 'Okul', 'Bahar', 'Fener', 'Kervan', 'Yıldız'];
+const SOKAK = ['Lale', 'Gül', 'Menekşe', 'Papatya', 'Nergis', 'Sümbül', 'Karanfil', 'Leylak', 'Yasemin', 'Zambak', 'Erguvan', 'Manolya', 'Begonya', 'Mimoza', 'Kardelen', 'Ortanca', 'Gelincik', 'Akasya'];
 const roadIdx = v => C.clamp(Math.round((v - C.roadX(0)) / C.PITCH), 0, C.N);
-C.placeName = (x, z) => `${CADDE[roadIdx(z)]} Cd. × ${SOKAK[roadIdx(x)]} Sk.`;
+C.placeName = (x, z) => `${CADDE[roadIdx(z)]} Cd. × ${SOKAK[roadIdx(x)]} Sk., ${C.districtAt(x, z).name}`;
 
 /* ---------- bloğun bir yüzüne bitişik, kaldırım tarafı bloğa bakan şerit ---------- */
 const blockIdx = v => Math.round((v - C.blockC(0)) / C.PITCH);
@@ -333,11 +333,11 @@ function startCrime() {
       this.th.caught = 0.001; setStatus(this, 'Şüpheli yakalandı ✓', true);
     },
     /* kahraman kancaları (hero.js) */
-    heroComing() { setStatus(this, 'Polis ve Örümcek Adam yolda'); },
+    heroComing() { setStatus(this, 'Polis ve Pijamalı Çocuk yolda'); },
     heroCatch() {
       if (this.th.caught) return;
       this.th.caught = 0.001; this.th.webbed = true; part(this.th.g, cocoonMat, 0.62, 1.55, 0.66, 0, 0.95, 0);
-      setStatus(this, this.pol && this.pol.state === 'scene' ? 'Polis teslim aldı ✓' : 'Örümcek Adam yakaladı 🕸', this.pol && this.pol.state === 'scene');
+      setStatus(this, this.pol && this.pol.state === 'scene' ? 'Polis teslim aldı ✓' : 'Pijamalı Çocuk yakaladı 🕸', this.pol && this.pol.state === 'scene');
     },
     view() {
       const p = th.g.position, ox = p.x - blk.bx, oz = p.z - blk.bz;

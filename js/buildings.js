@@ -66,7 +66,7 @@ function pair(tex, hex, rough, metal, farMul, key) {
   const f = new THREE.MeshStandardMaterial({ color: C.col(hex).multiply(farMul), roughness: 1, emissive: C.col('#ffcf8a'), emissiveIntensity: 0 });
   farMats.push(f);
   C.mats.near[key].push([m, trimMat[key], roofMat, roofMat, m, m]);
-  C.mats.far[key].push([f, trimMat[key], roofMat, roofMat, f, f]);
+  C.mats.far[key].push(f);                                     // uzakta tek malzeme: grup başına ayrı çizim yok
 }
 AP.forEach(h => pair(fa, h, 0.9, 0, C.col('#b8b4ae'), 'apt'));
 CW.forEach(h => pair(fc, h, 0.35, 0.15, C.col('#7b93a6'), 'cw'));
@@ -148,8 +148,9 @@ C.CORNER_R = { tower: 1.1, mid: 0.6, low: 0.45, house: 0.25 };
 C.blocks = []; C.lots = []; C.buildings = []; C.pickables = [];
 C.treeSpots = []; C.lampSpots = []; C.benchSpots = [];
 /* 13x13 ızgara için elle seçilmiş yerler, meydan C.MID,C.MID'de */
-const PARKS = new Set(['2,2', '9,1', '1,10', '11,6', '6,10', '5,3', '10,11']);
-const LANDMARKS = { '4,6': 'mosque', '8,4': 'hospital', '3,9': 'fire', '9,8': 'police', '11,2': 'stadium' };
+/* 17x17 ızgara için; meydan C.MID,C.MID'de */
+const PARKS = new Set(['2,2', '13,2', '2,13', '14,13', '8,14', '5,5', '15,8', '1,8', '8,2', '11,15']);
+const LANDMARKS = { '11,5': 'hospital', '5,11': 'fire', '11,11': 'police', '14,4': 'stadium' };
 
 function subdivide(bx, bz, rnd) {
   const half = 18, gap = 2, out = [];
@@ -209,9 +210,10 @@ C.genBlocks = function () {
     else if (kind === 'landmark') C.makeLandmark(blk, LANDMARKS[key], layoutRnd);
     else C.makePlaza(blk, layoutRnd);
   }
-  const slabs = C.inst(slabGeo, slabMat, cityBlocks.length);
-  cityBlocks.forEach((b, k) => C.setM(slabs, k, b.bx, C.SW / 2, b.bz));
-  slabs.instanceMatrix.needsUpdate = true; slabs.receiveShadow = true; scene.add(slabs);
+  const slabs = C.inst(slabGeo, slabMat, cityBlocks.length), tc = new THREE.Color(), white = new THREE.Color(1, 1, 1);
+  slabs.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cityBlocks.length * 3), 3);
+  cityBlocks.forEach((b, k) => { C.setM(slabs, k, b.bx, C.SW / 2, b.bz); slabs.setColorAt(k, tc.copy(white).lerp(C.col(C.districtOf(b.i, b.j).tint), 0.4)); });   // ilçe tonu
+  slabs.instanceMatrix.needsUpdate = slabs.instanceColor.needsUpdate = true; slabs.receiveShadow = true; scene.add(slabs);
 };
 
 /* ---------- bina belirtimi ---------- */
@@ -223,10 +225,13 @@ C.specFor = function (lot, rnd, force) {
   const z = Math.max(0, 1 - d * 1.1), r = rnd(), small = Math.min(lot.w, lot.d) < 15;
   let type;
   if (force) type = force;
-  else if (!small && r < Math.pow(z, 1.3) * 0.95) type = 'tower';
-  else if (r < 0.5 + z * 0.35) type = 'mid';
-  else if (small && z < 0.4) type = 'house';
-  else type = 'low';
+  else {
+    const D = C.districtAt(lot.cx, lot.cz);                          // ilçenin dokusu
+    if (!small && r < Math.pow(z, 1.3) * 0.95 * D.tower) type = 'tower';
+    else if (r < (0.5 + z * 0.35) * D.mid) type = 'mid';
+    else if ((small || D.house > 1.5) && z < 0.5 && rnd() < 0.45 * D.house) type = 'house';
+    else type = 'low';
+  }
   if (type === 'house' && Math.min(lot.w, lot.d) < 10) type = 'low';
   let floors;
   if (type === 'tower') floors = 22 + Math.floor(rnd() * 26 * (0.5 + z / 2));
@@ -279,8 +284,10 @@ C.placeBuilding = function (lot, b) {
   scene.add(b.group); C.buildings.push(b); C.bver = (C.bver || 0) + 1;
 };
 
+C.onRemove = [];                                                  // bina kaldırılırken (yıkma, kat değişimi, yeni şehir) çağrılır
 C.removeBuilding = function (lot) {
   const b = lot.building; if (!b) return;
+  for (const f of C.onRemove) f(b);
   scene.remove(b.group);
   b.group.traverse(o => { if (o.geometry) o.geometry.dispose(); });
   if (b.detail) {

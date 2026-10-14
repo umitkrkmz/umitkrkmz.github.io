@@ -61,6 +61,7 @@ body {
 .brand { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
 .brand-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 h1 { margin: 0; font: 800 30px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; }
+.district { margin-top: 3px; font: 500 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); min-height: 1em; }
 .zoom { font: 800 26px/1 var(--f-display); font-variant-numeric: tabular-nums; }
 .zoom small { font: 500 12px var(--f-mono); color: var(--muted); margin-left: 3px; }
 .steps { display: flex; gap: 6px; }
@@ -166,7 +167,7 @@ body.playing .stack .card, body.playing .feed { display: none; }
 <div class="left">
 <header class="brand panel">
   <div class="brand-top">
-    <h1>Mikro Şehir</h1>
+    <div><h1>Mikro Şehir</h1><div class="district" id="district"></div></div>
     <div class="zoom" title="Kameranın hedefe uzaklığı"><span id="zoomM">—</span><small>m</small></div>
   </div>
   <div class="steps" id="steps" role="list" aria-label="Ayrıntı kademesi">
@@ -220,7 +221,7 @@ body.playing .stack .card, body.playing .feed { display: none; }
         <button class="btn" id="btnStreet">Sokağa in</button>
         <button class="btn" id="btnClock">Saat kulesi</button>
         <button class="btn wide" id="btnPlay" aria-pressed="false">Karakteri oyna</button>
-        <button class="btn wide" id="btnHero" aria-pressed="false">Örümcek Adam'ı izle</button>
+        <button class="btn wide" id="btnHero" aria-pressed="false">Pijamalı Çocuğu izle</button>
         <button class="btn wide" id="btnNew">Yeni şehir kur</button>
       </div>
     </div>
@@ -229,7 +230,7 @@ body.playing .stack .card, body.playing .feed { display: none; }
 
 <div id="bubbles" aria-live="polite"></div>
 <div id="playHud" class="panel" hidden>
-  <div class="play-keys">WASD: yürü · Shift: koş · Fare: bak · Tekerlek: yakınlaş · E: konuş / gir · Esc: imleci bırak</div>
+  <div class="play-keys">WASD: yürü · Shift: koş · Space: zıpla · Fare: bak · Tekerlek: yakınlaş · E: konuş / gir · Esc: imleci bırak</div>
   <div id="playLock" class="play-lock" hidden>Fareyle bakmak için sahneye tıkla</div>
 </div>
 <div id="playPrompt" class="play-prompt" hidden></div>

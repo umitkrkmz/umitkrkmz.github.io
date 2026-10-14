@@ -37,14 +37,14 @@ Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından s�
 
 | Ne | Tuş |
 |---|---|
-| Yürü / koş | WASD veya yön tuşları, Shift ile koş |
+| Yürü / koş / zıpla | WASD veya yön tuşları, Shift ile koş, Space ile zıpla |
 | Etrafa bak | Sahneye tıkla, imleç kilitlenir; fareyle bak (Esc bırakır) |
 | Kamera uzaklığı | Tekerlek |
 | Konuş / içeri gir / dışarı çık | E |
 
 Binalardan, ağaçlardan, lambalardan geçemezsin. Yanındaki birine E'ye basarsan sana döner ve cevap verir.
 
-Dükkânlara ve önemli yapılara girebilirsin: kafe ve çay ocağı, fırın, market, kırtasiye, eczane, optik, kuaför, kebapçı, çiçekçi, tamirci; Merkez Karakolu (nezarethanesiyle), hastanenin acil servisi, itfaiye garajı ve kubbesiyle Merkez Camii. İçerideki herkesle konuşulabilir.
+Dükkânlara ve önemli yapılara girebilirsin: kafe ve çay ocağı, Ankara simidi, fırın, market, kırtasiye, eczane, optik, kuaför, kebapçı, çiçekçi, tamirci; Merkez Karakolu (nezarethanesiyle), hastanenin acil servisi ve itfaiye garajı. İçerideki herkesle konuşulabilir. Space ile zıplarsın.
 
 ## Olaylar
 
@@ -56,15 +56,15 @@ Dükkânlara ve önemli yapılara girebilirsin: kafe ve çay ocağı, fırın, m
 
 Acil durum araçları sirenle kırmızıda geçer, önlerindeki araçlar kenara çekilip yol verir. İş bitince istasyonlarına dönerler.
 
-## Örümcek Adam 🕷
+## Pijamalı Çocuk 🕷
 
 Şehrin bir de mahalle kahramanı var. Boş zamanlarında çatıdan çatıya zıplar, yüksek binalara ağ atıp kendini çeker, çatı kenarına çömelip etrafı izler. Genelde senin baktığın yere doğru gelir.
 
-Bir hırsızlık olunca yolların üstünden binalara ağ atarak kavşaktan kavşağa sallanır, şüpheliyi kovalar. Şüpheli onu görünce donakalır; Örümcek Adam yanına iner, ağ fırlatıp onu kozaya sarar ve polise teslim eder. Sonra yine bir çatıya çıkar.
+Bir hırsızlık olunca yolların üstünden binalara ağ atarak kavşaktan kavşağa sallanır, şüpheliyi kovalar. Şüpheli onu görünce donakalır; Pijamalı Çocuk yanına iner, ağ fırlatıp onu kozaya sarar ve polise teslim eder. Sonra yine bir çatıya çıkar.
 
-Kontrol panelindeki **Örümcek Adam'ı izle** düğmesi kamerayı ona kilitler; yön tuşlarına basınca ya da başka bir görünüme geçince takip biter.
+Kontrol panelindeki **Pijamalı Çocuğu izle** düğmesi kamerayı ona kilitler; yön tuşlarına basınca ya da başka bir görünüme geçince takip biter.
 
-> Örümcek Adam, Marvel'ın karakteridir. Burada tamamen hayran işi, eğlencesine bir misafir oyuncu.
+> Adı, bir süper kahraman filminde ona "pijamalı çocuk" diye takılan dahi mucide selam olsun. Kostüm tanıdık gelebilir; tamamen hayran işi, eğlencesine bir misafir oyuncu.
 
 ## Ayrıntı kademeleri
 
@@ -79,16 +79,17 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 
 ## Şehirde neler var?
 
-- 13 × 13 blok, kenarı 740 m; ortada saat kulesi olan bir meydan, yedi park, merkeze yaklaştıkça yükselen binalar.
+- Hayali bir şehir: 17 × 17 blok, kenarı yaklaşık 964 m, dokuz ilçe. Ortada gökdelenleriyle Saatçi; çevresinde Yeşiltepe, Çınaraltı, Akpınar, Gülbahçe, Değirmendere, Taşbayır, Kuyubaşı ve Limanköy. Kenar ilçelerde müstakil evler ve alçak binalar çoğunlukta, her ilçenin kaldırım tonu ayrı; sol üstte bulunduğun ilçe yazar.
+- Ortada saat kulesi olan bir meydan, on park, merkeze yaklaştıkça yükselen binalar.
 - Dört yüzünde şehrin saatini gösteren bir saat kulesi.
-- Önemli yapılar: dört minareli Merkez Camii, helikopter pistli Şehir Hastanesi, İtfaiye Merkezi, bayraklı Merkez Karakolu ve ışık kuleli Şehir Stadı. Tıklayınca bilgi kartı açılır, "Yakından bak" kamerayı oraya götürür.
+- Önemli yapılar: helikopter pistli Şehir Hastanesi, İtfaiye Merkezi, bayraklı Merkez Karakolu ve ışık kuleli Şehir Stadı. Tıklayınca bilgi kartı açılır, "Yakından bak" kamerayı oraya götürür.
 - Sağdan akan, kavşaklarda düz giden, sağa ve sola dönen trafik; sola dönen araç karşıdan geleni bekler. Işıklar 20 saniyelik döngüyle çalışır.
 - Eli, kolu, dizi, ayakkabısı ve yüzü olan insanlar; yürür, koşar, oturur, konuşur, çay içer, yemek yapar, ders çalışır, uyur.
 - Kaldırımlarda yürüyen, köşelerde araçlara kırmızı yanınca karşıdan karşıya geçen yayalar.
 - Yakındaki binaların bazı pencerelerinin camı gerçekten açıktır: içeride biri televizyon izler, biri yemek yapar, biri ders çalışır, bazıları sofrada.
 - Yaklaşınca pencerelerin ardında derinliği olan odalar: duvarlar, zemin, tavan, mobilya ve perdeler bakış açısıyla değişir. Gece yalnızca ışığı yanan odalar aydınlıktır.
 - Kafe ve çay ocaklarının önünde masalar, fincanlar ve oturan insanlar.
-- İki otobüs hattı (12 ve 34): duraklarda bekleyen yolcular, durağa yanaşıp yolcu alan otobüsler.
+- Üç otobüs hattı (12, 34 ve şehri çevreleyen 56): duraklarda bekleyen yolcular, durağa yanaşıp yolcu alan otobüsler.
 - Gün doğumu, alacakaranlık, gece; geceleri yanan pencereler, sokak lambaları, farlar ve yıldızlar.
 - Ekim ayında olduğumuz için sararmış birkaç ağaç. 🍂
 - Yuvarlak köşeli, kornişli ve parapetli binalar; denizlikli pencereler; yuvarlak hatlı, tekerlekli araçlar; taş döşeli kaldırımlar, çöp kutuları; ufka doğru açılan gökyüzü.
@@ -96,13 +97,14 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 ## Sırada ne var?
 
 - [x] Şehri büyütmek, kavşakta dönen araçlar
-- [x] Önemli yapılar: hastane, itfaiye, karakol, cami, stadyum
+- [x] Önemli yapılar: hastane, itfaiye, karakol, stadyum
 - [x] Rastgele olaylar: yangın, trafik kazası, suç; olay yerine koşan itfaiye, ambulans ve polis
 - [x] Çatılarda dolaşan, suç olunca ağla sallanarak gelen bir kahraman
 - [x] Binaların içi, karşıdan karşıya geçen yayalar, şehrin küçük hayatı
 - [x] Görsel cila: daha çok ayrıntı, daha keskin görüntü, keskin kenarlar yerine yuvarlatılmış hatlar
 - [x] Ayrıntılı insanlar, karakter modu, girilebilir mekânlar, camın ardında yaşayan daireler
-- [ ] Örümcek Adam olarak oyna: ağ atma, çatıdan çatıya sallanma
+- [x] İlçelere ayrılmış daha büyük hayali şehir, zıplama
+- [ ] Pijamalı Çocuk olarak oyna: ağ atma, çatıdan çatıya sallanma
 
 ## Teknik
 
@@ -114,14 +116,14 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/world.js` | Sahne, kamera, ışıklar, gökyüzü, gün/gece, yollar |
 | `js/people.js` | Eklemli insan modeli, pozlar, örnekli kalabalık |
 | `js/details.js` | Tabelalar, balkonlar, çatı donanımı, park, meydan, saat kulesi |
-| `js/landmarks.js` | Cami, hastane, itfaiye, karakol, stadyum |
+| `js/landmarks.js` | Hastane, itfaiye, karakol, stadyum |
 | `js/buildings.js` | Cepheler, parseller, binalar, ayrıntı kademesi |
 | `js/interiors.js` | Pencere arkasındaki odalar (shader), camın ardında gerçek odalar, kesit görünümü |
 | `js/street.js` | Ağaçlar, lambalar, banklar |
 | `js/traffic.js` | Yol ağı, dönen araçlar, trafik ışıkları, karşıya geçen yayalar |
 | `js/events.js` | Olaylar, acil durum araçları, duman/alev/su, olay akışı |
 | `js/life.js` | Otobüs hatları, duraklar, bekleyen yolcular |
-| `js/hero.js` | Örümcek Adam: kostüm, devriye, kovalama, ağ |
+| `js/hero.js` | Pijamalı Çocuk: kostüm, devriye, kovalama, ağ |
 | `js/player.js` | Karakter modu: hareket, kamera, çarpışma, konuşma |
 | `js/venues.js` | Girilebilir dükkânlar ve önemli yapıların içi |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |

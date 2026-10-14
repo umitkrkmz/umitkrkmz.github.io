@@ -2,14 +2,23 @@
 (function () {
 'use strict';
 const C = window.C = {};
-C.N = 13; C.BLOCK = 44; C.ROAD = 12; C.PITCH = 56;
-C.TOTAL = C.N * C.PITCH + C.ROAD;            // 740 m
+C.N = 17; C.BLOCK = 44; C.ROAD = 12; C.PITCH = 56;
+C.TOTAL = C.N * C.PITCH + C.ROAD;            // 964 m
 C.MID = (C.N - 1) / 2;                       // meydan bloğu (N tek olmalı)
 C.SCALE = C.TOTAL / 516;                     // ilk 9x9 şehre göre kamera ve sis ölçeği
 C.SW = 0.3; C.FLOOR_H = 3.2; C.CELL_W = 3.6; C.LANE = 2.6;
 C.roadX = i => -C.TOTAL / 2 + C.ROAD / 2 + i * C.PITCH;
 C.blockC = i => -C.TOTAL / 2 + C.ROAD + C.BLOCK / 2 + i * C.PITCH;
+C.districtAt = (x, z) => C.districtOf(C.clamp(Math.round((x - C.blockC(0)) / C.PITCH), 0, C.N - 1), C.clamp(Math.round((z - C.blockC(0)) / C.PITCH), 0, C.N - 1));
 C.clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+/* ilçeler: şehir 3x3 bölgeye ayrılır; her ilçenin bina dokusu (gökdelen, apartman, müstakil ev eğilimi) ve kaldırım tonu farklı */
+C.DISTRICTS = [
+  { name: 'Yeşiltepe', tint: '#9ccf86', tower: 0.15, mid: 0.7, house: 2.2 }, { name: 'Çınaraltı', tint: '#d9c28a', tower: 0.6, mid: 1.25, house: 0.8 }, { name: 'Akpınar', tint: '#8fc4d9', tower: 0.25, mid: 0.85, house: 1.8 },
+  { name: 'Gülbahçe', tint: '#e2a3a3', tower: 0.5, mid: 1.15, house: 1.2 }, { name: 'Saatçi', tint: '#e8e2d0', tower: 1.35, mid: 1.0, house: 0.3 }, { name: 'Değirmendere', tint: '#c7b0dd', tower: 0.55, mid: 1.2, house: 1.0 },
+  { name: 'Taşbayır', tint: '#c9b79a', tower: 0.15, mid: 0.75, house: 2.0 }, { name: 'Kuyubaşı', tint: '#a9d1b8', tower: 0.45, mid: 1.25, house: 1.1 }, { name: 'Limanköy', tint: '#9fb6e0', tower: 0.2, mid: 0.8, house: 2.1 }
+];
+const DS = [Math.floor(C.N / 3), Math.ceil(C.N * 2 / 3)], dpart = v => v < DS[0] ? 0 : v < DS[1] ? 1 : 2;
+C.districtOf = (i, j) => C.DISTRICTS[dpart(j) * 3 + dpart(i)];
 C.rng = function (seed) {
   return function () {
     seed |= 0; seed = seed + 0x6D2B79F5 | 0;

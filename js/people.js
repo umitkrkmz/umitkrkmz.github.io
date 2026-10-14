@@ -96,6 +96,7 @@ C.pose = function (name, t, out) {
     case 'tv': sit(); p.lean = 0.22; p.hp = -0.1; p.sh = [0.25, 0.25]; p.el = [0.6, 0.6]; p.ab = [0.2, 0.2]; break;
     case 'study': sit(); p.lean = -0.22; p.hp = 0.35; p.sh = [1.0, 0.9]; p.el = [1.0, 1.1 + s(t * 6) * 0.08]; p.ab = [0.15, 0.15]; break;
     case 'cook': p.lean = -0.08; p.sh = [0.95, 0.85 + s(t * 2.4) * 0.2]; p.el = [0.9, 1.0]; p.ab = [0.12, 0.12 + s(t * 2.4) * 0.15]; p.hp = 0.25; break;
+    case 'jump': p.hip = [0.95, 0.35]; p.knee = [-1.35, -0.7]; p.sh = [2.3, 2.5]; p.el = [0.35, 0.35]; p.ab = [0.3, 0.3]; p.lean = -0.12; break;
     case 'kneel': p.y = -0.47; p.hip = [0.12, 0.12]; p.knee = [-1.6, -1.6]; p.sh = [0.15, 0.15]; p.el = [0.5, 0.5]; p.lean = -0.05; break;   // halıda diz çökmüş
     case 'lie': p.roll = Math.PI / 2; p.sh = [0.1, 0.1]; p.hp = -0.2; break;     // kök ayak ucunda, baş -x yönünde
     case 'handsup': p.sh = [2.9, 2.9]; p.el = [0.2, 0.2]; p.ab = [0.25, 0.25]; break;
@@ -116,7 +117,7 @@ function joint(out, parent, x, y, z, rz, rx, ry) {
 }
 C.Crowd = function (cap, opts) {
   opts = opts || {};
-  this.cap = cap; this.group = new THREE.Group(); this.mesh = {};
+  this.cap = cap; this.group = new THREE.Group(); this.mesh = {}; this.store = []; this.slot = new Int32Array(cap).fill(-1); this.n = 0;
   const mat = crowdMat(opts.glow);
   for (const k of PARTS) {
     const g = GEO[GEO_OF[k]].clone();
@@ -128,11 +129,14 @@ C.Crowd = function (cap, opts) {
     this.mesh[k] = m; this.group.add(m);
   }
 };
+/* görünüm renkleri ayrıca saklanır: sıkıştırılmış çizimde kişi her karede başka bir yuvaya düşebilir */
 C.Crowd.prototype.look = function (i, L) {
+  const st = this.store[i] = this.store[i] || {};
   const c1 = (k, a, b) => {
-    const m = this.mesh[k]; m.setColorAt(i, ccol.set(a).convertSRGBToLinear());
-    const c2 = m.geometry.attributes.instanceColor2; ccol.set(b).convertSRGBToLinear(); c2.setXYZ(i, ccol.r, ccol.g, ccol.b); c2.needsUpdate = true;
-    m.instanceColor.needsUpdate = true;
+    const m = this.mesh[k]; ccol.set(a).convertSRGBToLinear(); const r1 = ccol.r, g1 = ccol.g, b1 = ccol.b; ccol.set(b).convertSRGBToLinear();
+    st[k] = [r1, g1, b1, ccol.r, ccol.g, ccol.b];
+    m.instanceColor.setXYZ(i, r1, g1, b1); m.geometry.attributes.instanceColor2.setXYZ(i, ccol.r, ccol.g, ccol.b);
+    m.instanceColor.needsUpdate = m.geometry.attributes.instanceColor2.needsUpdate = true;
   };
   c1('torso', L.shirt, L.pants); c1('head', L.skin, L.hair);
   for (const s of ['L', 'R']) {
@@ -159,5 +163,23 @@ C.Crowd.prototype.set = function (i, x, y, z, ry, p, scale) {
   joint(mk, mt, 0, -0.45, 0, p.knee[1]); M.shinR.setMatrixAt(i, mk);
 };
 C.Crowd.prototype.commit = function () { for (const k of PARTS) this.mesh[k].instanceMatrix.needsUpdate = true; };
+/* sıkıştırılmış çizim: begin(); her görünen için put(kişi, ...); end(). Gizli kişiler hiç işlenmez (count küçülür). */
+C.Crowd.prototype.begin = function () { this.n = 0; };
+C.Crowd.prototype.put = function (i, x, y, z, ry, p, scale) {
+  const n = this.n++;
+  if (this.slot[n] !== i) {
+    const st = this.store[i];
+    if (st) for (const k of PARTS) { const c = st[k], m = this.mesh[k]; m.instanceColor.setXYZ(n, c[0], c[1], c[2]); m.geometry.attributes.instanceColor2.setXYZ(n, c[3], c[4], c[5]); }
+    this.slot[n] = i; this.dirty = true;
+  }
+  this.set(n, x, y, z, ry, p, scale);
+};
+C.Crowd.prototype.end = function () {
+  for (const k of PARTS) {
+    const m = this.mesh[k]; m.count = this.n; m.instanceMatrix.needsUpdate = true;
+    if (this.dirty) m.instanceColor.needsUpdate = m.geometry.attributes.instanceColor2.needsUpdate = true;
+  }
+  this.dirty = false;
+};
 C.Crowd.prototype.dispose = function () { for (const k of PARTS) { this.mesh[k].geometry.dispose(); this.mesh[k].dispose(); } };
 })();

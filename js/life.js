@@ -17,8 +17,9 @@ function curbEdge(bi, bj, side) {
 
 /* ---------- hatlar: duraklar blok, yüz; durak yüzün ortasından 12 m ileride (ağaç ve lambaların arası) ---------- */
 const LINES = [
-  { no: '12', color: '#c62828', stops: [[2, 3, 'nz'], [6, 2, 'nz'], [10, 3, 'px'], [10, 8, 'pz'], [5, 10, 'pz'], [2, 7, 'nx']] },
-  { no: '34', color: '#1f5fa8', stops: [[4, 5, 'px'], [8, 6, 'nz'], [11, 10, 'px'], [7, 11, 'pz'], [3, 11, 'nx']] }
+  { no: '12', color: '#c62828', stops: [[3, 4, 'nz'], [8, 3, 'nz'], [13, 4, 'px'], [13, 10, 'pz'], [8, 12, 'pz'], [3, 10, 'nx']] },
+  { no: '34', color: '#1f5fa8', stops: [[6, 7, 'px'], [10, 8, 'nz'], [14, 14, 'px'], [9, 15, 'pz'], [4, 15, 'nx']] },
+  { no: '56', color: '#2e8b57', stops: [[1, 1, 'pz'], [8, 0, 'pz'], [15, 1, 'pz'], [16, 8, 'nx'], [15, 15, 'nz'], [8, 16, 'nz'], [1, 15, 'nz'], [0, 8, 'px']] }
 ];
 const glass = std('#a9c6d6', 0.1, 0.1, { transparent: true, opacity: 0.35 }), frame = std('#3b4046', 0.5, 0.4), bench = std('#7a5a3a', 0.8);
 function plate(text, bg, fg, w, h) {
@@ -41,7 +42,7 @@ const shirt = ['#c9372c', '#2f6f8f', '#e8e2d0', '#3b7a57', '#d29a2d', '#6b4e8f',
 const skin = ['#f1c9a5', '#d9a37c', '#a8734f', '#7a4e33'].map(h => std(h, 0.9));
 
 const stopRoot = new THREE.Group(); scene.add(stopRoot); C.streetLayers.push(stopRoot);
-const waitCrowd = new C.Crowd(64); let waitCrowdN = 0; const wpose = {};
+const waitCrowd = new C.Crowd(120); let waitCrowdN = 0; const wpose = {};
 scene.add(waitCrowd.group); C.peopleLayers.push(waitCrowd.group);
 const MAXWAIT = 5;
 function makeStop(bi, bj, side, line) {

@@ -113,15 +113,15 @@ const rb = (w, h, d, r, k) => C.roundBox(w, h, d, r, k).clone();
 const wheel = (x, z) => new THREE.CylinderGeometry(0.34, 0.34, 0.24, 10).rotateX(Math.PI / 2).translate(x, 0.34, z);
 const pair2 = (x, y, w, h, d) => C.mergeGeos([0.62, -0.62].map(z => new THREE.BoxGeometry(w, h, d).translate(x, y, z)));   // küçük parçada düz kutu yeter
 const parts = [
-  C.inst(mk(rb(4.4, 0.78, 1.8, 0.3), 0, 0.74, 0), bodyM, MAXC),
-  C.inst(mk(rb(2.35, 0.72, 1.62, 0.3), -0.25, 1.42, 0), glassM, MAXC),
+  C.inst(mk(rb(4.4, 0.78, 1.8, 0.3, 1), 0, 0.74, 0), bodyM, MAXC),
+  C.inst(mk(rb(2.35, 0.72, 1.62, 0.3, 1), -0.25, 1.42, 0), glassM, MAXC),
   C.inst(C.mergeGeos([rb(3.6, 0.26, 1.7, 0.1, 1).translate(0, 0.4, 0), wheel(1.42, 0.82), wheel(1.42, -0.82), wheel(-1.42, 0.82), wheel(-1.42, -0.82)]), darkM, MAXC),
   C.inst(pair2(2.17, 0.84, 0.1, 0.17, 0.42), headM, MAXC),
   C.inst(pair2(-2.17, 0.88, 0.1, 0.15, 0.4), tailM, MAXC)
 ];
 /* r128 setColorAt, renk tamponunu o anki count kadar açar; count 0'a inmeden önce tam boy aç */
 parts[0].instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAXC * 3).fill(1), 3);
-parts.forEach(p => { p.count = 0; p.castShadow = true; scene.add(p); C.carLayers.push(p); });
+parts.forEach((p, k) => { p.count = 0; p.castShadow = k === 0; scene.add(p); C.carLayers.push(p); });   // gölgeyi gövde düşürür
 const CAR_COLORS = ['#c9372c', '#1f5fa8', '#e8e8e8', '#2b2d31', '#f2b705', '#2f8f5b', '#8d939a', '#ffffff', '#6b3fa0', '#d9822b'].map(C.col);
 
 C.setDensity = function (d) {
@@ -286,12 +286,13 @@ function tryCross(p, k, h) {
 }
 C.updatePeople = function (dt) {
   const cam = C.camera.position;
+  crowd.begin();
   for (let i = 0; i < people.length; i++) {
     const p = people[i], h = 20.5 + p.lat;
     let x, z, ry, moving = true;
     if (p.talk > 0 && C.player) {
       p.talk -= dt; const tp = C.player.pos;
-      crowd.set(i, p.x, C.SW, p.z, Math.atan2(-(tp.z - p.z), tp.x - p.x), C.pose('talk', p.ph + p.talk * 2, pp)); p.hid = false;
+      crowd.put(i, p.x, C.SW, p.z, Math.atan2(-(tp.z - p.z), tp.x - p.x), C.pose('talk', p.ph + p.talk * 2, pp)); p.hid = false;
       continue;
     }
     if (p.cross) {
@@ -316,10 +317,10 @@ C.updatePeople = function (dt) {
     p.x = x; p.z = z; p.ry = ry;
     /* 160 m'den uzaktakiler çizilmez (zaten küçük), eklem hesabı da yapılmaz */
     const dx = x - cam.x, dz = z - cam.z;
-    if (dx * dx + dz * dz > 160 * 160) { if (!p.hid) { crowd.hide(i); p.hid = true; } continue; }
+    if (dx * dx + dz * dz > 160 * 160) { p.hid = true; continue; }
     p.hid = false;
-    crowd.set(i, x, C.SW, z, ry, moving ? C.pose('walk', p.ph, pp) : C.pose('stand', p.ph + i, pp));
+    crowd.put(i, x, C.SW, z, ry, moving ? C.pose('walk', p.ph, pp) : C.pose('stand', p.ph + i, pp));
   }
-  crowd.commit();
+  crowd.end();
 };
 })();

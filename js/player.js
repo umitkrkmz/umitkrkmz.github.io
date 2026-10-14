@@ -7,7 +7,7 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const $ = id => document.getElementById(id);
 
 const P = C.player = {
-  active: false, entering: false, pos: V(0, 0, 0), vel: V(0, 0, 0), yaw: 0, pitch: 0.22, dist: 4.2, face: 0, ph: 0,
+  active: false, entering: false, pos: V(0, 0, 0), vel: V(0, 0, 0), vy: 0, air: false, yaw: 0, pitch: 0.22, dist: 4.2, face: 0, ph: 0,
   crowd: new C.Crowd(1), look: null, indoor: null
 };
 scene.add(P.crowd.group); P.crowd.group.visible = false;
@@ -131,7 +131,7 @@ P.exit = function () {
 const pp = {};
 function draw(t) {
   const sp = Math.hypot(P.vel.x, P.vel.z);
-  const pose = sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
+  const pose = P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
   P.crowd.set(0, P.pos.x, P.pos.y, P.pos.z, P.face, pose); P.crowd.commit();
 }
 P.update = function (dt, t) {
@@ -143,7 +143,7 @@ P.update = function (dt, t) {
   let wx = cy * f + (-sy) * s, wz = sy * f + cy * s;              // sağ = (-sy, cy)
   const wl = Math.hypot(wx, wz), top = run ? 5.6 : 2.0;
   if (wl > 0) { wx /= wl; wz /= wl; }
-  const ax = wx * top - P.vel.x, az = wz * top - P.vel.z, k = Math.min(1, dt * (wl ? 10 : 8));
+  const ax = wx * top - P.vel.x, az = wz * top - P.vel.z, k = Math.min(1, dt * (P.air ? 2 : wl ? 10 : 8));   // havada az kontrol
   P.vel.x += ax * k; P.vel.z += az * k;
   const sp = Math.hypot(P.vel.x, P.vel.z);
   const q = { x: P.pos.x + P.vel.x * dt, z: P.pos.z + P.vel.z * dt };
@@ -151,8 +151,11 @@ P.update = function (dt, t) {
   P.vel.x = (q.x - P.pos.x) / Math.max(dt, 1e-4); P.vel.z = (q.z - P.pos.z) / Math.max(dt, 1e-4);
   P.pos.x = q.x; P.pos.z = q.z;
   const gy = P.indoor ? P.indoor.floor : groundAt(P.pos.x, P.pos.z);
-  P.pos.y += (gy - P.pos.y) * Math.min(1, dt * 14);
-  if (sp > 0.25) {
+  if (P.air) {                                                     // zıplama: yer çekimi, yere değince iner
+    P.vy -= 13 * dt; P.pos.y += P.vy * dt;
+    if (P.pos.y <= gy && P.vy < 0) { P.pos.y = gy; P.vy = 0; P.air = false; }
+  } else P.pos.y += (gy - P.pos.y) * Math.min(1, dt * 14);
+  if (sp > 0.25 && !P.air) {
     const want = Math.atan2(-P.vel.z, P.vel.x); let d = want - P.face; d = Math.atan2(Math.sin(d), Math.cos(d));
     P.face += d * Math.min(1, dt * 10); P.ph += sp * dt * (sp > 3.2 ? 2.6 : 3.4);
   }
@@ -161,7 +164,7 @@ P.update = function (dt, t) {
 };
 
 /* ---------- konuşma: yanındaki yayaya E ---------- */
-const LINES = ['Günaydın komşu!', 'Çay demlendi, gel otur.', 'Bugün hava güzel ha?', 'Otobüs yine gecikti.', "Örümcek Adam'ı gördün mü? Az önce buradaydı!",
+const LINES = ['Günaydın komşu!', 'Çay demlendi, gel otur.', 'Bugün hava güzel ha?', 'Otobüs yine gecikti.', 'Pijamalı Çocuğu gördün mü? Az önce buradaydı!',
   'Fırından taze simit aldım.', 'Trafik de bir dert…', 'Kolay gelsin!', 'Saat kulesi yine beş dakika ileri.', 'Kafede yer var mı acaba?',
   'Bu şehirde hep bir şey oluyor.', 'Akşama maç var, kaçırma.', 'Kirada zam varmış, duydun mu?', 'Marketten ekmek alacaktım, unuttum!'];
 const HELLO = ['Merhaba!', 'Selam!', 'Kolay gelsin!', 'İyi günler!'];
@@ -231,6 +234,7 @@ window.addEventListener('keydown', e => {
   if (e.target.closest && e.target.closest('input, textarea, select')) return;
   if (MOVE[e.code]) { keys.add(e.code); e.preventDefault(); }
   else if (e.code === 'KeyE' && !e.repeat) { act(); e.preventDefault(); }
+  else if (e.code === 'Space') { e.preventDefault(); if (!P.air && !e.repeat) { P.air = true; P.vy = 4.8; } }
 });
 window.addEventListener('keyup', e => { run = e.shiftKey; keys.delete(e.code); });
 window.addEventListener('blur', () => keys.clear());

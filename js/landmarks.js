@@ -1,4 +1,4 @@
-/* ===== landmarks.js: cami, hastane, itfaiye, karakol, stadyum ===== */
+/* ===== landmarks.js: hastane, itfaiye, karakol, stadyum ===== */
 (function () {
 'use strict';
 if (!window.C || C.failed) return;
@@ -6,7 +6,6 @@ const scene = C.scene, B = C.SW;
 const boxG = new THREE.BoxGeometry(1, 1, 1), planeG = new THREE.PlaneGeometry(1, 1);
 const cylG = new THREE.CylinderGeometry(1, 1, 1, 16), cyl8 = new THREE.CylinderGeometry(1, 1, 1, 8);
 const cyl24 = new THREE.CylinderGeometry(1, 1, 1, 24);
-const domeG = new THREE.SphereGeometry(1, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2);
 const coneG = new THREE.ConeGeometry(1, 1, 16).translate(0, 0.5, 0), cone8 = new THREE.ConeGeometry(1, 1, 8).translate(0, 0.5, 0);
 const sphG = new THREE.SphereGeometry(1, 10, 8);
 const std = (hex, r, m) => new THREE.MeshStandardMaterial({ color: C.col(hex), roughness: r === undefined ? 0.85 : r, metalness: m || 0 });
@@ -57,52 +56,6 @@ function slab(g, mat) { box(g, mat || paveMat, 0, 0, 0, C.BLOCK, B, C.BLOCK); }
 function facadeBox(g, w, floors, d, x, z, tint, rnd) {
   const h = floors * C.FLOOR_H, m = new THREE.Mesh(C.boxGeo(w, h, d, floors, rnd, { r: 0.5 }), C.mats.near.apt[tint]);
   m.position.set(x, B + h / 2, z); m.castShadow = m.receiveShadow = true; g.add(m); return m;
-}
-
-/* ---------- cami ---------- */
-function mosque(g, rnd) {
-  const stone = glowing(new THREE.MeshStandardMaterial({ color: C.col('#e4ddcc'), roughness: 0.85, emissive: C.col('#ffd9a0'), emissiveIntensity: 0 }), 0.16);
-  const lead = std('#7d8a93', 0.55, 0.3), gold = std('#d4a73c', 0.35, 0.8);
-  const win = glowing(new THREE.MeshStandardMaterial({ color: C.col('#34414c'), roughness: 0.4, emissive: C.col('#ffd38a'), emissiveIntensity: 0 }), 1.3);
-  const seref = glowing(new THREE.MeshStandardMaterial({ color: C.col('#d8d0bd'), roughness: 0.8, emissive: C.col('#ffe2a8'), emissiveIntensity: 0 }), 1.6);
-  slab(g, std('#d6cfbf', 0.95));
-  const cz = -3;
-  box(g, stone, 0, B, cz, 22, 10, 22);
-  box(g, stone, 0, B + 10, cz, 22.6, 0.5, 22.6);
-  cyl(g, stone, 0, B + 10.5, cz, 8.2, 2.2, cyl24);
-  put(g, domeG, lead, 0, B + 12.7, cz, 8.2, 7.6, 8.2);
-  cyl(g, gold, 0, B + 20.2, cz, 0.12, 1.6); put(g, sphG, gold, 0, B + 21.2, cz, 0.35, 0.35, 0.35);
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
-    cyl(g, stone, sx * 7.4, B + 10.5, cz + sz * 7.4, 2.4, 0.8);
-    put(g, domeG, lead, sx * 7.4, B + 11.3, cz + sz * 7.4, 2.4, 2.2, 2.4);
-  }
-  /* pencereler: dört yüzde iki sıra */
-  const faces = [[11.03, cz, Math.PI / 2], [-11.03, cz, -Math.PI / 2], [0, cz - 11.03, Math.PI], [0, cz + 11.03, 0]];
-  faces.forEach(([fx, fz, ry], fi) => {
-    const tx = Math.cos(ry), tz = -Math.sin(ry);
-    for (const y of fi === 3 ? [7.6] : [3.2, 7.6]) for (let k = -2; k <= 2; k++)
-      plane(g, win, fx + tx * k * 4, B + y - 1.2, fz + tz * k * 4, 1.6, 2.6, ry);
-  });
-  /* minareler: kaide, gövde, iki şerefe, külah, alem */
-  for (const [mx, mz] of [[-12.9, cz - 12.9], [12.9, cz - 12.9], [-12.9, cz + 12.9], [12.9, cz + 12.9]]) {
-    box(g, stone, mx, B, mz, 2.4, 4, 2.4);
-    cyl(g, stone, mx, B + 4, mz, 0.9, 26, cylG);
-    for (const y of [20, 26]) { cyl(g, seref, mx, B + y, mz, 1.5, 0.45); cyl(g, stone, mx, B + y + 0.45, mz, 1.45, 0.7); }
-    cyl(g, stone, mx, B + 30, mz, 0.75, 3, cylG);
-    put(g, coneG, lead, mx, B + 33, mz, 0.95, 5, 0.95);
-    cyl(g, gold, mx, B + 38, mz, 0.07, 1.2);
-  }
-  /* son cemaat yeri: küçük kubbeli revak */
-  box(g, stone, 0, B, cz + 13.5, 22, 5.5, 5);
-  const arch = std('#3a4650', 0.6);
-  for (let k = -2; k <= 2; k++) {
-    put(g, domeG, lead, k * 4.2, B + 5.5, cz + 13.5, 1.9, 1.6, 1.9);
-    plane(g, arch, k * 4.2, B + 0.2, cz + 16.03, 2.8, 3.8);
-  }
-  /* şadırvan */
-  cyl(g, stone, 0, B, 17.2, 2.2, 0.9, cyl8);
-  for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2; cyl(g, stone, Math.cos(a) * 2, B + 0.9, 17.2 + Math.sin(a) * 2, 0.12, 2.4); }
-  put(g, cone8, lead, 0, B + 3.3, 17.2, 2.9, 1.8, 2.9);
 }
 
 /* ---------- hastane ---------- */
@@ -225,7 +178,6 @@ function stadium(g) {
 }
 
 const BUILD = {
-  mosque: [mosque, 'Merkez Camii', [['Minare', '4'], ['Kubbe', '≈ 21 m'], ['Minare boyu', '≈ 39 m'], ['Kapasite', '~2.000']]],
   hospital: [hospital, 'Şehir Hastanesi', [['Kat', '7'], ['Yatak', '~240'], ['Acil', '7/24'], ['Helikopter pisti', 'Var']]],
   fire: [fireStation, 'İtfaiye Merkezi', [['Araç', '3 itfaiye'], ['Ekip', '24 kişi'], ['Hortum kulesi', '20 m'], ['Çıkış', '~60 sn']]],
   police: [policeStation, 'Merkez Karakolu', [['Kat', '3'], ['Ekip', '~40'], ['Devriye', '4 araç'], ['Nöbet', '7/24']]],

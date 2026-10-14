@@ -8,7 +8,7 @@ const sphG = new THREE.SphereGeometry(1, 8, 6);
 const std = (hex, r) => new THREE.MeshStandardMaterial({ color: C.col(hex), roughness: r === undefined ? 0.85 : r });
 
 /* ---------- tabela dokuları ---------- */
-const SIGNS = ['FIRIN', 'ECZANE', 'KIRTASİYE', 'ÇAY OCAĞI', 'MARKET', 'KUAFÖR', 'KEBAP', 'KAFE', 'OPTİK', 'ÇİÇEKÇİ', 'TAMİRCİ', 'SİMİT SARAYI'];
+const SIGNS = ['FIRIN', 'ECZANE', 'KIRTASİYE', 'ÇAY OCAĞI', 'MARKET', 'KUAFÖR', 'KEBAP', 'KAFE', 'OPTİK', 'ÇİÇEKÇİ', 'TAMİRCİ', 'ANKARA SİMİDİ'];
 const SIGN_BG = ['#b3402e', '#1f5a7a', '#2f6f4e', '#c9902a', '#5a3f86', '#222b33', '#a0306a', '#2c7f86', '#7a5a2a', '#3d3d8f', '#8a2d2d', '#1e6b3a'];
 const signMats = SIGNS.map((name, i) => {
   const cv = document.createElement('canvas'); cv.width = 640; cv.height = 136;
@@ -32,7 +32,7 @@ C.blinkMat = new THREE.MeshBasicMaterial({ color: 0xff3b30, transparent: true, o
 C.updaters.push((dt, t) => { C.blinkMat.opacity = Math.sin(t * 3) > 0 ? 1 : 0.25; });
 
 /* ---------- kafe önü: iki yuvarlak masa, sandalyeler, fincanlar, oturan insanlar ---------- */
-const CAFE = new Set([3, 7, 11]);                       // ÇAY OCAĞI, KAFE, SİMİT SARAYI
+const CAFE = new Set([3, 7, 11]);                       // ÇAY OCAĞI, KAFE, ANKARA SİMİDİ
 const tableMat = std('#e8e2d0', 0.6), chairMat = std('#7a5a3a'), cupMat = std('#f6f3ea', 0.4);
 /* kafede oturanlar tek bir kalabalıkta; ayrıntı grubu görünürken çizilir, bina yıkılınca yer boşalır */
 const cafeCrowd = new C.Crowd(260), seats = [], freeIdx = [], cpose = {};
@@ -46,13 +46,13 @@ function seat(g, x, z, ry, rnd) {
 C.updaters.push((dt, t, D) => {
   cafeCrowd.group.visible = D <= 130;
   if (!cafeCrowd.group.visible) return;
+  cafeCrowd.begin();
   for (let k = seats.length - 1; k >= 0; k--) {
     const s = seats[k];
-    if (!s.g.parent) { cafeCrowd.hide(s.i); freeIdx.push(s.i); seats.splice(k, 1); continue; }   // bina yıkıldı
-    if (s.g.visible) cafeCrowd.set(s.i, s.x, C.SW, s.z, s.ry, C.pose(Math.sin(t * 0.13 + s.ph) > 0.4 ? 'drink' : 'sit', t + s.ph, cpose));
-    else cafeCrowd.hide(s.i);
+    if (!s.g.parent) { freeIdx.push(s.i); seats.splice(k, 1); continue; }   // bina yıkıldı
+    if (s.g.visible) cafeCrowd.put(s.i, s.x, C.SW, s.z, s.ry, C.pose(Math.sin(t * 0.13 + s.ph) > 0.4 ? 'drink' : 'sit', t + s.ph, cpose));
   }
-  cafeCrowd.commit();
+  cafeCrowd.end();
 });
 function cafe(g, px, pz, f, tx, tz, rnd) {
   const add = (geo, mat, x, y, z, sx, sy, sz) => { const m = new THREE.Mesh(geo, mat); m.scale.set(sx, sy, sz); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };

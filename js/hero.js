@@ -1,4 +1,4 @@
-/* ===== hero.js: çatılarda dolaşan, hırsızlık olunca ağ atarak gelen Örümcek Adam ===== */
+/* ===== hero.js: çatılarda dolaşan, hırsızlık olunca ağ atarak gelen Pijamalı Çocuk ===== */
 (function () {
 'use strict';
 if (!window.C || C.failed) return;

@@ -371,4 +371,5 @@ C.updaters.push((dt, t) => {
   }
 });
 C.living = live;
+C.onRemove.push(b => freeLive(b));                  // kat azaltınca odalar havada kalmasın
 })();

@@ -44,7 +44,7 @@ function stepFly(now) {
 }
 function setFollow(on) {
   follow = on; const b = $('btnHero'); if (!b) return;
-  b.textContent = on ? 'İzlemeyi bırak' : "Örümcek Adam'ı izle"; b.setAttribute('aria-pressed', on);
+  b.textContent = on ? 'İzlemeyi bırak' : 'Pijamalı Çocuğu izle'; b.setAttribute('aria-pressed', on);
 }
 C.controls = controls; C.flyTo = flyTo; C.flying = () => !!fly;     // olay akışı gibi dış kullanımlar için
 
@@ -98,7 +98,8 @@ function renderSel() {
     const pop = Math.round(area * 0.75 / per / 10) * 10 || 5;
     $('selTitle').textContent = C.typeName(b);
     rows.innerHTML = `<div><dt>Yükseklik</dt><dd>${fmt.format(Math.round(b.height))} m</dd></div><div><dt>Kat</dt><dd>${b.floors}</dd></div>` +
-      `<div><dt>Parsel</dt><dd>${Math.round(sel.lot.w)} × ${Math.round(sel.lot.d)} m</dd></div><div><dt>${b.type === 'tower' ? 'Çalışan' : 'Sakin'}</dt><dd>~${fmt.format(pop)}</dd></div>`;
+      `<div><dt>Parsel</dt><dd>${Math.round(sel.lot.w)} × ${Math.round(sel.lot.d)} m</dd></div><div><dt>${b.type === 'tower' ? 'Çalışan' : 'Sakin'}</dt><dd>~${fmt.format(pop)}</dd></div>` +
+      `<div><dt>İlçe</dt><dd>${C.districtAt(sel.lot.cx, sel.lot.cz).name}</dd></div>`;
     act.innerHTML = `<button class="btn" data-act="up"${b.floors >= LIM[b.type] ? ' disabled' : ''}>+ Kat</button><button class="btn" data-act="down"${b.floors <= 1 ? ' disabled' : ''}>− Kat</button><button class="btn danger" data-act="demolish">Yık</button>` +
       `<button class="btn" data-act="cut" aria-pressed="${!!b.cut}">${b.cut ? 'Kesiti kapat' : 'Kesit'}</button>`;
   } else {
@@ -195,7 +196,7 @@ $('btnStreet').addEventListener('click', () => {
   const b = cand[(Math.random() * cand.length) | 0], fs = outwardFaces(b), f = fs[(Math.random() * fs.length) | 0];
   flyTo(V(f[2] + f[0] * 17, 2.3, f[3] + f[1] * 17), V(f[2], 3.2, f[3]), 2600);
 });
-/* Örümcek Adam'ı izle: kamera arkasından yaklaşır, sonra hedef onu yumuşakça izler */
+/* Pijamalı Çocuğu izle: kamera arkasından yaklaşır, sonra hedef onu yumuşakça izler */
 $('btnHero').addEventListener('click', () => {
   if (follow || !C.hero) { setFollow(false); return; }
   const p = C.hero.pos, off = camera.position.clone().sub(controls.target).setLength(24);
@@ -267,6 +268,8 @@ function hud(D, level) {
     $('lodDesc').textContent = LV[level][1];
   }
   $('zoomM').textContent = fmt.format(Math.round(D));
+  const dn = C.districtAt(controls.target.x, controls.target.z).name + ' ilçesi';
+  if ($('district').textContent !== dn) $('district').textContent = dn;
   const mpp = 2 * D * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / (stage.clientHeight || 600);
   let len = NICE[0]; for (const n of NICE) if (n / mpp <= 110) len = n;
   $('scaleBar').style.width = Math.max(6, len / mpp) + 'px'; $('scaleLbl').textContent = len + ' m';
