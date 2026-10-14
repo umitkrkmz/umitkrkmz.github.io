@@ -12,7 +12,8 @@ Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayı
 | `js/street.js` | Ağaç, lamba, ışık havuzu, bank (örnekli): `C.buildStreet()` |
 | `js/traffic.js` | Yol ağı (`C.roads`: kavşak düğümleri, yönlü kenarlar, Bezier dönüşler), araçlar (`C.cars`), trafik ışıkları, yayalar: `C.setDensity`, `C.updateTraffic(dt)`, `C.buildPeople`, `C.updatePeople(dt)`. Özel araç API'si: `C.spawnCar`, `C.despawnCar`, `C.setRoute(araç, kenar, s)` (kenar grafiğinde BFS), `C.parkCar`/`C.unparkCar`, `C.blockEdge`, `C.carPos` |
 | `js/events.js` | Olaylar (`C.startEvent(tür)`: `fire`, `accident`, `crime`; `C.eventsOn`), acil durum araçları (istasyonları önemli yapıların +z yüzündeki şerit), parçacık yayıcıları (duman, alev, su), sokak adları (`C.placeName`), sol üstteki olay akışı |
-| `js/ui.js` | Dünyayı kurar, OrbitControls (`C.controls`), imlece yakınlaşma, yön tuşları/WASD ile kaydırma, uçuş animasyonu (`C.flyTo`), engelsiz bakış noktası (`C.clearView`), bina ve yapı seçimi, kart, kontroller, kademe göstergesi, ana döngü |
+| `js/hero.js` | Örümcek Adam (`C.hero`: `pos`, `root`, `state()`, `alert(olay)`): canvas kostüm dokuları, kalça > gövde > kol/baş hiyerarşisi, hareket parçaları (`hop` zıplama, `swing` sallanma, `zip` ağla çekilme), devriye (kameranın baktığı yere yönelir), hırsızlıkta kavşaktan kavşağa kovalama ve ağla yakalama |
+| `js/ui.js` | Dünyayı kurar, OrbitControls (`C.controls`), imlece yakınlaşma, yön tuşları/WASD ile kaydırma, uçuş animasyonu (`C.flyTo`; `keep` verilmezse kahraman takibini bırakır), kahraman takibi ("Örümcek Adam'ı izle"), engelsiz bakış noktası (`C.clearView`), bina ve yapı seçimi, kart, kontroller, kademe göstergesi, ana döngü |
 
 ## Önemli kurallar
 - Kademeler `ui.js` içinde `levelOf(D)` ile: D > 320 şehir, > 130 mahalle, > 45 sokak, aksi halde göz hizası. Yeni ayrıntı eklerken hangi kademede görüneceğine karar ver ve `ui.js` döngüsündeki görünürlük satırlarına bağla.
@@ -26,6 +27,7 @@ Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayı
 - Bina ayrıntısı tembel kurulur (`C.buildDetail`), paylaşılan geometrileri (`boxG`, `planeG`, `cylG`) asla `dispose` etme.
 - Özel araç nesneleri `special: true` taşır, `C.setDensity` onları silmez. `siren` kırmızıda geçirir ve öndeki araçları kenara çektirir (`car.pull`), `crashed` aracı yerinde tutar, `yaw` görüntüyü döndürür.
 - Sahneye çalışırken ışık ekleme ya da çıkarma: tüm malzemeler yeniden derlenir. Yangın ışıkları `events.js` içinde baştan iki tane hazır.
+- Hırsızlık olayı kahraman kancaları taşır: `heroComing()`, `heroCatch()` (şüpheliyi kozaya sarar); polis gelince `arrive()` teslim alır. Kahraman aynı anda tek göreve gider, meşgulse yalnızca polis gelir.
 - `C.updateTraffic` her kademede çalışır (araçlar şehir kademesinde gizli ama hareket eder).
 - Kullanıcı arayüzü metinleri Türkçe. Renkler `index.html` içindeki CSS değişkenlerinden gelir.
 

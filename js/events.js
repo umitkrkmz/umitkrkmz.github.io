@@ -199,7 +199,8 @@ function addEvent(ev) {
   if (log.length > 6) log.length = 6;
   renderFeed(ev.id);
 }
-function setStatus(ev, text, done) { ev.status = text; if (done) ev.done = true; renderFeed(); }
+function setStatus(ev, text, done) { ev.status = text; if (done && !ev.done) { ev.done = true; ev.doneAge = ev.age; } renderFeed(); }
+const cocoonMat = new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: 0.9, transparent: true, opacity: 0.8 });
 
 function startFire() {
   const list = C.buildings.filter(b => !b.onFire && b.type !== 'house').map(b => ({ b, x: b.lot.cx, z: b.lot.cz }));
@@ -326,7 +327,17 @@ function startCrime() {
   const side = pick(['px', 'nx', 'pz', 'nz']), e = curbEdge(blk.i, blk.j, side);
   const ev = {
     type: 'crime', title: 'Hırsızlık', x: blk.bx, z: blk.bz, h: 20, blk, th, place: C.placeName(blk.bx + SIDE_N[side][0] * 22, blk.bz + SIDE_N[side][1] * 22), status: 'Polis yolda',
-    arrive() { this.th.caught = 0.001; setStatus(this, 'Şüpheli yakalandı ✓', true); },
+    arrive() {
+      if (this.th.caught) { setStatus(this, 'Polis teslim aldı ✓', true); return; }
+      this.th.caught = 0.001; setStatus(this, 'Şüpheli yakalandı ✓', true);
+    },
+    /* kahraman kancaları (hero.js) */
+    heroComing() { setStatus(this, 'Polis ve Örümcek Adam yolda'); },
+    heroCatch() {
+      if (this.th.caught) return;
+      this.th.caught = 0.001; this.th.webbed = true; part(this.th.g, cocoonMat, 0.62, 1.55, 0.66, 0, 0.95, 0);
+      setStatus(this, this.pol && this.pol.state === 'scene' ? 'Polis teslim aldı ✓' : 'Örümcek Adam yakaladı 🕸', this.pol && this.pol.state === 'scene');
+    },
     view() {
       const p = th.g.position, ox = p.x - blk.bx, oz = p.z - blk.bz;
       const sd = Math.abs(ox) > Math.abs(oz) ? (ox > 0 ? 'px' : 'nx') : (oz > 0 ? 'pz' : 'nz');
@@ -335,12 +346,13 @@ function startCrime() {
   };
   addEvent(ev);
   ev.pol = dispatch('police', e, along(e, blk.bx, blk.bz), ev);
+  if (C.hero) C.hero.alert(ev);
   return true;
 }
 function updateCrime(ev, dt) {
   const th = ev.th, h = 20.5;
   if (!th.caught) {
-    th.f = (th.f + th.dir * th.sp * dt / (8 * h) + 1) % 1; th.ph += dt * 13;
+    th.f = (th.f + th.dir * th.sp * dt / (8 * h) + 1) % 1; if (th.sp) th.ph += dt * 13;   // sp 0: kahramanı görüp donakaldı
   } else th.caught += dt;
   const side = Math.floor(th.f * 4), u = (th.f * 4) % 1;
   let x, z, ry;
@@ -348,10 +360,11 @@ function updateCrime(ev, dt) {
   else if (side === 2) { x = h - 2 * h * u; z = h; ry = Math.PI; } else { x = -h; z = h - 2 * h * u; ry = Math.PI / 2; }
   if (th.dir < 0) ry += Math.PI;
   th.g.position.set(ev.blk.bx + x, B + Math.abs(Math.sin(th.ph)) * 0.08, ev.blk.bz + z); th.g.rotation.y = ry;
-  const sw = th.caught ? 0 : Math.sin(th.ph) * 0.9;
+  const sw = th.caught || !th.sp ? 0 : Math.sin(th.ph) * 0.9;
   th.legs[0].rotation.z = sw; th.legs[1].rotation.z = -sw;
-  th.arms[0].rotation.z = th.caught ? Math.PI : -sw; th.arms[1].rotation.z = th.caught ? Math.PI : sw;   // yakalanınca eller yukarı
-  if (th.caught > 6) { thiefRoot.remove(th.g); ev.blk.crime = false; if (ev.pol) sendHome(ev.pol); return true; }
+  const up = th.caught && !th.webbed;                                    // polise yakalanınca eller yukarı, ağa sarılınca yanda
+  th.arms[0].rotation.z = up ? Math.PI : -sw; th.arms[1].rotation.z = up ? Math.PI : sw;
+  if (th.caught > 3 && ev.done && ev.age - ev.doneAge > 4) { thiefRoot.remove(th.g); ev.blk.crime = false; if (ev.pol) sendHome(ev.pol); return true; }
   if (!th.caught && ev.age > 150) ev.arrive();
   return false;
 }

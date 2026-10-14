@@ -21,13 +21,15 @@ camera.position.copy(OVER); controls.target.set(0, 0, 0);
 
 function clampTarget() {
   const lim = C.TOTAL / 2 + 100, t = controls.target, b = t.clone();
-  t.x = C.clamp(t.x, -lim, lim); t.z = C.clamp(t.z, -lim, lim); t.y = C.clamp(t.y, 0, 80);
+  t.x = C.clamp(t.x, -lim, lim); t.z = C.clamp(t.z, -lim, lim); t.y = C.clamp(t.y, 0, 200);
   camera.position.add(t.clone().sub(b));
 }
 
 /* ---------- uçuş animasyonu: mesafe logaritmik, böylece yakınlaşma hissi doğal ---------- */
-let fly = null;
-function flyTo(pos, tgt, dur) {
+let fly = null, follow = false;
+/* keep: takip sürsün (yalnızca takibi başlatan uçuş); diğer her uçuş takibi bırakır */
+function flyTo(pos, tgt, dur, keep) {
+  if (!keep) setFollow(false);
   fly = { t0: controls.target.clone(), o0: camera.position.clone().sub(controls.target), t1: tgt.clone(), o1: pos.clone().sub(tgt), s: performance.now(), d: dur || 2000 };
 }
 function stepFly(now) {
@@ -39,6 +41,10 @@ function stepFly(now) {
   controls.target.lerpVectors(fly.t0, fly.t1, e);
   camera.position.copy(controls.target).addScaledVector(dir, len);
   if (u >= 1) fly = null;
+}
+function setFollow(on) {
+  follow = on; const b = $('btnHero'); if (!b) return;
+  b.textContent = on ? 'İzlemeyi bırak' : "Örümcek Adam'ı izle"; b.setAttribute('aria-pressed', on);
 }
 C.controls = controls; C.flyTo = flyTo;     // olay akışı gibi dış kullanımlar için
 
@@ -122,7 +128,7 @@ function clearView(L) {
 }
 C.clearView = clearView;     // olay akışı da kullanır: { bx, bz, height, r, building }
 $('selClose').addEventListener('click', () => select(null));
-window.addEventListener('keydown', e => { if (e.key === 'Escape') select(null); });
+window.addEventListener('keydown', e => { if (e.key === 'Escape') { select(null); setFollow(false); } });
 $('selActions').addEventListener('click', e => {
   const btn = e.target.closest('button[data-act]'); if (!btn || !sel) return;
   const a = btn.dataset.act, lot = sel.lot;
@@ -171,6 +177,13 @@ $('btnStreet').addEventListener('click', () => {
   const b = cand[(Math.random() * cand.length) | 0], fs = outwardFaces(b), f = fs[(Math.random() * fs.length) | 0];
   flyTo(V(f[2] + f[0] * 17, 2.3, f[3] + f[1] * 17), V(f[2], 3.2, f[3]), 2600);
 });
+/* Örümcek Adam'ı izle: kamera arkasından yaklaşır, sonra hedef onu yumuşakça izler */
+$('btnHero').addEventListener('click', () => {
+  if (follow || !C.hero) { setFollow(false); return; }
+  const p = C.hero.pos, off = camera.position.clone().sub(controls.target).setLength(24);
+  off.y = Math.max(off.y, 8);
+  flyTo(p.clone().add(off), p.clone(), 1600, true); setFollow(true);
+});
 $('btnNew').addEventListener('click', () => { select(null); C.populate((Math.random() * 1e6) | 0); });
 
 /* ---------- gün, trafik, gölge ---------- */
@@ -200,7 +213,7 @@ let boost = false;
 window.addEventListener('keydown', e => {
   boost = e.shiftKey;
   if (!MOVE[e.code] || e.ctrlKey || e.metaKey || e.altKey || (e.target.closest && e.target.closest('input, textarea, select'))) return;
-  keys.add(e.code); fly = null; e.preventDefault();
+  keys.add(e.code); fly = null; setFollow(false); e.preventDefault();
 });
 window.addEventListener('keyup', e => { boost = e.shiftKey; keys.delete(e.code); });
 window.addEventListener('blur', () => keys.clear());
@@ -240,13 +253,17 @@ function hud(D, level) {
 }
 
 /* ---------- ana döngü ---------- */
-const sdir = new THREE.Vector3();
+const sdir = new THREE.Vector3(), fdv = new THREE.Vector3();
 let last = performance.now(), frameN = 0, booted = false;
 setHour(C.hour);
 function loop(now) {
   requestAnimationFrame(loop);
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   stepFly(now);
+  if (follow && !fly && C.hero) {
+    fdv.subVectors(C.hero.pos, controls.target); fdv.y += 1;
+    fdv.multiplyScalar(1 - Math.exp(-dt * 5)); controls.target.add(fdv); camera.position.add(fdv);
+  }
   stepKeys(dt, camera.position.distanceTo(controls.target));
   controls.update(); clampTarget();
   if (camera.position.y < 1.4) camera.position.y = 1.4;

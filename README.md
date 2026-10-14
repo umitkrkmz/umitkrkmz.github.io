@@ -41,6 +41,16 @@ Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, g�
 
 Acil durum araçları sirenle kırmızıda geçer, önlerindeki araçlar kenara çekilip yol verir. İş bitince istasyonlarına dönerler.
 
+## Örümcek Adam 🕷
+
+Şehrin bir de mahalle kahramanı var. Boş zamanlarında çatıdan çatıya zıplar, yüksek binalara ağ atıp kendini çeker, çatı kenarına çömelip etrafı izler. Genelde senin baktığın yere doğru gelir.
+
+Bir hırsızlık olunca yolların üstünden binalara ağ atarak kavşaktan kavşağa sallanır, şüpheliyi kovalar. Şüpheli onu görünce donakalır; Örümcek Adam yanına iner, ağ fırlatıp onu kozaya sarar ve polise teslim eder. Sonra yine bir çatıya çıkar.
+
+Kontrol panelindeki **Örümcek Adam'ı izle** düğmesi kamerayı ona kilitler; yön tuşlarına basınca ya da başka bir görünüme geçince takip biter.
+
+> Örümcek Adam, Marvel'ın karakteridir. Burada tamamen hayran işi, eğlencesine bir misafir oyuncu.
+
 ## Ayrıntı kademeleri
 
 Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılır:
@@ -67,7 +77,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - [x] Şehri büyütmek, kavşakta dönen araçlar
 - [x] Önemli yapılar: hastane, itfaiye, karakol, cami, stadyum
 - [x] Rastgele olaylar: yangın, trafik kazası, suç; olay yerine koşan itfaiye, ambulans ve polis
-- [ ] Çatılarda dolaşan, suç olunca ağla sallanarak gelen bir kahraman
+- [x] Çatılarda dolaşan, suç olunca ağla sallanarak gelen bir kahraman
 - [ ] Binaların içi, karşıdan karşıya geçen yayalar, şehrin küçük hayatı
 
 ## Teknik
@@ -84,6 +94,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/street.js` | Ağaçlar, lambalar, banklar |
 | `js/traffic.js` | Yol ağı, dönen araçlar, trafik ışıkları, yayalar |
 | `js/events.js` | Olaylar, acil durum araçları, duman/alev/su, olay akışı |
+| `js/hero.js` | Örümcek Adam: kostüm, devriye, kovalama, ağ |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |
 
 ## Lisans
