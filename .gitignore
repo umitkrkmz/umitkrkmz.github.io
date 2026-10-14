@@ -1,0 +1,12 @@
+# ilk sürümün arşivi, içeriği zaten depoda
+*.zip
+
+# yerel Claude Code ayarları
+.claude/
+
+# işletim sistemi ve editör dosyaları
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
