@@ -69,7 +69,8 @@ function route(from, s0, goal, s1) {
   do { path.unshift(e); e = prev.get(e); } while (e !== from);
   return path;
 }
-const MAXC = edges.length * MAXPER, cars = [];
+const RES = 24;                                       // şehir dışına çıkıp girenler için yedek araç havuzu
+const MAXC = edges.length * MAXPER + RES, cars = [], reserve = [];
 C.roads = { edges, outOf, edgeAt, nodeId, NN, turnOf };
 C.cars = cars;
 
@@ -133,12 +134,16 @@ C.setDensity = function (d) {
     e.cars.length = 0;
     const n = Math.min(MAXPER, Math.floor(d * MAXPER + r()));
     for (let k = 0; k < n; k++) {
-      const car = { e, s: e.len * (1 - (k + 0.5) / n) + (r() - 0.5) * 3, v: 0, v0: 9 + r() * 4, len: 4.6, idx: idx++, tin: null, next: null };
+      const car = { e, s: e.len * (1 - (k + 0.5) / n) + (r() - 0.5) * 3, v: 0, v0: 9 + r() * 4, len: 4.6, idx: idx++, tin: null, next: null, col: CAR_COLORS[(r() * CAR_COLORS.length) | 0] };
       car.next = chooseNext(car, e);
-      parts[0].setColorAt(car.idx, CAR_COLORS[(r() * CAR_COLORS.length) | 0]);
+      parts[0].setColorAt(car.idx, car.col);
       e.cars.push(car); cars.push(car);
     }
   }
+  /* yedek havuz: şeritte değil, çizilmez; yoldan şehre giren araç buradan çıkar, şehirden çıkan buraya döner */
+  reserve.length = 0;
+  for (let k = 0; k < RES; k++) { const car = { e: edges[0], s: 0, v: 0, v0: 10 + r() * 3, len: 4.6, idx: idx++, tin: null, next: edges[0], off: true, col: CAR_COLORS[(r() * CAR_COLORS.length) | 0] }; for (const p of parts) p.setMatrixAt(car.idx, ZERO4); reserve.push(car); cars.push(car); }
+  hwCars.length = 0;
   for (const c of keep) { cars.push(c); if (!c.parked) c.e.cars.push(c); }
   parts.forEach(p => p.count = idx);
   if (parts[0].instanceColor) parts[0].instanceColor.needsUpdate = true;
@@ -188,6 +193,76 @@ function carPos(car, o) {
   return bez(car.tin, C.clamp(1 + car.s / car.tin.len, 0, 1), o);
 }
 C.carPos = carPos;
+
+/* ---------- şehir dışı yol (terrain.js'deki C.highway): her yönde iki şerit ----------
+   dir 1: şehirden tünele (s artar), dir -1: tünelden şehre (s azalır). Tünelden gelen araç doğu kavşağında
+   şehrin ağına katılır (yedek havuzdan bir araç o şeride konur); şehirden o kavşağa gelenlerin bir kısmı yola çıkar. */
+const HW = C.highway, ZERO4 = new THREE.Matrix4().makeScale(0, 0, 0), hwCars = [];
+let eIn = null, eOut = null, hwParts = null, hwTimer = 2, leaveTimer = 3;
+if (HW) {
+  const xn = nodeId(HW.startNode[0], HW.startNode[1]), wn = nodeId(HW.startNode[0] - 1, HW.startNode[1]);
+  eIn = edgeAt.get(xn * 4096 + wn); eOut = edgeAt.get(wn * 4096 + xn);
+  hwParts = parts.map((p, k) => { const m = C.inst(p.geometry, p.material, 80); m.castShadow = k === 0; m.count = 0; scene.add(m); C.carLayers.push(m); return m; });
+  hwParts[0].instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(80 * 3).fill(1), 3);
+}
+const hp = { x: 0, z: 0, tx: 1, tz: 0, y: 0 };
+function hwAt(s, out) {
+  const P = HW.pts; let lo = 0, hi = P.length - 1;
+  s = C.clamp(s, 0, HW.L);
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (P[m].s <= s) lo = m; else hi = m; }
+  const a = P[lo], b = P[hi], t = b.s > a.s ? (s - a.s) / (b.s - a.s) : 0;
+  out.x = a.x + (b.x - a.x) * t; out.z = a.z + (b.z - a.z) * t; out.tx = a.tx; out.tz = a.tz; out.y = HW.y(s); return out;
+}
+const prog = c => c.dir > 0 ? c.s : HW.L - c.s;
+function laneFree(dir) { for (const c of hwCars) if (c.dir === dir && prog(c) < 14) return false; return true; }
+function updateHighway(dt) {
+  /* şehirden ayrılanlar: arada bir rastgele bir araç çıkış kavşağına yönelir (giriş ve çıkış dengede kalsın) */
+  if ((leaveTimer -= dt) <= 0) {
+    leaveTimer = 3 + Math.random() * 3;
+    for (let k = 0; k < 20; k++) {
+      const c = cars[(Math.random() * cars.length) | 0];
+      if (c.special || c.off || c.crashed || c.leaving || (c.path && c.path.length) || c.s < 0) continue;
+      C.setRoute(c, eOut, eOut.len); c.stopEdge = null; c.leaving = true; break;
+    }
+  }
+  /* tünelden gelen: yedek havuzda yer ayrılmış kadar */
+  const inbound = hwCars.filter(c => c.dir < 0).length;
+  if ((hwTimer -= dt) <= 0 && reserve.length > inbound && laneFree(-1)) {
+    hwTimer = 2.5 + Math.random() * 4;
+    hwCars.push({ dir: -1, lane: Math.random() < 0.5 ? 0 : 1, s: HW.L, v: 14, v0: 15 + Math.random() * 6, col: CAR_COLORS[(Math.random() * CAR_COLORS.length) | 0], k: 0 });
+  }
+  hwCars.sort((a, b) => prog(b) - prog(a));
+  for (let i = hwCars.length - 1; i >= 0; i--) {
+    const c = hwCars[i], p = prog(c);
+    let gap = 1e9;
+    for (let j = i - 1; j >= 0; j--) { const o = hwCars[j]; if (o.dir === c.dir && o.lane === c.lane) { gap = prog(o) - p - 6.1; break; } }
+    if (c.dir < 0) gap = Math.min(gap, HW.L - p);                      // şehre girişte, şerit boşalana kadar bekler
+    const des = Math.min(c.v0, Math.sqrt(9 * Math.max(0, gap - 1.5)));
+    c.v = c.v < des ? Math.min(des, c.v + 3 * dt) : Math.max(des, c.v - 9 * dt);
+    c.s += c.dir * c.v * dt;
+    if (c.dir > 0 && c.s >= HW.L) { hwCars.splice(i, 1); continue; }   // tünelde kayboldu
+    if (c.dir < 0 && c.s <= 2) {                                       // duruş mesafesi yüzünden en fazla ~1,5 m kala durur
+      let tail = 1e9; for (const o of eIn.cars) tail = Math.min(tail, o.s);
+      if (tail > 7 && reserve.length) {                                // şehrin ağına katıl
+        const car = reserve.pop(); car.off = false;
+        Object.assign(car, { e: eIn, s: 0, v: c.v, tin: null, path: [], col: c.col, crashed: false, yaw: 0, pull: 0 });
+        car.next = chooseNext(car, eIn); eIn.cars.push(car);
+        parts[0].setColorAt(car.idx, car.col); parts[0].instanceColor.needsUpdate = true;
+        hwCars.splice(i, 1);
+      } else { c.v = 0; }
+    }
+  }
+  hwCars.forEach((c, n) => {
+    hwAt(c.s, hp);
+    const sx = c.dir * hp.tx, sz = c.dir * hp.tz, off = c.lane ? 5.4 : 1.9;
+    dm.position.set(hp.x - sz * off, hp.y + 0.04, hp.z + sx * off); dm.rotation.set(0, Math.atan2(-sz, sx), 0); dm.scale.set(1, 1, 1); dm.updateMatrix();
+    for (const m of hwParts) m.setMatrixAt(n, dm.matrix);
+    hwParts[0].setColorAt(n, c.col);
+  });
+  for (const m of hwParts) { m.count = hwCars.length; m.instanceMatrix.needsUpdate = true; }
+  hwParts[0].instanceColor.needsUpdate = true;
+}
+C.hwCars = hwCars; C.reserve = reserve;
 /* sola dönen araç, karşıdan hızla yaklaşan biri varsa bekler */
 function oncoming(e) {
   const ci = e.bi + e.dx, cj = e.bj + e.dz;
@@ -237,12 +312,18 @@ C.updateTraffic = function (dt) {
   }
   for (const car of movers) {
     const e = car.e, f = car.next, t = turnOf(e, f);
+    if (HW && e === eOut && !car.special && (car.leaving || Math.random() < 0.35) && laneFree(1)) {   // şehirden çık: yola, tünele doğru
+      e.cars.splice(e.cars.indexOf(car), 1); car.off = true; car.leaving = false; for (const p of parts) p.setMatrixAt(car.idx, ZERO4); reserve.push(car);
+      hwCars.push({ dir: 1, lane: Math.random() < 0.5 ? 0 : 1, s: 0, v: car.v, v0: 15 + Math.random() * 6, col: car.col, k: 0 });
+      continue;
+    }
     e.cars.splice(e.cars.indexOf(car), 1);
     car.s -= e.len + t.len; car.tin = t; car.e = f; f.cars.push(car);
     car.next = chooseNext(car, f);
   }
+  if (HW) updateHighway(dt);
   for (const car of cars) {
-    if (car.parked) continue;
+    if (car.parked || car.off) continue;
     carPos(car, pos);
     const ry = Math.atan2(-pos.hz, pos.hx) + (car.yaw || 0);
     if (car.model) { car.model(pos.x, pos.z, ry); continue; }

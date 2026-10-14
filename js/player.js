@@ -63,7 +63,7 @@ function resolve(p) {
       }
     }
   }
-  const lim = C.TOTAL / 2 + 40; p.x = C.clamp(p.x, -lim, lim); p.z = C.clamp(p.z, -lim, lim);
+  const lim = C.TOTAL / 2 - 0.4; p.x = C.clamp(p.x, -lim, lim); p.z = C.clamp(p.z, -lim, lim);   // görünmez duvar: en dış yolun kaldırım çizgisi
 }
 /* zemin: blok içindeyse kaldırım (0,3 m), değilse yol */
 function groundAt(x, z) {

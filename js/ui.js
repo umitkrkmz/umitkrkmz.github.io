@@ -20,7 +20,8 @@ const OVER = new THREE.Vector3(0, 430 * C.SCALE, 470 * C.SCALE);
 camera.position.copy(OVER); controls.target.set(0, 0, 0);
 
 function clampTarget() {
-  const lim = C.TOTAL / 2 + 100, t = controls.target, b = t.clone();
+  if (C.freeCam) return;                                            // geliştirme: sınırsız kamera
+  const lim = C.TOTAL / 2 - 10, t = controls.target, b = t.clone();      // bakış noktası oynanan alanda kalır
   t.x = C.clamp(t.x, -lim, lim); t.z = C.clamp(t.z, -lim, lim); t.y = C.clamp(t.y, 0, 200);
   camera.position.add(t.clone().sub(b));
 }

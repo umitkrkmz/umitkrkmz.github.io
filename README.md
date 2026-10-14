@@ -81,6 +81,8 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 
 - Hayali bir şehir: 17 × 17 blok, kenarı yaklaşık 964 m, dokuz ilçe. Ortada gökdelenleriyle Saatçi; çevresinde Yeşiltepe, Çınaraltı, Akpınar, Gülbahçe, Değirmendere, Taşbayır, Kuyubaşı ve Limanköy. Kenar ilçelerde müstakil evler ve alçak binalar çoğunlukta, her ilçenin kaldırım tonu ayrı; sol üstte bulunduğun ilçe yazar.
 - Ortada saat kulesi olan bir meydan, on park, merkeze yaklaştıkça yükselen binalar.
+- Şehir dağların eteğinde bir vadide: çevresinde çayırlar, tepelerde çam ormanları, yamaçlarda kaya, zirvelerde kar; güneyinden doğudaki dağlardan inip batıdaki boğazdan çıkan bir akarsu geçer.
+- Doğu kavşağından vadi boyunca tırmanan, dağdaki bir tünele giren dört şeritli bir yol: tünelden gelen araçlar şehrin trafiğine katılır, şehirden ayrılanlar yola çıkıp tünelde kaybolur.
 - Dört yüzünde şehrin saatini gösteren bir saat kulesi.
 - Önemli yapılar: helikopter pistli Şehir Hastanesi, İtfaiye Merkezi, bayraklı Merkez Karakolu ve ışık kuleli Şehir Stadı. Tıklayınca bilgi kartı açılır, "Yakından bak" kamerayı oraya götürür.
 - Sağdan akan, kavşaklarda düz giden, sağa ve sola dönen trafik; sola dönen araç karşıdan geleni bekler. Işıklar 20 saniyelik döngüyle çalışır.
@@ -103,7 +105,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - [x] Binaların içi, karşıdan karşıya geçen yayalar, şehrin küçük hayatı
 - [x] Görsel cila: daha çok ayrıntı, daha keskin görüntü, keskin kenarlar yerine yuvarlatılmış hatlar
 - [x] Ayrıntılı insanlar, karakter modu, girilebilir mekânlar, camın ardında yaşayan daireler
-- [x] İlçelere ayrılmış daha büyük hayali şehir, zıplama
+- [x] İlçelere ayrılmış daha büyük hayali şehir, zıplama, dağlarla çevrili vadi, akarsu, şehre giriş-çıkış yolu
 - [ ] Pijamalı Çocuk olarak oyna: ağ atma, çatıdan çatıya sallanma
 
 ## Teknik
@@ -114,13 +116,14 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | Dosya | Görevi |
 |---|---|
 | `js/world.js` | Sahne, kamera, ışıklar, gökyüzü, gün/gece, yollar |
+| `js/terrain.js` | Vadi, dağlar, orman, akarsu, giriş-çıkış yolu ve tünel |
 | `js/people.js` | Eklemli insan modeli, pozlar, örnekli kalabalık |
 | `js/details.js` | Tabelalar, balkonlar, çatı donanımı, park, meydan, saat kulesi |
 | `js/landmarks.js` | Hastane, itfaiye, karakol, stadyum |
 | `js/buildings.js` | Cepheler, parseller, binalar, ayrıntı kademesi |
 | `js/interiors.js` | Pencere arkasındaki odalar (shader), camın ardında gerçek odalar, kesit görünümü |
 | `js/street.js` | Ağaçlar, lambalar, banklar |
-| `js/traffic.js` | Yol ağı, dönen araçlar, trafik ışıkları, karşıya geçen yayalar |
+| `js/traffic.js` | Yol ağı, dönen araçlar, trafik ışıkları, şehre giren ve çıkan yol trafiği, karşıya geçen yayalar |
 | `js/events.js` | Olaylar, acil durum araçları, duman/alev/su, olay akışı |
 | `js/life.js` | Otobüs hatları, duraklar, bekleyen yolcular |
 | `js/hero.js` | Pijamalı Çocuk: kostüm, devriye, kovalama, ağ |

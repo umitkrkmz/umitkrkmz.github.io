@@ -133,7 +133,7 @@ const skyU = { top: { value: new THREE.Color() }, hor: { value: new THREE.Color(
 const skyDome = new THREE.Mesh(new THREE.SphereGeometry(3500, 32, 16), new THREE.ShaderMaterial({
   uniforms: skyU, side: THREE.BackSide, depthWrite: false, fog: false,
   vertexShader: 'varying vec3 vP; void main() { vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-  fragmentShader: 'uniform vec3 top; uniform vec3 hor; varying vec3 vP; void main() { float h = normalize(vP).y; gl_FragColor = vec4(mix(hor, top, smoothstep(0.0, 0.5, h)), 1.0); }'
+  fragmentShader: 'uniform vec3 top; uniform vec3 hor; varying vec3 vP; void main() { float h = normalize(vP).y; gl_FragColor = vec4(mix(hor, top, smoothstep(0.0, 0.5, max(h, 0.0))), 1.0); }'   // ufkun altı da ufuk rengi
 }));
 skyDome.renderOrder = -10; skyDome.frustumCulled = false; scene.add(skyDome);
 C.updaters.push(() => skyDome.position.copy(camera.position));
@@ -172,7 +172,7 @@ C.applyTime = function (h) {
 
 /* ---------- zemin ve asfalt ---------- */
 const grass = new THREE.Mesh(new THREE.PlaneGeometry(9000, 9000), new THREE.MeshStandardMaterial({ color: C.col('#66724f'), roughness: 1 }));
-grass.rotation.x = -Math.PI / 2; grass.position.y = -0.1; grass.receiveShadow = true; scene.add(grass);
+grass.rotation.x = -Math.PI / 2; grass.position.y = -0.1; grass.receiveShadow = true; scene.add(grass); C.grass = grass;   // terrain.js gizler
 /* asfalt: ince pürüzlü doku, 8 m'de bir tekrar */
 C.noiseTex = function (size, base, spread, dots, seed) {
   const cv = document.createElement('canvas'); cv.width = cv.height = size; const x = cv.getContext('2d'), r = C.rng(seed || 7);

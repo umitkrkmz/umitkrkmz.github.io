@@ -78,7 +78,29 @@ C.addGroundAO = function (sh) {
   sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying float vAoY;')
     .replace('#include <map_fragment>', '#include <map_fragment>\ndiffuseColor.rgb *= mix(0.58, 1.0, smoothstep(0.3, 4.0, vAoY));');
 };
-farMats.forEach(m => { m.onBeforeCompile = C.addGroundAO; m.customProgramCacheKey = () => 'ao-far'; });
+const night = { value: 0 };
+C.nightListeners.push(n => { night.value = n; });
+/* dünya koordinatından pencereler: uzaktaki binalarda (örnekli ya da değil); gece seçici yanar */
+C.applyWindows = function (sh) {
+  sh.uniforms.uNight = night;
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN;')
+    .replace('#include <project_vertex>', ['#include <project_vertex>', '#ifdef USE_INSTANCING', 'mat4 wm = modelMatrix * instanceMatrix;', '#else', 'mat4 wm = modelMatrix;', '#endif',
+      'vWP = (wm * vec4(transformed, 1.0)).xyz; vWN = normalize(mat3(wm) * objectNormal);'].join('\n'));
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN; uniform float uNight;\nfloat bh(vec2 p) { vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }   // büyük koordinatta da sağlam')
+    .replace('#include <map_fragment>', [
+      '#include <map_fragment>',
+      'float side = step(abs(vWN.y), 0.5), fade = smoothstep(1600.0, 450.0, length(vViewPosition));',
+      'vec2 cell = vec2((abs(vWN.x) > 0.5 ? vWP.z : vWP.x) / 3.6, (vWP.y - 0.3) / 3.2);',
+      'vec2 f = fract(cell);',
+      'float win = side * step(0.2, f.x) * step(f.x, 0.8) * step(0.28, f.y) * step(f.y, 0.86) * step(0.95, cell.y);',
+      'float lit = step(bh(floor(cell) + floor(vWP.xz / 40.0) * 7.0), 0.3);',
+      'diffuseColor.rgb *= mix(1.0, mix(0.86, 0.42, win), mix(side * 0.6, 1.0, fade));',
+      'diffuseColor.rgb *= mix(1.0, 0.55, 1.0 - side);                         // çatılar koyu'
+    ].join('\n'))
+    .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += vec3(1.0, 0.82, 0.55) * uNight * side * mix(0.045, win * lit * 1.25, fade);   // gece pencereler; uzakta ortalama ışıltı');
+};
+/* uzak binalar: dünya koordinatlı pencereler (gece seçici yanar), düz turuncu ışıltı yok */
+farMats.forEach(m => { m.emissive.setRGB(0, 0, 0); m.onBeforeCompile = sh => { C.addGroundAO(sh); C.applyWindows(sh); }; m.customProgramCacheKey = () => 'ao-far-win'; });
 
 /* ---------- bina kütlesi: köşeleri yuvarlatılmış prizma, üstte korniş bandı, parapet ve içeride çatı ----------
    Yan yüzlerin UV'si hücre sayısına göre: her düz yüzde tam sayıda pencere, köşe yayında yay uzunluğu kadar.
