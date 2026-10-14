@@ -13,10 +13,11 @@ C.playing = false; C.dayRate = 0.25;
 /* ---------- kamera ---------- */
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true; controls.dampingFactor = 0.09; controls.screenSpacePanning = false;
-controls.minDistance = 3; controls.maxDistance = 900; controls.maxPolarAngle = Math.PI; controls.rotateSpeed = 0.7;
+controls.minDistance = 3; controls.maxDistance = 900 * C.SCALE; controls.maxPolarAngle = Math.PI; controls.rotateSpeed = 0.7;
 controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
 controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
-camera.position.set(0, 430, 470); controls.target.set(0, 0, 0);
+const OVER = new THREE.Vector3(0, 430 * C.SCALE, 470 * C.SCALE);
+camera.position.copy(OVER); controls.target.set(0, 0, 0);
 
 function clampTarget() {
   const lim = C.TOTAL / 2 + 100, t = controls.target, b = t.clone();
@@ -39,6 +40,7 @@ function stepFly(now) {
   camera.position.copy(controls.target).addScaledVector(dir, len);
   if (u >= 1) fly = null;
 }
+C.controls = controls; C.flyTo = flyTo;     // olay akışı gibi dış kullanımlar için
 
 /* ---------- imlece doğru yakınlaşma ---------- */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), gplane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
@@ -67,7 +69,7 @@ let sel = null;
 function showOutline() {
   outline.geometry.dispose();
   if (!sel) { outline.visible = false; return; }
-  const lot = sel.lot, h = sel.b ? sel.b.height + 0.8 : 0.6;
+  const lot = sel.lot, h = sel.b ? sel.b.height + 0.8 : sel.L ? sel.L.height + 0.8 : 0.6;
   outline.geometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(lot.w, h, lot.d));
   outline.position.set(lot.cx, C.SW + h / 2, lot.cz); outline.visible = true;
 }
@@ -77,7 +79,11 @@ function renderSel() {
   if (!sel) { card.hidden = true; return; }
   card.hidden = false;
   const rows = $('selRows'), act = $('selActions');
-  if (sel.b) {
+  if (sel.L) {
+    $('selTitle').textContent = sel.L.name;
+    rows.innerHTML = sel.L.rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${typeof v === 'function' ? v() : v}</dd></div>`).join('');
+    act.innerHTML = `<button class="btn" data-act="visit">Yakından bak</button>`;
+  } else if (sel.b) {
     const b = sel.b, tiers = C.tiersOf(b), per = { house: 45, mid: 30, low: 30, tower: 14 }[b.type];
     let area = 0; tiers.forEach(t => area += t.w * t.d * t.f);
     const pop = Math.round(area * 0.75 / per / 10) * 10 || 5;
@@ -92,12 +98,34 @@ function renderSel() {
   }
 }
 function select(s) { sel = s; showOutline(); renderSel(); }
+/* yapıyı en az engelle gösteren bakış noktası: aday noktalardan yapının dokuz noktasına ışın atar,
+   en az ışını kesilen (eşitlikte en alçak) adayı seçer */
+const vrc = new THREE.Raycaster(), vdir = new THREE.Vector3(), vpt = new THREE.Vector3();
+function clearView(L) {
+  const h = Math.max(20, L.height), tgt = new THREE.Vector3(L.bx, h * 0.3, L.bz), r = C.BLOCK * 0.34;
+  const probes = [[0, 0.3, 0]];
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) for (const fy of [0.15, 0.8]) probes.push([sx * r, fy, sz * r]);
+  let best = null, bestScore = 1e9;
+  for (const el of [0.45, 0.7, 1.0, 1.25]) for (const dist of [h * 2.2, h * 3]) for (let k = 0; k < 8; k++) {
+    const az = 0.6 + k * Math.PI / 4;
+    const pos = new THREE.Vector3(L.bx + Math.sin(az) * Math.cos(el) * dist, tgt.y + Math.sin(el) * dist, L.bz + Math.cos(az) * Math.cos(el) * dist);
+    let score = 0;
+    for (const p of probes) {
+      vpt.set(L.bx + p[0], h * p[1], L.bz + p[2]);
+      vdir.subVectors(vpt, pos); vrc.far = vdir.length(); vrc.set(pos, vdir.normalize());
+      if (vrc.intersectObjects(C.pickables, false).some(x => x.object.userData.landmark !== L)) score++;
+      if (score >= bestScore) break;
+    }
+    if (score < bestScore) { bestScore = score; best = pos; if (!score) return [best, tgt]; }
+  }
+  return [best, tgt];
+}
 $('selClose').addEventListener('click', () => select(null));
 window.addEventListener('keydown', e => { if (e.key === 'Escape') select(null); });
 $('selActions').addEventListener('click', e => {
   const btn = e.target.closest('button[data-act]'); if (!btn || !sel) return;
   const a = btn.dataset.act, lot = sel.lot;
-  if (a === 'up' || a === 'down') {
+  if (a === 'visit') { const [pos, tgt] = clearView(sel.L); flyTo(pos, tgt, 2200); } else if (a === 'up' || a === 'down') {
     const b = sel.b; b.floors = C.clamp(b.floors + (a === 'up' ? 1 : -1), 1, LIM[b.type]);
     C.rebuildBuilding(b); select({ b, lot });
   } else if (a === 'demolish') {
@@ -117,8 +145,10 @@ el.addEventListener('pointerup', e => {
   ndcOf(e); ray.setFromCamera(ndc, camera);
   const h = ray.intersectObjects(C.pickables, false)[0];
   if (!h) { select(null); return; }
-  const b = h.object.userData.building;
-  if (b) select({ b, lot: b.lot }); else if (h.object.userData.lot) select({ b: null, lot: h.object.userData.lot });
+  const b = h.object.userData.building, L = h.object.userData.landmark;
+  if (b) select({ b, lot: b.lot });
+  else if (L) select({ L, lot: { cx: L.bx, cz: L.bz, w: C.BLOCK - 2, d: C.BLOCK - 2 } });
+  else if (h.object.userData.lot) select({ b: null, lot: h.object.userData.lot });
 });
 
 /* ---------- hazır görünümler ---------- */
@@ -131,7 +161,7 @@ function outwardFaces(b) {
   return out;
 }
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
-$('btnOverview').addEventListener('click', () => flyTo(V(0, 430, 470), V(0, 0, 0), 2400));
+$('btnOverview').addEventListener('click', () => flyTo(OVER, V(0, 0, 0), 2400));
 $('btnCenter').addEventListener('click', () => flyTo(V(130, 95, 170), V(0, 18, 0), 2200));
 $('btnClock').addEventListener('click', () => flyTo(V(4, 2.4, 27), V(0, 14, 0), 2600));
 $('btnStreet').addEventListener('click', () => {

@@ -150,28 +150,31 @@ const clockMat = new THREE.MeshStandardMaterial({ map: clockTex, roughness: 0.5,
 C.nightListeners.push(n => { clockMat.emissiveIntensity = n * 0.55; });
 
 C.makePlaza = function (blk, rnd) {
+  const grp = new THREE.Group(); scene.add(grp);
   const bx = blk.bx, bz = blk.bz;
-  const slab = new THREE.Mesh(slabGeo, std('#cdc7b8', 0.95)); slab.position.set(bx, C.SW / 2, bz); slab.receiveShadow = true; scene.add(slab);
+  const slab = new THREE.Mesh(slabGeo, std('#cdc7b8', 0.95)); slab.position.set(bx, C.SW / 2, bz); slab.receiveShadow = true; grp.add(slab);
   const brick = std('#b9a283', 0.9), trim = std('#d8cfbb', 0.85), roofM = std('#3f4f5f', 0.8);
-  const part = (mat, sx, sy, sz, y) => { const m = new THREE.Mesh(boxG, mat); m.scale.set(sx, sy, sz); m.position.set(bx, y, bz); m.castShadow = m.receiveShadow = true; scene.add(m); };
+  const part = (mat, sx, sy, sz, y) => { const m = new THREE.Mesh(boxG, mat); m.scale.set(sx, sy, sz); m.position.set(bx, y, bz); m.castShadow = m.receiveShadow = true; grp.add(m); };
   part(trim, 8.4, 0.6, 8.4, C.SW + 0.3);
   part(brick, 6, 20, 6, C.SW + 10.6);
   part(trim, 8.2, 0.5, 8.2, C.SW + 21.0);
   part(brick, 7.6, 5.2, 7.6, C.SW + 23.9);
   part(trim, 8.2, 0.5, 8.2, C.SW + 26.7);
   const cg = new THREE.ConeGeometry(5.6, 7, 4); cg.rotateY(Math.PI / 4);
-  const cone = new THREE.Mesh(cg, roofM); cone.position.set(bx, C.SW + 30.2, bz); cone.castShadow = true; scene.add(cone);
+  const cone = new THREE.Mesh(cg, roofM); cone.position.set(bx, C.SW + 30.2, bz); cone.castShadow = true; grp.add(cone);
   [[0, 0, 1], [1, 0, 0], [0, Math.PI, -1], [-1, 0, 0]].forEach((_, i) => {
     const ry = [0, Math.PI / 2, Math.PI, -Math.PI / 2][i], nx = Math.sin(ry), nz = Math.cos(ry);
     const f = new THREE.Mesh(planeG, clockMat); f.scale.set(5, 5, 1); f.rotation.y = ry;
-    f.position.set(bx + nx * 3.85, C.SW + 23.9, bz + nz * 3.85); scene.add(f);
+    f.position.set(bx + nx * 3.85, C.SW + 23.9, bz + nz * 3.85); grp.add(f);
   });
   const fx = bx - 11, fz = bz + 11;
   const rim = new THREE.Mesh(cylG, stoneMat); rim.scale.set(4.4, 0.5, 4.4); rim.position.set(fx, C.SW + 0.25, fz); rim.castShadow = true; rim.receiveShadow = true;
   const wat = new THREE.Mesh(circG, waterMat); wat.scale.set(3.8, 1, 3.8); wat.position.set(fx, C.SW + 0.48, fz);
   const jet = new THREE.Mesh(cylG, stoneMat); jet.scale.set(0.4, 1.4, 0.4); jet.position.set(fx, C.SW + 0.9, fz);
-  scene.add(rim, wat, jet);
+  grp.add(rim, wat, jet);
   for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2 + 0.4; C.treeSpots.push([bx + Math.cos(a) * 15, bz + Math.sin(a) * 15, 1.2 + rnd() * 0.4]); }
   for (const s of [-1, 1]) { C.benchSpots.push([bx + s * 8, bz - 8, 0]); C.benchSpots.push([bx + 8, bz + s * 4, Math.PI / 2]); }
+  const pad = n => String(n).padStart(2, '0');
+  C.finishLandmark(blk, grp, 'plaza', 'Saat Kulesi Meydanı', [['Kule', '≈ 34 m'], ['Saat', () => pad(Math.floor(C.hour)) + ':' + pad(Math.floor((C.hour % 1) * 60))], ['Şadırvan', '1'], ['Bank', '4']]);
 };
 })();

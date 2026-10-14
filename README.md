@@ -44,17 +44,18 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 
 ## Şehirde neler var?
 
-- 9 × 9 blok; ortada saat kulesi olan bir meydan, beş park, merkeze yaklaştıkça yükselen binalar.
+- 13 × 13 blok, kenarı 740 m; ortada saat kulesi olan bir meydan, yedi park, merkeze yaklaştıkça yükselen binalar.
 - Dört yüzünde şehrin saatini gösteren bir saat kulesi.
-- Sağdan akan trafik, 20 saniyelik döngüyle çalışan trafik ışıkları.
+- Önemli yapılar: dört minareli Merkez Camii, helikopter pistli Şehir Hastanesi, İtfaiye Merkezi, bayraklı Merkez Karakolu ve ışık kuleli Şehir Stadı. Tıklayınca bilgi kartı açılır, "Yakından bak" kamerayı oraya götürür.
+- Sağdan akan, kavşaklarda düz giden, sağa ve sola dönen trafik; sola dönen araç karşıdan geleni bekler. Işıklar 20 saniyelik döngüyle çalışır.
 - Kaldırımlarda yürüyen yayalar.
 - Gün doğumu, alacakaranlık, gece; geceleri yanan pencereler, sokak lambaları, farlar ve yıldızlar.
 - Ekim ayında olduğumuz için sararmış birkaç ağaç. 🍂
 
 ## Sırada ne var?
 
-- [ ] Şehri büyütmek, kavşakta dönen araçlar
-- [ ] Önemli yapılar: hastane, itfaiye, karakol, cami, stadyum
+- [x] Şehri büyütmek, kavşakta dönen araçlar
+- [x] Önemli yapılar: hastane, itfaiye, karakol, cami, stadyum
 - [ ] Rastgele olaylar: yangın, trafik kazası, suç; olay yerine koşan itfaiye, ambulans ve polis
 - [ ] Çatılarda dolaşan, suç olunca ağla sallanarak gelen bir kahraman
 - [ ] Binaların içi, karşıdan karşıya geçen yayalar, şehrin küçük hayatı
@@ -68,9 +69,10 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 |---|---|
 | `js/world.js` | Sahne, kamera, ışıklar, gökyüzü, gün/gece, yollar |
 | `js/details.js` | Tabelalar, balkonlar, çatı donanımı, park, meydan, saat kulesi |
+| `js/landmarks.js` | Cami, hastane, itfaiye, karakol, stadyum |
 | `js/buildings.js` | Cepheler, parseller, binalar, ayrıntı kademesi |
 | `js/street.js` | Ağaçlar, lambalar, banklar |
-| `js/traffic.js` | Araçlar, trafik ışıkları, yayalar |
+| `js/traffic.js` | Yol ağı, dönen araçlar, trafik ışıkları, yayalar |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |
 
 ## Lisans

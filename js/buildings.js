@@ -77,7 +77,9 @@ C.boxGeo = function (w, h, d, floors, rnd) {
 /* ---------- bloklar ve parseller ---------- */
 C.blocks = []; C.lots = []; C.buildings = []; C.pickables = [];
 C.treeSpots = []; C.lampSpots = []; C.benchSpots = [];
-const PARKS = new Set(['1,2', '6,1', '2,6', '7,6', '5,7']);
+/* 13x13 ızgara için elle seçilmiş yerler, meydan C.MID,C.MID'de */
+const PARKS = new Set(['2,2', '9,1', '1,10', '11,6', '6,10', '5,3', '10,11']);
+const LANDMARKS = { '4,6': 'mosque', '8,4': 'hospital', '3,9': 'fire', '9,8': 'police', '11,2': 'stadium' };
 
 function subdivide(bx, bz, rnd) {
   const half = 18, gap = 2, out = [];
@@ -103,7 +105,8 @@ C.genBlocks = function () {
   const layoutRnd = C.rng(3), cityBlocks = [];
   for (let i = 0; i < C.N; i++) for (let j = 0; j < C.N; j++) {
     const bx = C.blockC(i), bz = C.blockC(j);
-    const kind = (i === 4 && j === 4) ? 'plaza' : PARKS.has(i + ',' + j) ? 'park' : 'city';
+    const key = i + ',' + j;
+    const kind = (i === C.MID && j === C.MID) ? 'plaza' : LANDMARKS[key] ? 'landmark' : PARKS.has(key) ? 'park' : 'city';
     const blk = { i, j, bx, bz, kind };
     C.blocks.push(blk);
     /* kaldırım halkası: ağaç, lamba */
@@ -123,6 +126,7 @@ C.genBlocks = function () {
         scene.add(dirt); C.lots.push(L);
       }
     } else if (kind === 'park') C.makePark(blk, layoutRnd);
+    else if (kind === 'landmark') C.makeLandmark(blk, LANDMARKS[key], layoutRnd);
     else C.makePlaza(blk, layoutRnd);
   }
   const slabs = C.inst(slabGeo, slabMat, cityBlocks.length);
@@ -214,6 +218,7 @@ C.refreshPickables = function () {
   C.pickables.length = 0;
   for (const b of C.buildings) for (const m of b.meshes) C.pickables.push(m);
   for (const l of C.lots) if (!l.building) C.pickables.push(l.dirt);
+  for (const m of C.landmarkMeshes) C.pickables.push(m);
 };
 
 C.populate = function (seed) {

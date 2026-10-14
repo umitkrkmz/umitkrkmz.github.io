@@ -2,8 +2,10 @@
 (function () {
 'use strict';
 const C = window.C = {};
-C.N = 9; C.BLOCK = 44; C.ROAD = 12; C.PITCH = 56;
-C.TOTAL = C.N * C.PITCH + C.ROAD;            // 516 m
+C.N = 13; C.BLOCK = 44; C.ROAD = 12; C.PITCH = 56;
+C.TOTAL = C.N * C.PITCH + C.ROAD;            // 740 m
+C.MID = (C.N - 1) / 2;                       // meydan bloğu (N tek olmalı)
+C.SCALE = C.TOTAL / 516;                     // ilk 9x9 şehre göre kamera ve sis ölçeği
 C.SW = 0.3; C.FLOOR_H = 3.2; C.CELL_W = 3.6; C.LANE = 2.6;
 C.roadX = i => -C.TOTAL / 2 + C.ROAD / 2 + i * C.PITCH;
 C.blockC = i => -C.TOTAL / 2 + C.ROAD + C.BLOCK / 2 + i * C.PITCH;
@@ -39,7 +41,7 @@ C.dummy = new THREE.Object3D();
 
 const scene = C.scene = new THREE.Scene();
 const camera = C.camera = new THREE.PerspectiveCamera(50, 1, 0.4, 4000);
-scene.fog = new THREE.Fog(0x88aadd, 650, 2600);
+scene.fog = new THREE.Fog(0x88aadd, 650 * C.SCALE, 2600 * C.SCALE);
 
 C.resize = function () {
   const w = stage.clientWidth || window.innerWidth, h = stage.clientHeight || window.innerHeight;

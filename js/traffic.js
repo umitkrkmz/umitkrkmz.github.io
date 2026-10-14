@@ -1,25 +1,69 @@
-/* ===== traffic.js: şeritler, araçlar, trafik ışıkları, yayalar ===== */
+/* ===== traffic.js: yol ağı, araçlar, trafik ışıkları, yayalar ===== */
 (function () {
 'use strict';
 if (!window.C || C.failed) return;
-const scene = C.scene, N = C.N, TOTAL = C.TOTAL, L = TOTAL;
+const scene = C.scene, N = C.N, TOTAL = C.TOTAL;
 C.density = 0.5; C.carLayers = []; C.peopleLayers = []; C.signalLayers = [];
-const MAXPER = 12;
+const MAXPER = 2;                                    // kenar başına en fazla araç
 
-/* ---------- şeritler: sağdan akış ---------- */
-const lanes = [];
-for (const axis of ['x', 'z']) for (let j = 0; j <= N; j++) for (const dir of [1, -1]) {
-  const c = C.roadX(j);
-  const perp = axis === 'x' ? c + (dir === 1 ? C.LANE : -C.LANE) : c + (dir === 1 ? -C.LANE : C.LANE);
-  const stops = [];
-  for (let k = 0; k <= N; k++) {
-    const ck = C.roadX(k), u = dir === 1 ? ck + TOTAL / 2 : TOTAL / 2 - ck;
-    stops.push(u - (C.ROAD / 2 + 3.2));
+/* ---------- yol ağı: kavşak düğümleri ve aralarındaki sağdan akan yönlü şeritler ----------
+   Bir kenar, kavşağın çıkışından bir sonraki kavşağın durma çizgisine kadar gider.
+   Kavşağın içi iki kenarı bağlayan ikinci derece Bezier eğrisidir; düz geçişte doğru parçası. */
+const NN = N + 1, END = C.ROAD / 2 + 3.2, EDGE_LEN = C.PITCH - 2 * END;
+const nodeId = (i, j) => i * NN + j;
+const edges = [], outOf = [], edgeAt = new Map();
+for (let k = 0; k < NN * NN; k++) outOf.push([]);
+for (let i = 0; i < NN; i++) for (let j = 0; j < NN; j++) {
+  for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const ii = i + dx, jj = j + dz;
+    if (ii < 0 || jj < 0 || ii >= NN || jj >= NN) continue;
+    const a = nodeId(i, j), b = nodeId(ii, jj), rx = -dz, rz = dx;
+    const e = {
+      id: edges.length, a, b, bi: ii, bj: jj, dx, dz, axis: dx ? 'x' : 'z', len: EDGE_LEN, cars: [],
+      ox: C.roadX(i) + dx * END + rx * C.LANE, oz: C.roadX(j) + dz * END + rz * C.LANE
+    };
+    edges.push(e); outOf[a].push(e); edgeAt.set(a * 4096 + b, e);
   }
-  stops.sort((a, b) => a - b);
-  lanes.push({ axis, dir, perp, stops, cars: [] });
 }
-const MAXC = lanes.length * MAXPER;
+
+function bez(t, u, o) {
+  const a = 1 - u;
+  o.x = a * a * t.p0x + 2 * a * u * t.p1x + u * u * t.p2x;
+  o.z = a * a * t.p0z + 2 * a * u * t.p1z + u * u * t.p2z;
+  o.hx = a * (t.p1x - t.p0x) + u * (t.p2x - t.p1x);
+  o.hz = a * (t.p1z - t.p0z) + u * (t.p2z - t.p1z);
+  return o;
+}
+const turns = new Map(), tmp = { x: 0, z: 0, hx: 1, hz: 0 };
+function turnOf(e, f) {
+  const key = e.id * 4096 + f.id;
+  let t = turns.get(key); if (t) return t;
+  const p0x = e.ox + e.dx * e.len, p0z = e.oz + e.dz * e.len, p2x = f.ox, p2z = f.oz;
+  const cross = e.dx * f.dz - e.dz * f.dx;
+  let p1x = (p0x + p2x) / 2, p1z = (p0z + p2z) / 2;
+  if (cross !== 0) { if (e.dx) { p1x = p2x; p1z = p0z; } else { p1x = p0x; p1z = p2z; } }
+  t = { p0x, p0z, p1x, p1z, p2x, p2z, kind: cross === 0 ? 's' : cross > 0 ? 'r' : 'l', len: 0 };
+  let px = p0x, pz = p0z;
+  for (let k = 1; k <= 12; k++) { bez(t, k / 12, tmp); t.len += Math.hypot(tmp.x - px, tmp.z - pz); px = tmp.x; pz = tmp.z; }
+  turns.set(key, t); return t;
+}
+
+/* sonraki kenar: hedefi olan araç (ileride acil durum araçları) hedefe yaklaştıran yolu seçer,
+   diğerleri çoğunlukla düz gider; geri dönüş yok (ızgarada her kavşakta başka çıkış var) */
+function chooseNext(car, e) {
+  const opts = outOf[e.b].filter(f => f.dx !== -e.dx || f.dz !== -e.dz);
+  if (car.goal != null && car.goal !== e.b) {
+    const gi = Math.floor(car.goal / NN), gj = car.goal % NN;
+    const now = Math.abs(gi - e.bi) + Math.abs(gj - e.bj);
+    const better = opts.filter(f => Math.abs(gi - f.bi) + Math.abs(gj - f.bj) < now);
+    if (better.length) return better.find(f => f.dx === e.dx && f.dz === e.dz) || better[0];
+  }
+  const r = Math.random(), want = r < 0.6 ? 's' : r < 0.82 ? 'r' : 'l';
+  return opts.find(f => turnOf(e, f).kind === want) || opts[(Math.random() * opts.length) | 0];
+}
+const MAXC = edges.length * MAXPER, cars = [];
+C.roads = { edges, outOf, edgeAt, nodeId, NN, turnOf };
+C.cars = cars;
 
 /* ---------- araç parçaları: aynı örnek matrisini paylaşır ---------- */
 const mk = (g, ox, oy, oz) => { g.translate(ox, oy, oz); return g; };
@@ -36,23 +80,26 @@ const parts = [
   C.inst(mk(new THREE.BoxGeometry(0.08, 0.16, 1.5), 2.2, 0.8, 0), headM, MAXC),
   C.inst(mk(new THREE.BoxGeometry(0.08, 0.16, 1.5), -2.2, 0.85, 0), tailM, MAXC)
 ];
+/* r128 setColorAt, renk tamponunu o anki count kadar açar; count 0'a inmeden önce tam boy aç */
+parts[0].instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAXC * 3).fill(1), 3);
 parts.forEach(p => { p.count = 0; p.castShadow = true; scene.add(p); C.carLayers.push(p); });
 const CAR_COLORS = ['#c9372c', '#1f5fa8', '#e8e8e8', '#2b2d31', '#f2b705', '#2f8f5b', '#8d939a', '#ffffff', '#6b3fa0', '#d9822b'].map(C.col);
 
 C.setDensity = function (d) {
   C.density = d;
-  const per = Math.round(d * MAXPER), r = C.rng(1234);
-  let idx = 0;
-  for (const lane of lanes) {
-    lane.cars = [];
-    for (let k = 0; k < per; k++) {
-      const u = L * (1 - (k + 0.5) / per) + (r() - 0.5) * (L / per) * 0.3;
-      const car = { u, v: 0, v0: 9 + r() * 4, len: 4.6, idx: idx++ };
+  const r = C.rng(1234);
+  cars.length = 0;
+  for (const e of edges) {
+    e.cars.length = 0;
+    const n = Math.min(MAXPER, Math.floor(d * MAXPER + r()));
+    for (let k = 0; k < n; k++) {
+      const car = { e, s: e.len * (1 - (k + 0.5) / n) + (r() - 0.5) * 3, v: 0, v0: 9 + r() * 4, len: 4.6, idx: cars.length, tin: null, next: null, goal: null };
+      car.next = chooseNext(car, e);
       parts[0].setColorAt(car.idx, CAR_COLORS[(r() * CAR_COLORS.length) | 0]);
-      lane.cars.push(car);
+      e.cars.push(car); cars.push(car);
     }
   }
-  parts.forEach(p => p.count = idx);
+  parts.forEach(p => p.count = cars.length);
   if (parts[0].instanceColor) parts[0].instanceColor.needsUpdate = true;
 };
 
@@ -93,40 +140,60 @@ function paintLamps(sx, sz) {
 }
 
 /* ---------- trafik güncellemesi ---------- */
-const dm = new THREE.Object3D();
+const dm = new THREE.Object3D(), pos = { x: 0, z: 0, hx: 1, hz: 0 }, movers = [];
+function carPos(car, o) {
+  const e = car.e;
+  if (car.s >= 0 || !car.tin) { o.x = e.ox + e.dx * car.s; o.z = e.oz + e.dz * car.s; o.hx = e.dx; o.hz = e.dz; return o; }
+  return bez(car.tin, C.clamp(1 + car.s / car.tin.len, 0, 1), o);
+}
+/* sola dönen araç, karşıdan hızla yaklaşan biri varsa bekler */
+function oncoming(e) {
+  const ci = e.bi + e.dx, cj = e.bj + e.dz;
+  if (ci < 0 || cj < 0 || ci >= NN || cj >= NN) return false;
+  const g = edgeAt.get(nodeId(ci, cj) * 4096 + e.b);
+  for (const o of g.cars) if (g.len - o.s < 26 && o.v > 1.5) return true;
+  return false;
+}
 C.updateTraffic = function (dt) {
   simT += dt;
   const ph = phaseOf(simT);
   if (ph !== lastPhase) { lastPhase = ph; lightX = ph[0]; lightZ = ph[1]; paintLamps(lightX, lightZ); }
-  for (const lane of lanes) {
-    const cars = lane.cars, n = cars.length; if (!n) continue;
-    const st = lane.axis === 'x' ? lightX : lightZ;
+  for (const e of edges) if (e.cars.length > 1) e.cars.sort((p, q) => q.s - p.s);
+  movers.length = 0;
+  for (const e of edges) {
+    const list = e.cars, n = list.length; if (!n) continue;
+    const st = e.axis === 'x' ? lightX : lightZ;
     for (let k = 0; k < n; k++) {
-      const car = cars[k];
+      const car = list[k], t = turnOf(e, car.next);
       let gap = 1e9;
-      if (n > 1) { const lead = cars[(k + n - 1) % n]; gap = (k === 0 ? lead.u + L - car.u : lead.u - car.u) - car.len; }
+      if (k > 0) gap = list[k - 1].s - car.s - car.len;
+      else {
+        let tail = 1e9; for (const o of car.next.cars) if (o.s < tail) tail = o.s;
+        if (tail < 1e8) gap = e.len - car.s + t.len + tail - car.len;
+      }
       let sgap = 1e9;
-      if (st !== 'g') {
-        for (const S of lane.stops) {
-          const d = S - (car.u + car.len * 0.5);
-          if (d > -0.4) { if (st === 'r' || d > car.v * car.v / 12 + 1.5) sgap = d; break; }
-        }
+      const d = e.len - (car.s + car.len * 0.5);
+      if (d > -0.4) {
+        if (st !== 'g') { if (st === 'r' || d > car.v * car.v / 12 + 1.5) sgap = d; }
+        else if (t.kind === 'l' && d < 14 && oncoming(e)) sgap = Math.max(0, d);
       }
       const free = Math.max(0, Math.min(gap, sgap) - 1.5);
       const des = Math.min(car.v0, Math.sqrt(9 * free));
       car.v = car.v < des ? Math.min(des, car.v + 3 * dt) : Math.max(des, car.v - 9 * dt);
-      car.u += car.v * dt;
+      car.s += car.v * dt;
+      if (car.s > e.len) movers.push(car);
     }
-    while (cars[0].u > L) { cars[0].u -= L; cars.push(cars.shift()); }
-    for (const car of cars) {
-      const coord = lane.dir === 1 ? -TOTAL / 2 + car.u : TOTAL / 2 - car.u;
-      const s = Math.max(0.001, C.clamp(Math.min(car.u, L - car.u) / 8, 0, 1));
-      let x, z, ry;
-      if (lane.axis === 'x') { x = coord; z = lane.perp; ry = lane.dir === 1 ? 0 : Math.PI; }
-      else { x = lane.perp; z = coord; ry = lane.dir === 1 ? -Math.PI / 2 : Math.PI / 2; }
-      dm.position.set(x, C.SW * 0, z); dm.rotation.set(0, ry, 0); dm.scale.set(s, s, s); dm.updateMatrix();
-      for (const p of parts) p.setMatrixAt(car.idx, dm.matrix);
-    }
+  }
+  for (const car of movers) {
+    const e = car.e, f = car.next, t = turnOf(e, f);
+    e.cars.splice(e.cars.indexOf(car), 1);
+    car.s -= e.len + t.len; car.tin = t; car.e = f; f.cars.push(car);
+    car.next = chooseNext(car, f);
+  }
+  for (const car of cars) {
+    carPos(car, pos);
+    dm.position.set(pos.x, 0, pos.z); dm.rotation.set(0, Math.atan2(-pos.hz, pos.hx), 0); dm.updateMatrix();
+    for (const p of parts) p.setMatrixAt(car.idx, dm.matrix);
   }
   for (const p of parts) p.instanceMatrix.needsUpdate = true;
 };
