@@ -23,13 +23,23 @@ python -m http.server 8123
 | Ne | Fare | Dokunmatik |
 |---|---|---|
 | Döndür | Sol tuşla sürükle | Tek parmakla sürükle |
-| Kaydır | Sağ tuşla sürükle | İki parmakla sürükle |
+| Kaydır | Sağ tuşla sürükle ya da yön tuşları / WASD (Shift: hızlı) | İki parmakla sürükle |
 | Yakınlaş | Tekerlek (imlecin altına doğru) | İki parmakla sıkıştır |
 | Bina seç | Tıkla | Dokun |
 
 Seçtiğin binaya **kat ekleyebilir**, **kat silebilir** ya da binayı **yıkabilirsin**. Boş kalan arsaya yeniden müstakil ev, apartman veya ofis kulesi dikebilirsin.
 
-Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, gölgeler ve hazır kamera görünümleri (Kuş bakışı, Siluet, Sokağa in, Saat kulesi) var. "Yeni şehir kur" her seferinde başka bir şehir üretir.
+Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, gölgeler, rastgele olaylar, "Olay çıkar" ve hazır kamera görünümleri (Kuş bakışı, Siluet, Sokağa in, Saat kulesi) var. "Yeni şehir kur" her seferinde başka bir şehir üretir.
+
+## Olaylar
+
+Şehirde yarım dakikada bir, bazen daha seyrek, bir şeyler olur. Sol üstteki akışta saati, sokak adı ve durumuyla görünür; tıklayınca kamera olay yerine uçar.
+
+- **Yangın:** pencerelerden alev, çatıdan duman çıkar. İtfaiye gelir, su sıkıp söndürür; ambulans da yetişir.
+- **Trafik kazası:** iki araç çarpışır, şerit kapanır, diğer araçlar başka yoldan gider. Ambulans ve polis gelir, yol açılır.
+- **Hırsızlık:** sırt çantalı bir şüpheli kaldırımda kaçar, polis gelince elleri havada yakalanır.
+
+Acil durum araçları sirenle kırmızıda geçer, önlerindeki araçlar kenara çekilip yol verir. İş bitince istasyonlarına dönerler.
 
 ## Ayrıntı kademeleri
 
@@ -56,7 +66,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 
 - [x] Şehri büyütmek, kavşakta dönen araçlar
 - [x] Önemli yapılar: hastane, itfaiye, karakol, cami, stadyum
-- [ ] Rastgele olaylar: yangın, trafik kazası, suç; olay yerine koşan itfaiye, ambulans ve polis
+- [x] Rastgele olaylar: yangın, trafik kazası, suç; olay yerine koşan itfaiye, ambulans ve polis
 - [ ] Çatılarda dolaşan, suç olunca ağla sallanarak gelen bir kahraman
 - [ ] Binaların içi, karşıdan karşıya geçen yayalar, şehrin küçük hayatı
 
@@ -73,6 +83,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/buildings.js` | Cepheler, parseller, binalar, ayrıntı kademesi |
 | `js/street.js` | Ağaçlar, lambalar, banklar |
 | `js/traffic.js` | Yol ağı, dönen araçlar, trafik ışıkları, yayalar |
+| `js/events.js` | Olaylar, acil durum araçları, duman/alev/su, olay akışı |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |
 
 ## Lisans

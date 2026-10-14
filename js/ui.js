@@ -102,7 +102,7 @@ function select(s) { sel = s; showOutline(); renderSel(); }
    en az ışını kesilen (eşitlikte en alçak) adayı seçer */
 const vrc = new THREE.Raycaster(), vdir = new THREE.Vector3(), vpt = new THREE.Vector3();
 function clearView(L) {
-  const h = Math.max(20, L.height), tgt = new THREE.Vector3(L.bx, h * 0.3, L.bz), r = C.BLOCK * 0.34;
+  const h = Math.max(20, L.height), tgt = new THREE.Vector3(L.bx, h * 0.3, L.bz), r = L.r || C.BLOCK * 0.34;
   const probes = [[0, 0.3, 0]];
   for (const sx of [-1, 1]) for (const sz of [-1, 1]) for (const fy of [0.15, 0.8]) probes.push([sx * r, fy, sz * r]);
   let best = null, bestScore = 1e9;
@@ -113,13 +113,14 @@ function clearView(L) {
     for (const p of probes) {
       vpt.set(L.bx + p[0], h * p[1], L.bz + p[2]);
       vdir.subVectors(vpt, pos); vrc.far = vdir.length(); vrc.set(pos, vdir.normalize());
-      if (vrc.intersectObjects(C.pickables, false).some(x => x.object.userData.landmark !== L)) score++;
+      if (vrc.intersectObjects(C.pickables, false).some(x => x.object.userData.landmark !== L && !(L.building && x.object.userData.building === L.building))) score++;
       if (score >= bestScore) break;
     }
     if (score < bestScore) { bestScore = score; best = pos; if (!score) return [best, tgt]; }
   }
   return [best, tgt];
 }
+C.clearView = clearView;     // olay akışı da kullanır: { bx, bz, height, r, building }
 $('selClose').addEventListener('click', () => select(null));
 window.addEventListener('keydown', e => { if (e.key === 'Escape') select(null); });
 $('selActions').addEventListener('click', e => {
@@ -190,7 +191,30 @@ $('dockToggle').addEventListener('click', () => { const d = $('dock'), c = d.cla
 if (window.innerWidth < 720) { $('dock').classList.add('collapsed'); $('dockToggle').setAttribute('aria-expanded', 'false'); }
 $('hint').textContent = coarse && window.matchMedia('(pointer:coarse)').matches
   ? 'Sürükle: döndür · İki parmak: yakınlaş ve kaydır · Dokun: bina seç'
-  : 'Sürükle: döndür · Sağ tuş: kaydır · Tekerlek: imlece yakınlaş · Tıkla: bina seç';
+  : 'Sürükle: döndür · Sağ tuş veya yön tuşları: kaydır · Tekerlek: imlece yakınlaş · Tıkla: bina seç';
+
+/* ---------- klavye: yön tuşları ve WASD kamerayı baktığı yöne göre kaydırır, Shift hızlandırır ---------- */
+const MOVE = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], KeyW: [0, 1], KeyS: [0, -1], KeyA: [-1, 0], KeyD: [1, 0] };
+const keys = new Set(), kf = new THREE.Vector3(), kr = new THREE.Vector3();
+let boost = false;
+window.addEventListener('keydown', e => {
+  boost = e.shiftKey;
+  if (!MOVE[e.code] || e.ctrlKey || e.metaKey || e.altKey || (e.target.closest && e.target.closest('input, textarea, select'))) return;
+  keys.add(e.code); fly = null; e.preventDefault();
+});
+window.addEventListener('keyup', e => { boost = e.shiftKey; keys.delete(e.code); });
+window.addEventListener('blur', () => keys.clear());
+function stepKeys(dt, D) {
+  if (!keys.size) return;
+  let f = 0, r = 0; for (const k of keys) { r += MOVE[k][0]; f += MOVE[k][1]; }
+  if (!f && !r) return;
+  camera.getWorldDirection(kf); kf.y = 0;
+  if (kf.lengthSq() < 1e-4) { kf.set(0, 1, 0).applyQuaternion(camera.quaternion); kf.y = 0; }   // tam tepeden bakarken ekranın üstü
+  kf.normalize(); kr.set(-kf.z, 0, kf.x);
+  const sp = C.clamp(D * 0.8, 8, 400) * (boost ? 2.5 : 1) * dt / Math.hypot(f, r);
+  kf.multiplyScalar(f * sp).addScaledVector(kr, r * sp);
+  camera.position.add(kf); controls.target.add(kf); clampTarget();
+}
 
 /* ---------- kademe göstergesi ve ölçek çubuğu ---------- */
 const LV = [
@@ -223,6 +247,7 @@ function loop(now) {
   requestAnimationFrame(loop);
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   stepFly(now);
+  stepKeys(dt, camera.position.distanceTo(controls.target));
   controls.update(); clampTarget();
   if (camera.position.y < 1.4) camera.position.y = 1.4;
   const D = camera.position.distanceTo(controls.target), level = levelOf(D);
@@ -243,7 +268,7 @@ function loop(now) {
   if (Math.abs(sc.right - s) > 1) { sc.left = -s; sc.right = s; sc.top = s; sc.bottom = -s; sc.updateProjectionMatrix(); }
   for (const f of C.updaters) f(dt, now / 1000, D);
   C.updateBuildingsLOD(camera.position);
-  if (on1) C.updateTraffic(dt);
+  C.updateTraffic(dt);                 // şehir kademesinde de akar: acil durum araçları olay yerine gitmeye devam eder
   if (on2) C.updatePeople(dt);
   renderer.render(scene, camera);
   if (++frameN % 6 === 0 || frameN < 3) hud(D, level);

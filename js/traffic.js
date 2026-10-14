@@ -48,22 +48,57 @@ function turnOf(e, f) {
   turns.set(key, t); return t;
 }
 
-/* sonraki kenar: hedefi olan araç (ileride acil durum araçları) hedefe yaklaştıran yolu seçer,
-   diğerleri çoğunlukla düz gider; geri dönüş yok (ızgarada her kavşakta başka çıkış var) */
+/* sonraki kenar: rotası olan araç (acil durum araçları) rotayı izler, diğerleri çoğunlukla düz gider;
+   geri dönüş yok (ızgarada her kavşakta başka çıkış var) */
+const nexts = e => outOf[e.b].filter(f => f.dx !== -e.dx || f.dz !== -e.dz);
 function chooseNext(car, e) {
-  const opts = outOf[e.b].filter(f => f.dx !== -e.dx || f.dz !== -e.dz);
-  if (car.goal != null && car.goal !== e.b) {
-    const gi = Math.floor(car.goal / NN), gj = car.goal % NN;
-    const now = Math.abs(gi - e.bi) + Math.abs(gj - e.bj);
-    const better = opts.filter(f => Math.abs(gi - f.bi) + Math.abs(gj - f.bj) < now);
-    if (better.length) return better.find(f => f.dx === e.dx && f.dz === e.dz) || better[0];
-  }
+  if (car.path && car.path.length) return car.path.shift();
+  let opts = nexts(e); const open = opts.filter(f => !f.blocked); if (open.length) opts = open;
   const r = Math.random(), want = r < 0.6 ? 's' : r < 0.82 ? 'r' : 'l';
   return opts.find(f => turnOf(e, f).kind === want) || opts[(Math.random() * opts.length) | 0];
+}
+/* kenar grafiğinde genişlik öncelikli arama: from kenarından goal kenarına, ilki hariç kenar listesi */
+function route(from, s0, goal, s1) {
+  if (from === goal && s0 < s1) return [];
+  const prev = new Map(), q = [];
+  const ok = f => !f.blocked || f === goal;                 // kapalı şeritten yalnızca hedefse geçilir
+  for (const f of nexts(from)) if (ok(f)) { prev.set(f, from); q.push(f); }
+  for (let k = 0; k < q.length && !prev.has(goal); k++) for (const f of nexts(q[k])) if (ok(f) && !prev.has(f)) { prev.set(f, q[k]); q.push(f); }
+  if (!prev.has(goal)) return [];
+  const path = []; let e = goal;
+  do { path.unshift(e); e = prev.get(e); } while (e !== from);
+  return path;
 }
 const MAXC = edges.length * MAXPER, cars = [];
 C.roads = { edges, outOf, edgeAt, nodeId, NN, turnOf };
 C.cars = cars;
+
+/* ---------- özel araçlar (events.js): kendi modeli, rotası ve durma noktası olan araçlar ----------
+   car.special: yoğunluk değişince silinmez · car.model(x, z, ry): kendini yerleştirir
+   car.siren: kırmızıda geçer, sola dönerken beklemez · car.parked: şeritten çıkmış, güncellenmez */
+C.spawnCar = function (car, e, s) {
+  Object.assign(car, { e, s, v: car.v || 0, tin: null, path: [], parked: false });
+  car.next = chooseNext(car, e); e.cars.push(car); cars.push(car);
+};
+C.despawnCar = function (car) {
+  const i = car.e.cars.indexOf(car); if (i >= 0) car.e.cars.splice(i, 1);
+  const j = cars.indexOf(car); if (j >= 0) cars.splice(j, 1);
+};
+C.parkCar = function (car) { const i = car.e.cars.indexOf(car); if (i >= 0) car.e.cars.splice(i, 1); car.parked = true; car.v = 0; };
+C.unparkCar = function (car) { car.parked = false; car.e.cars.push(car); };
+/* kaza gibi durumlarda şeridi kapat: normal araçlar girmez, rotası buradan geçen özel araçlar yeniden rota bulur */
+C.blockEdge = function (e, on) {
+  e.blocked = on; if (!on) return;
+  for (const c of cars) {
+    if (c.parked || c.e === e) continue;
+    if (c.special) { if (c.stopEdge !== e && (c.next === e || c.path.includes(e))) C.setRoute(c, c.stopEdge, c.stopS); }
+    else if (c.next === e && c.s >= 0) c.next = chooseNext(c, c.e);
+  }
+};
+C.setRoute = function (car, goal, s) {
+  car.stopEdge = goal; car.stopS = s; car.path = route(car.e, car.s, goal, s);
+  car.next = car.path.length ? car.path.shift() : chooseNext(car, car.e);
+};
 
 /* ---------- araç parçaları: aynı örnek matrisini paylaşır ---------- */
 const mk = (g, ox, oy, oz) => { g.translate(ox, oy, oz); return g; };
@@ -87,19 +122,21 @@ const CAR_COLORS = ['#c9372c', '#1f5fa8', '#e8e8e8', '#2b2d31', '#f2b705', '#2f8
 
 C.setDensity = function (d) {
   C.density = d;
-  const r = C.rng(1234);
+  const r = C.rng(1234), keep = cars.filter(c => c.special);
+  let idx = 0;
   cars.length = 0;
   for (const e of edges) {
     e.cars.length = 0;
     const n = Math.min(MAXPER, Math.floor(d * MAXPER + r()));
     for (let k = 0; k < n; k++) {
-      const car = { e, s: e.len * (1 - (k + 0.5) / n) + (r() - 0.5) * 3, v: 0, v0: 9 + r() * 4, len: 4.6, idx: cars.length, tin: null, next: null, goal: null };
+      const car = { e, s: e.len * (1 - (k + 0.5) / n) + (r() - 0.5) * 3, v: 0, v0: 9 + r() * 4, len: 4.6, idx: idx++, tin: null, next: null };
       car.next = chooseNext(car, e);
       parts[0].setColorAt(car.idx, CAR_COLORS[(r() * CAR_COLORS.length) | 0]);
       e.cars.push(car); cars.push(car);
     }
   }
-  parts.forEach(p => p.count = cars.length);
+  for (const c of keep) { cars.push(c); if (!c.parked) c.e.cars.push(c); }
+  parts.forEach(p => p.count = idx);
   if (parts[0].instanceColor) parts[0].instanceColor.needsUpdate = true;
 };
 
@@ -146,6 +183,7 @@ function carPos(car, o) {
   if (car.s >= 0 || !car.tin) { o.x = e.ox + e.dx * car.s; o.z = e.oz + e.dz * car.s; o.hx = e.dx; o.hz = e.dz; return o; }
   return bez(car.tin, C.clamp(1 + car.s / car.tin.len, 0, 1), o);
 }
+C.carPos = carPos;
 /* sola dönen araç, karşıdan hızla yaklaşan biri varsa bekler */
 function oncoming(e) {
   const ci = e.bi + e.dx, cj = e.bj + e.dz;
@@ -163,22 +201,31 @@ C.updateTraffic = function (dt) {
   for (const e of edges) {
     const list = e.cars, n = list.length; if (!n) continue;
     const st = e.axis === 'x' ? lightX : lightZ;
+    /* sirene yol ver: arkasında 32 m içinde sirenli araç olan araç kaldırıma çekilip durur */
+    for (const c of list) {
+      let want = 0;
+      if (!c.special && !c.crashed && c.s > 2) for (const o of list) if (o.siren && o.s < c.s && c.s - o.s < 32) { want = 1; break; }
+      const p = c.pull || 0; if (want || p) c.pull = p + C.clamp(want - p, -dt * 1.2, dt * 1.6);
+    }
     for (let k = 0; k < n; k++) {
       const car = list[k], t = turnOf(e, car.next);
-      let gap = 1e9;
-      if (k > 0) gap = list[k - 1].s - car.s - car.len;
+      if (car.crashed) { car.v = 0; continue; }
+      let gap = 1e9, j = k - 1;
+      if (car.siren) while (j >= 0 && list[j].pull > 0.4) j--;          // kenara çekilenlerin yanından geçer
+      if (j >= 0) gap = list[j].s - car.s - (list[j].len + car.len) / 2;
       else {
-        let tail = 1e9; for (const o of car.next.cars) if (o.s < tail) tail = o.s;
-        if (tail < 1e8) gap = e.len - car.s + t.len + tail - car.len;
+        let tail = null; for (const o of car.next.cars) if (!tail || o.s < tail.s) tail = o;
+        if (tail) gap = e.len - car.s + t.len + tail.s - (tail.len + car.len) / 2;
       }
       let sgap = 1e9;
       const d = e.len - (car.s + car.len * 0.5);
-      if (d > -0.4) {
+      if (d > -0.4 && !car.siren) {
         if (st !== 'g') { if (st === 'r' || d > car.v * car.v / 12 + 1.5) sgap = d; }
         else if (t.kind === 'l' && d < 14 && oncoming(e)) sgap = Math.max(0, d);
       }
+      if (car.stopEdge === e && car.stopS - car.s > -0.5) sgap = Math.min(sgap, car.stopS - car.s + 1.5);
       const free = Math.max(0, Math.min(gap, sgap) - 1.5);
-      const des = Math.min(car.v0, Math.sqrt(9 * free));
+      const des = car.pull > 0.3 ? 0 : Math.min(car.v0, Math.sqrt(9 * free));
       car.v = car.v < des ? Math.min(des, car.v + 3 * dt) : Math.max(des, car.v - 9 * dt);
       car.s += car.v * dt;
       if (car.s > e.len) movers.push(car);
@@ -191,8 +238,12 @@ C.updateTraffic = function (dt) {
     car.next = chooseNext(car, f);
   }
   for (const car of cars) {
+    if (car.parked) continue;
     carPos(car, pos);
-    dm.position.set(pos.x, 0, pos.z); dm.rotation.set(0, Math.atan2(-pos.hz, pos.hx), 0); dm.updateMatrix();
+    const ry = Math.atan2(-pos.hz, pos.hx) + (car.yaw || 0);
+    if (car.model) { car.model(pos.x, pos.z, ry); continue; }
+    if (car.pull > 0.01) { const l = Math.hypot(pos.hx, pos.hz) || 1, o = car.pull * 1.9 / l; pos.x -= pos.hz * o; pos.z += pos.hx * o; }
+    dm.position.set(pos.x, 0, pos.z); dm.rotation.set(0, ry, 0); dm.updateMatrix();
     for (const p of parts) p.setMatrixAt(car.idx, dm.matrix);
   }
   for (const p of parts) p.instanceMatrix.needsUpdate = true;
