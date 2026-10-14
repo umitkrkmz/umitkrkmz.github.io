@@ -45,7 +45,8 @@ const M = {
   red: std('#c62828', 0.45, 0.2), white: std('#f2f2ee', 0.45, 0.2), dark: std('#15181b', 0.8), glass: std('#1c2630', 0.15, 0.4),
   grey: std('#a7adb3', 0.5, 0.6), blue: std('#1f4e8c', 0.5), stripe: std('#d32f2f', 0.5), yellow: std('#f2c230', 0.5)
 };
-function part(g, mat, sx, sy, sz, x, y, z) { const m = new THREE.Mesh(boxG, mat); m.scale.set(sx, sy, sz); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; }
+/* yuvarlak kenarlı parça (geometri ölçüye göre önbellekte, araç başına yeni geometri yok) */
+function part(g, mat, sx, sy, sz, x, y, z) { const m = new THREE.Mesh(C.roundBox(sx, sy, sz, Math.min(0.3, Math.min(sx, sy, sz) * 0.22)), mat); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; }
 const MODELS = {
   fire(g) {
     part(g, M.dark, 7.4, 0.7, 2.2, 0, 0.45, 0);

@@ -26,13 +26,17 @@ function plate(text, bg, fg, w, h) {
   const x = cv.getContext('2d'); x.fillStyle = bg; x.fillRect(0, 0, cv.width, cv.height);
   x.fillStyle = fg; x.textAlign = 'center'; x.textBaseline = 'middle';
   x.font = `800 ${Math.round(cv.height * 0.72)}px "Big Shoulders Display","Arial Narrow",sans-serif`; x.fillText(text, cv.width / 2, cv.height / 2 + 2);
-  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4;
+  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = C.maxAniso;
   const m = new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.15 });
   C.nightListeners.push(n => { m.emissiveIntensity = 0.15 + n * 0.8; });
   return m;
 }
 const durakMat = plate('DURAK', '#f2c230', '#16212b', 3, 1);
-const part = (g, geo, mat, x, y, z, sx, sy, sz) => { const m = new THREE.Mesh(geo, mat); m.scale.set(sx, sy, sz); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };
+const part = (g, geo, mat, x, y, z, sx, sy, sz) => {
+  const m = geo === boxG ? new THREE.Mesh(C.roundBox(sx, sy, sz, Math.min(0.35, Math.min(sx, sy, sz) * 0.22)), mat) : new THREE.Mesh(geo, mat);
+  if (geo !== boxG) m.scale.set(sx, sy, sz);
+  m.position.set(x, y, z); m.castShadow = true; g.add(m); return m;
+};
 const shirt = ['#c9372c', '#2f6f8f', '#e8e2d0', '#3b7a57', '#d29a2d', '#6b4e8f', '#222b33', '#b3566b'].map(h => std(h, 0.9));
 const skin = ['#f1c9a5', '#d9a37c', '#a8734f', '#7a4e33'].map(h => std(h, 0.9));
 

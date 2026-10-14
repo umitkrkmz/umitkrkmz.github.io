@@ -29,7 +29,9 @@ try {
   return;
 }
 const stage = document.getElementById('stage');
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+C.coarse = window.matchMedia('(pointer:coarse)').matches;
+/* keskinlik: masaüstünde yüksek çözünürlüklü ekranda tam 2x, dokunmatikte pil ve ısı için 1,5x */
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, C.coarse ? 1.5 : 2));
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -62,11 +64,40 @@ C.setM = function (mesh, i, x, y, z, ry, sx, sy, sz) {
   d.updateMatrix(); mesh.setMatrixAt(i, d.matrix);
 };
 
+/* yuvarlak kenarlı kutu: bölütler kenarlara toplanır, köşeler r yarıçapında küreye yaslanır, normaller yumuşak.
+   Kutunun yüz grupları ve UV'leri korunur (yüz başına malzeme verilebilir). */
+const rbCache = new Map();
+C.roundBox = function (w, h, d, r, k) {
+  k = k || 2; const key = [w, h, d, r, k].join(','); if (rbCache.has(key)) return rbCache.get(key);
+  const n = 2 * k + 1, g = new THREE.BoxGeometry(w, h, d, n, n, n), p = g.attributes.position, nr = g.attributes.normal;
+  const hx = w / 2, hy = h / 2, hz = d / 2; r = Math.min(r, hx, hy, hz) * 0.999;
+  const remap = (c, half) => { const i = Math.round((c / half + 1) / 2 * n); return i <= k ? -half + r * i / k : half - r * (n - i) / k; };
+  const v = new THREE.Vector3(), q = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) {
+    v.set(remap(p.getX(i), hx), remap(p.getY(i), hy), remap(p.getZ(i), hz));
+    q.set(C.clamp(v.x, -hx + r, hx - r), C.clamp(v.y, -hy + r, hy - r), C.clamp(v.z, -hz + r, hz - r));
+    v.sub(q);
+    if (v.lengthSq() > 1e-12) { v.normalize(); nr.setXYZ(i, v.x, v.y, v.z); v.multiplyScalar(r); }
+    v.add(q); p.setXYZ(i, v.x, v.y, v.z);
+  }
+  g.computeBoundingSphere(); rbCache.set(key, g); return g;
+};
+/* birden çok geometriyi tek geometride birleştirir (konum ve normal); örnekli çizimde parçalar tek matris paylaşır */
+C.mergeGeos = function (list) {
+  const gs = list.map(g => g.index ? g.toNonIndexed() : g);
+  let n = 0; for (const g of gs) n += g.attributes.position.count;
+  const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3); let o = 0;
+  for (const g of gs) { pos.set(g.attributes.position.array, o * 3); nor.set(g.attributes.normal.array, o * 3); o += g.attributes.position.count; }
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.BufferAttribute(pos, 3)); out.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  out.computeBoundingSphere(); return out;
+};
+
 /* ---------- ışıklar ---------- */
 const hemi = C.hemi = new THREE.HemisphereLight(0xffffff, 0x3a3f45, 0.6);
 const sun = C.sun = new THREE.DirectionalLight(0xfff2dc, 1.5);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.mapSize.set(C.coarse ? 2048 : 4096, C.coarse ? 2048 : 4096);
 sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.35;
 sun.shadow.camera.near = 10; sun.shadow.camera.far = 1600;
 const moon = new THREE.DirectionalLight(0x8fa8ff, 0.2);
@@ -87,6 +118,17 @@ const stars = new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, s
 scene.add(stars);
 
 const SKY = { night: C.col('#070c18'), twi: C.col('#e0895c'), day: C.col('#86bdf0') };
+/* gökyüzü kubbesi: tepeden ufka açılan renk; ufuk sis rengiyle aynı, böylece uzak binalar ufka karışır.
+   ShaderMaterial çıktıyı çevirmez, renkler sRGB olarak verilir. */
+const skyU = { top: { value: new THREE.Color() }, hor: { value: new THREE.Color() } };
+const skyDome = new THREE.Mesh(new THREE.SphereGeometry(3500, 32, 16), new THREE.ShaderMaterial({
+  uniforms: skyU, side: THREE.BackSide, depthWrite: false, fog: false,
+  vertexShader: 'varying vec3 vP; void main() { vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: 'uniform vec3 top; uniform vec3 hor; varying vec3 vP; void main() { float h = normalize(vP).y; gl_FragColor = vec4(mix(hor, top, smoothstep(0.0, 0.5, h)), 1.0); }'
+}));
+skyDome.renderOrder = -10; skyDome.frustumCulled = false; scene.add(skyDome);
+C.updaters.push(() => skyDome.position.copy(camera.position));
+const WHITE = C.col('#ffffff'), DEEP = C.col('#3d7fd0'), GLOW = C.col('#1c2a48');
 const tmpDir = new THREE.Vector3();
 C.applyTime = function (h) {
   C.hour = h;
@@ -100,7 +142,11 @@ C.applyTime = function (h) {
   else if (e >= -0.15) sky = SKY.night.clone().lerp(SKY.twi, (e + 0.15) / 0.2);
   else sky = SKY.night.clone();
   /* sis rengi shader'da sRGB'ye çevrilir; arka plan ise olduğu gibi yazılır, bu yüzden ters çeviriyoruz */
-  scene.background = sky.clone().convertLinearToSRGB(); scene.fog.color.copy(sky);
+  const dayK = C.clamp(e * 3, 0, 1), nightK = C.clamp(-e * 4, 0, 1);
+  const hor = sky.clone().lerp(WHITE, 0.3 * dayK).lerp(GLOW, 0.6 * nightK);         // gece ufukta şehir ışığı
+  const top = sky.clone().lerp(DEEP, 0.45 * dayK);
+  skyU.top.value.copy(top).convertLinearToSRGB(); skyU.hor.value.copy(hor).convertLinearToSRGB();
+  scene.background = hor.clone().convertLinearToSRGB(); scene.fog.color.copy(hor);
   C.night = C.clamp((0.12 - e) / 0.3, 0, 1);
   const day = C.clamp(e * 3, 0, 1);
   sun.intensity = day * 1.7;
@@ -118,7 +164,15 @@ C.applyTime = function (h) {
 /* ---------- zemin ve asfalt ---------- */
 const grass = new THREE.Mesh(new THREE.PlaneGeometry(9000, 9000), new THREE.MeshStandardMaterial({ color: C.col('#66724f'), roughness: 1 }));
 grass.rotation.x = -Math.PI / 2; grass.position.y = -0.1; grass.receiveShadow = true; scene.add(grass);
-const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(C.TOTAL, C.TOTAL), new THREE.MeshStandardMaterial({ color: C.col('#2c3036'), roughness: 0.95 }));
+/* asfalt: ince pürüzlü doku, 8 m'de bir tekrar */
+C.noiseTex = function (size, base, spread, dots, seed) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = size; const x = cv.getContext('2d'), r = C.rng(seed || 7);
+  x.fillStyle = `rgb(${base},${base},${base})`; x.fillRect(0, 0, size, size);
+  for (let i = 0; i < dots; i++) { const v = base + (r() - 0.5) * spread | 0; x.fillStyle = `rgb(${v},${v},${v})`; x.fillRect(r() * size, r() * size, 1 + r() * 2.5, 1 + r() * 2.5); }
+  const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = C.maxAniso; t.encoding = THREE.sRGBEncoding; return t;
+};
+const asphaltTex = C.noiseTex(256, 225, 90, 5000, 3); asphaltTex.repeat.set(C.TOTAL / 8, C.TOTAL / 8);
+const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(C.TOTAL, C.TOTAL), new THREE.MeshStandardMaterial({ color: C.col('#33373e'), map: asphaltTex, roughness: 0.95 }));
 asphalt.rotation.x = -Math.PI / 2; asphalt.receiveShadow = true; scene.add(asphalt);
 
 /* ---------- yol çizgileri ve yaya geçitleri ---------- */

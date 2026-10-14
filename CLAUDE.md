@@ -5,10 +5,10 @@ Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayı
 ## Dosya haritası (yükleme sırası önemli, hepsi `window.C` kullanır)
 | Dosya | Ne yapar |
 |---|---|
-| `js/world.js` | Sabitler (`C.N, BLOCK, ROAD, PITCH, TOTAL, SW, FLOOR_H`, meydan `C.MID`, ilk şehre göre ölçek `C.SCALE`), renderer, sahne, kamera, ışıklar, gökyüzü, `C.applyTime(saat)`, asfalt, yol çizgileri, `C.inst`/`C.setM` yardımcıları |
+| `js/world.js` | Sabitler (`C.N, BLOCK, ROAD, PITCH, TOTAL, SW, FLOOR_H`, meydan `C.MID`, ilk şehre göre ölçek `C.SCALE`, `C.coarse`), renderer (piksel oranı masaüstünde 2, dokunmatikte 1,5; gölge haritası 4096/2048), sahne, kamera, ışıklar, gökyüzü kubbesi (tepe/ufuk geçişi, ufuk = sis rengi), `C.applyTime(saat)`, dokulu asfalt (`C.noiseTex`), yol çizgileri, `C.inst`/`C.setM`, `C.roundBox` (yuvarlak kenarlı kutu, ölçüye göre önbellekli, değiştirmeden önce `clone()`), `C.mergeGeos` |
 | `js/details.js` | Tabela dokuları, `C.buildDetail(bina)` (tabela, tente, balkon, çatı donanımı), `C.makePark`, `C.makePlaza`, saat kulesi, `C.drawClock` |
 | `js/landmarks.js` | Önemli yapılar: `C.makeLandmark(blok, tür)` (cami, hastane, itfaiye, karakol, stadyum), `C.finishLandmark` (meydan da bunu kullanır), `C.landmarks`, `C.landmarkMeshes` |
-| `js/buildings.js` | Cephe dokuları ve malzemeler, `C.boxGeo`, blok/parsel üretimi (`C.genBlocks`; park ve yapı yerleri `PARKS`, `LANDMARKS`), `C.specFor`, `C.placeBuilding`, `C.removeBuilding`, `C.populate(tohum)`, bina kademe döngüsü `C.updateBuildingsLOD` |
+| `js/buildings.js` | Cephe dokuları (1024 px, hücre 64 px) ve malzemeler, `C.boxGeo(w, h, d, kat, rnd, { r, parapet })` (yuvarlak köşeli prizma + korniş + parapet + çatı; malzeme dizisi `[cephe, korniş, çatı, çatı, cephe, cephe]`), `C.CORNER_R`, `C.addGroundAO` (cephe zemine yakın kararır), taş döşemeli kaldırım, blok/parsel üretimi (`C.genBlocks`; park ve yapı yerleri `PARKS`, `LANDMARKS`), `C.specFor`, `C.placeBuilding`, `C.removeBuilding`, `C.populate(tohum)`, bina kademe döngüsü `C.updateBuildingsLOD` |
 | `js/interiors.js` | Pencere arkasında sahte odalar: cephe malzemelerine `onBeforeCompile` ile interior mapping (yakın malzemeler, `INTERIOR`/`CW` tanımları, 220 m'de söner). Kesit: `C.cutaway.open(bina)`/`close()`/`heightOf`; katlar ızgaraya bölünür (daire ~11 m, dükkân ~12 m), tüm kutular tek InstancedMesh, insanlar ikinci bir çift |
 | `js/street.js` | Ağaç, lamba, ışık havuzu, bank (örnekli): `C.buildStreet()` |
 | `js/traffic.js` | Yol ağı (`C.roads`: kavşak düğümleri, yönlü kenarlar, Bezier dönüşler), araçlar (`C.cars`), trafik ışıkları, yayalar: `C.setDensity`, `C.updateTraffic(dt)`, `C.buildPeople`, `C.updatePeople(dt)`. Özel araç API'si: `C.spawnCar`, `C.despawnCar`, `C.setRoute(araç, kenar, s)` (kenar grafiğinde BFS), `C.parkCar`/`C.unparkCar`, `C.blockEdge`, `C.carPos` |
@@ -34,12 +34,14 @@ Tarayıcıda çalışan 3B şehir. Derleme yok: `index.html` dosyasını tarayı
 - Kesitteki bina `b.cut` taşır: bina grubu ve ayrıntısı gizlenir; kat ekleme/yıkma ve başka seçim kesiti kapatır.
 - Yayalar köşede `tryCross` ile karşıya geçer; yalnızca kestikleri yolun kırmızısı geçişe yetecek kadar uzunsa yürürler (`redLeft`).
 - `C.updateTraffic` her kademede çalışır (araçlar şehir kademesinde gizli ama hareket eder).
+- Shader'a kod eklerken `onBeforeCompile` zincirlenir: yakın cephe malzemelerinde `interiors.js` hem `C.addGroundAO` hem oda kodunu ekler. Yeni ekleme yaparken mevcut `onBeforeCompile`'ı ezme.
+- Python ile JS düzenlerken ters eğik çizgi kaçışları bash heredoc'ta kaybolabiliyor; bu tür değişiklikleri betik dosyasına yazıp çalıştır.
 - Kullanıcı arayüzü metinleri Türkçe. Renkler `index.html` içindeki CSS değişkenlerinden gelir.
 
 ## Bilinen sınırlar
 - Kesişen yönlerdeki araçlar birbirine bakmaz; sirenli araç kırmızıda geçerken yan yoldan gelenin içinden geçebilir.
 - Araçlar yalnızca kendi yolundaki öndeki araca bakar. Aynı kenara aynı anda giren iki araç (ör. sağa dönen ile karşıdan sola dönen) kısa bir an iç içe geçebilir.
-- 13×13'te kuş bakışında yaklaşık 3.500 çizim çağrısı var (gölge geçişi dahil). Güçlü makinede kare 6–8 ms, zayıf dizüstünde yavaşlarsa bina geometrilerini birleştirmek ilk adım.
+- 13×13'te kuş bakışında yaklaşık 1.900 çizim çağrısı, sokak seviyesinde ~2,2 milyon üçgen var (gölge geçişi dahil). Güçlü makinede kare 5,5–7 ms; gölge geçişi bunun yarısından fazlası. Zayıf makinede ilk adım gölgeyi kapatmak ya da gölge haritasını küçültmek.
 - 1. kat balkonları zemin kattaki dükkân tabelalarının önüne düşüyor (`details.js` balkon döngüsü `fi = 1`'den başlıyor). Henüz düzeltilmedi.
 - 2026-10-14'te tarayıcıda uçtan uca denendi: konsol temiz; kademeler, gece, kat ekleme/yıkma/yeniden dikme çalışıyor.
 - Tarayıcı paneli gizliyken `requestAnimationFrame` durur; otomatik testte bina ayrıntıları eksik görünebilir, bu bir hata değildir.

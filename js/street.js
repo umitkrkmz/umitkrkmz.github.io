@@ -11,10 +11,19 @@ C.buildStreet = function () {
 
   /* ağaçlar: gövde + taç, ekim ayına uygun birkaç sarı yaprak */
   const T = C.treeSpots, nT = T.length;
-  const trunkG = new THREE.CylinderGeometry(0.14, 0.2, 2.4, 6); trunkG.translate(0, 1.2, 0);
-  const crownG = new THREE.IcosahedronGeometry(1.7, 1); crownG.translate(0, 4.0, 0);
+  const trunkG = new THREE.CylinderGeometry(0.13, 0.21, 2.6, 8); trunkG.translate(0, 1.3, 0);
+  /* taç: dört yuvarlak küme, yüzeyi hafif pürüzlü, yumuşak gölgeli */
+  const blob = (x, y, z, r) => {
+    const g = new THREE.IcosahedronGeometry(r, 1), p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const k = 1 + (Math.sin(p.getX(i) * 7.1 + p.getY(i) * 3.7) * Math.cos(p.getZ(i) * 5.3)) * 0.07;
+      p.setXYZ(i, p.getX(i) * k + x, p.getY(i) * k + y, p.getZ(i) * k + z);
+    }
+    return g;
+  };
+  const crownG = C.mergeGeos([blob(0, 4.05, 0, 1.55), blob(0.8, 3.6, 0.35, 1.1), blob(-0.6, 3.75, -0.55, 1.1)]);
   const trunk = C.inst(trunkG, std('#6b4f3a'), nT);
-  const crown = C.inst(crownG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95, flatShading: true }), nT);
+  const crown = C.inst(crownG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95 }), nT);
   const greens = ['#4f8a3c', '#5c9a45', '#3f7a36', '#6aa04a'].map(C.col), autumn = ['#c9922f', '#b8742a'].map(C.col);
   T.forEach((t, i) => {
     C.setM(trunk, i, t[0], C.SW, t[1], 0, t[2], t[2], t[2]);
@@ -44,6 +53,11 @@ C.buildStreet = function () {
     C.setM(pool, i, l[0] + l[2] * 1.5, C.SW + 0.05, l[1] + l[3] * 1.5, 0, 11, 1, 11);
   });
   pole.instanceMatrix.needsUpdate = head.instanceMatrix.needsUpdate = pool.instanceMatrix.needsUpdate = true;
+  /* çöp kutuları: her iki lambadan birinin 1,2 m yanında (gövde + kapak tek geometri) */
+  const binG = C.mergeGeos([new THREE.CylinderGeometry(0.24, 0.21, 0.8, 12).translate(0, 0.4, 0), new THREE.CylinderGeometry(0.28, 0.28, 0.08, 12).translate(0, 0.84, 0)]);
+  const bins = C.inst(binG, std('#2f5d46', 0.6), Math.ceil(nL / 2));
+  for (let i = 0, k = 0; i < nL; i += 2, k++) { const l = L[i]; C.setM(bins, k, l[0] - l[3] * 1.2, C.SW, l[1] + l[2] * 1.2, 0); }
+  bins.instanceMatrix.needsUpdate = true; bins.castShadow = true; scene.add(bins); C.streetLayers.push(bins);
   scene.add(pole, head, pool); C.streetLayers.push(pole, head, pool);
   C.nightListeners.push(n => { headMat.emissiveIntensity = n * 2.4; poolMat.opacity = n * 0.7; });
 

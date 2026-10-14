@@ -74,6 +74,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - İki otobüs hattı (12 ve 34): duraklarda bekleyen yolcular, durağa yanaşıp yolcu alan otobüsler.
 - Gün doğumu, alacakaranlık, gece; geceleri yanan pencereler, sokak lambaları, farlar ve yıldızlar.
 - Ekim ayında olduğumuz için sararmış birkaç ağaç. 🍂
+- Yuvarlak köşeli, kornişli ve parapetli binalar; denizlikli pencereler; yuvarlak hatlı, tekerlekli araçlar; taş döşeli kaldırımlar, çöp kutuları; ufka doğru açılan gökyüzü.
 
 ## Sırada ne var?
 
@@ -82,7 +83,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - [x] Rastgele olaylar: yangın, trafik kazası, suç; olay yerine koşan itfaiye, ambulans ve polis
 - [x] Çatılarda dolaşan, suç olunca ağla sallanarak gelen bir kahraman
 - [x] Binaların içi, karşıdan karşıya geçen yayalar, şehrin küçük hayatı
-- [ ] Görsel cila: daha çok ayrıntı, daha keskin görüntü, keskin kenarlar yerine yuvarlatılmış hatlar
+- [x] Görsel cila: daha çok ayrıntı, daha keskin görüntü, keskin kenarlar yerine yuvarlatılmış hatlar
 
 ## Teknik
 

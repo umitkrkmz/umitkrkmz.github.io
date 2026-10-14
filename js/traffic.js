@@ -108,12 +108,16 @@ const darkM = new THREE.MeshStandardMaterial({ color: C.col('#15181b'), roughnes
 const headM = new THREE.MeshStandardMaterial({ color: C.col('#e8eef5'), emissive: C.col('#fff6d8'), emissiveIntensity: 0.1 });
 const tailM = new THREE.MeshStandardMaterial({ color: C.col('#7a1410'), emissive: C.col('#ff2a1c'), emissiveIntensity: 0.15 });
 C.nightListeners.push(n => { headM.emissiveIntensity = 0.1 + n * 2.2; tailM.emissiveIntensity = 0.15 + n * 1.6; });
+/* yuvarlak gövde ve kabin; tekerlekler ve marşpiyel tek koyu parça; köşelerde farlar ve stoplar */
+const rb = (w, h, d, r, k) => C.roundBox(w, h, d, r, k).clone();
+const wheel = (x, z) => new THREE.CylinderGeometry(0.34, 0.34, 0.24, 10).rotateX(Math.PI / 2).translate(x, 0.34, z);
+const pair2 = (x, y, w, h, d) => C.mergeGeos([0.62, -0.62].map(z => new THREE.BoxGeometry(w, h, d).translate(x, y, z)));   // küçük parçada düz kutu yeter
 const parts = [
-  C.inst(mk(new THREE.BoxGeometry(4.4, 0.8, 1.8), 0, 0.75, 0), bodyM, MAXC),
-  C.inst(mk(new THREE.BoxGeometry(2.2, 0.7, 1.6), -0.25, 1.5, 0), glassM, MAXC),
-  C.inst(mk(new THREE.BoxGeometry(4.0, 0.35, 1.7), 0, 0.32, 0), darkM, MAXC),
-  C.inst(mk(new THREE.BoxGeometry(0.08, 0.16, 1.5), 2.2, 0.8, 0), headM, MAXC),
-  C.inst(mk(new THREE.BoxGeometry(0.08, 0.16, 1.5), -2.2, 0.85, 0), tailM, MAXC)
+  C.inst(mk(rb(4.4, 0.78, 1.8, 0.3), 0, 0.74, 0), bodyM, MAXC),
+  C.inst(mk(rb(2.35, 0.72, 1.62, 0.3), -0.25, 1.42, 0), glassM, MAXC),
+  C.inst(C.mergeGeos([rb(3.6, 0.26, 1.7, 0.1, 1).translate(0, 0.4, 0), wheel(1.42, 0.82), wheel(1.42, -0.82), wheel(-1.42, 0.82), wheel(-1.42, -0.82)]), darkM, MAXC),
+  C.inst(pair2(2.17, 0.84, 0.1, 0.17, 0.42), headM, MAXC),
+  C.inst(pair2(-2.17, 0.88, 0.1, 0.15, 0.4), tailM, MAXC)
 ];
 /* r128 setColorAt, renk tamponunu o anki count kadar açar; count 0'a inmeden önce tam boy aç */
 parts[0].instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAXC * 3).fill(1), 3);
@@ -259,11 +263,11 @@ C.buildPeople = function () {
     for (let k = 0; k < n; k++) people.push({ blk, f: r(), dir: r() < 0.5 ? 1 : -1, sp: 1.1 + r() * 0.6, lat: (r() - 0.5) * 1.4, ph: r() * 6.28 });
   }
   const M = people.length;
-  const leg = () => C.inst(new THREE.BoxGeometry(0.16, 0.8, 0.2).translate(0, -0.4, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
-  const arm = () => C.inst(new THREE.BoxGeometry(0.12, 0.6, 0.14).translate(0, -0.3, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
+  const leg = () => C.inst(C.roundBox(0.16, 0.8, 0.2, 0.07, 1).clone().translate(0, -0.4, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
+  const arm = () => C.inst(C.roundBox(0.12, 0.6, 0.14, 0.055, 1).clone().translate(0, -0.3, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
   pt.legA = leg(); pt.legB = leg(); pt.armA = arm(); pt.armB = arm();
-  pt.torso = C.inst(new THREE.BoxGeometry(0.42, 0.62, 0.26).translate(0, 0.31, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
-  pt.head = C.inst(new THREE.SphereGeometry(0.13, 8, 6).translate(0, 0.78, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
+  pt.torso = C.inst(C.roundBox(0.42, 0.62, 0.26, 0.1, 1).clone().translate(0, 0.31, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
+  pt.head = C.inst(new THREE.SphereGeometry(0.13, 10, 8).translate(0, 0.78, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
   const shirt = ['#c9372c', '#2f6f8f', '#e8e2d0', '#3b7a57', '#d29a2d', '#6b4e8f', '#222b33', '#b3566b'].map(C.col);
   const jeans = ['#2d3b55', '#3a3a3a', '#4a4036', '#1f2a3a'].map(C.col);
   const skin = ['#f1c9a5', '#d9a37c', '#a8734f', '#7a4e33'].map(C.col);

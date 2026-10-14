@@ -67,6 +67,7 @@ function interiorize(m, cw) {
   m.defines = Object.assign(m.defines || {}, cw ? { INTERIOR: 1, CW: 1 } : { INTERIOR: 1 });
   m.extensions = Object.assign(m.extensions || {}, { derivatives: true });
   m.onBeforeCompile = sh => {
+    C.addGroundAO(sh);
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', '#include <common>\n' + ROOM_FN)
       .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n' + ROOM_APPLY);

@@ -11,15 +11,15 @@ const std = (hex, r) => new THREE.MeshStandardMaterial({ color: C.col(hex), roug
 const SIGNS = ['FIRIN', 'ECZANE', 'KIRTASİYE', 'ÇAY OCAĞI', 'MARKET', 'KUAFÖR', 'KEBAP', 'KAFE', 'OPTİK', 'ÇİÇEKÇİ', 'TAMİRCİ', 'SİMİT SARAYI'];
 const SIGN_BG = ['#b3402e', '#1f5a7a', '#2f6f4e', '#c9902a', '#5a3f86', '#222b33', '#a0306a', '#2c7f86', '#7a5a2a', '#3d3d8f', '#8a2d2d', '#1e6b3a'];
 const signMats = SIGNS.map((name, i) => {
-  const cv = document.createElement('canvas'); cv.width = 320; cv.height = 68;
-  const x = cv.getContext('2d');
+  const cv = document.createElement('canvas'); cv.width = 640; cv.height = 136;
+  const x = cv.getContext('2d'); x.scale(2, 2);                     // 2x çözünürlük, çizim koordinatları aynı
   x.fillStyle = SIGN_BG[i]; x.fillRect(0, 0, 320, 68);
   x.strokeStyle = 'rgba(255,255,255,.55)'; x.lineWidth = 3; x.strokeRect(4, 4, 312, 60);
   x.fillStyle = '#fff'; x.textAlign = 'center'; x.textBaseline = 'middle';
   let size = 40; x.font = `700 ${size}px "Big Shoulders Display","Arial Narrow",sans-serif`;
   while (x.measureText(name).width > 280 && size > 16) { size -= 2; x.font = `700 ${size}px "Big Shoulders Display","Arial Narrow",sans-serif`; }
   x.fillText(name, 160, 36);
-  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4;
+  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = C.maxAniso;
   return new THREE.MeshStandardMaterial({ map: t, roughness: 0.6, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 0.1 });
 });
 const shopMat = new THREE.MeshStandardMaterial({ color: C.col('#26323d'), roughness: 0.2, metalness: 0.2, emissive: C.col('#ffd9a0'), emissiveIntensity: 0 });
@@ -156,10 +156,10 @@ C.makePark = function (blk, rnd) {
 };
 
 /* saat kulesi: dört yüzünde simüle edilen saati gösterir */
-const clockCv = document.createElement('canvas'); clockCv.width = clockCv.height = 256;
-const clockTex = new THREE.CanvasTexture(clockCv); clockTex.encoding = THREE.sRGBEncoding; clockTex.anisotropy = 4;
+const clockCv = document.createElement('canvas'); clockCv.width = clockCv.height = 512;
+const clockTex = new THREE.CanvasTexture(clockCv); clockTex.encoding = THREE.sRGBEncoding; clockTex.anisotropy = C.maxAniso;
 C.drawClock = function (hour) {
-  const x = clockCv.getContext('2d'), c = 128;
+  const x = clockCv.getContext('2d'), c = 128; x.setTransform(2, 0, 0, 2, 0, 0);
   x.fillStyle = '#f3efe3'; x.fillRect(0, 0, 256, 256);
   x.lineWidth = 10; x.strokeStyle = '#2b2b2b'; x.beginPath(); x.arc(c, c, 118, 0, Math.PI * 2); x.stroke();
   x.fillStyle = '#2b2b2b'; x.font = '700 30px "IBM Plex Sans",Arial,sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';

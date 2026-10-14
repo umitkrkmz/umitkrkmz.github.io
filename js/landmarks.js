@@ -17,7 +17,7 @@ const glowing = (mat, night, day) => { glow.push([mat, night, day || 0]); return
 function canvasTex(w, h, draw) {
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   draw(cv.getContext('2d'), w, h);
-  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
+  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = C.maxAniso; return t;
 }
 function signMat(text, bg, fg, night) {
   const t = canvasTex(512, 96, (x, w, h) => {
@@ -55,7 +55,7 @@ const paveMat = std('#b9b6ae', 0.95);
 function slab(g, mat) { box(g, mat || paveMat, 0, 0, 0, C.BLOCK, B, C.BLOCK); }
 /* binalardaki pencereli cephe malzemesini ve UV ölçeğini kullanan kütle */
 function facadeBox(g, w, floors, d, x, z, tint, rnd) {
-  const h = floors * C.FLOOR_H, m = new THREE.Mesh(C.boxGeo(w, h, d, floors, rnd), C.mats.near.apt[tint]);
+  const h = floors * C.FLOOR_H, m = new THREE.Mesh(C.boxGeo(w, h, d, floors, rnd, { r: 0.5 }), C.mats.near.apt[tint]);
   m.position.set(x, B + h / 2, z); m.castShadow = m.receiveShadow = true; g.add(m); return m;
 }
 

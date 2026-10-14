@@ -11,7 +11,7 @@ const boxG = new THREE.BoxGeometry(1, 1, 1);
 const RED = '#c8102e', BLUE = '#1f3f9a';
 function tex(draw) {
   const cv = document.createElement('canvas'); cv.width = cv.height = 128; draw(cv.getContext('2d'));
-  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t;
+  const t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; t.anisotropy = C.maxAniso; return t;
 }
 function web(x, cx, cy) {
   x.fillStyle = RED; x.fillRect(0, 0, 128, 128);
@@ -57,7 +57,7 @@ function makeHero() {
   const root = new THREE.Group(), hip = new THREE.Group(), torso = new THREE.Group();
   root.add(hip); hip.add(torso);
   const box = (mats, sx, sy, sz, x, y, z, parent) => {
-    const m = new THREE.Mesh(boxG, mats); m.scale.set(sx, sy, sz); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m;
+    const m = new THREE.Mesh(C.roundBox(sx, sy, sz, Math.min(sx, sy, sz) * 0.3), mats); m.position.set(x, y, z); m.castShadow = true; parent.add(m); return m;
   };
   box(TORSO, 0.24, 0.62, 0.42, 0, 0.31, 0, torso);
   box(HEAD, 0.27, 0.28, 0.25, 0.01, 0.79, 0, torso);
