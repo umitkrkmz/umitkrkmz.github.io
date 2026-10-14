@@ -93,8 +93,11 @@ C.boxGeo = function (w, h, d, floors, rnd, opt) {
   const corners = [[hx - r, -(hz - r), 0], [-(hx - r), -(hz - r), -Math.PI / 2], [-(hx - r), hz - r, -Math.PI], [hx - r, hz - r, -1.5 * Math.PI]];
   const sides = [d - 2 * r, w - 2 * r, d - 2 * r, w - 2 * r];
   let u = ou / 16;
+  const sideInfo = [];                                              // interiors.js: penceredeki hücrenin dünyadaki yeri
   corners.forEach(([cx, cz, a0], c) => {
-    u += Math.max(1, Math.round(sides[c] / C.CELL_W)) / 16;
+    const last = ring[ring.length - 1], cells = Math.max(1, Math.round(sides[c] / C.CELL_W));
+    sideInfo.push({ ax: last.x, az: last.z, bx: cx + Math.cos(a0) * r, bz: cz + Math.sin(a0) * r, nx: Math.cos(a0), nz: Math.sin(a0), u0: u * 16, cells, len: sides[c] });
+    u += cells / 16;
     for (let k = 0; k <= cs; k++) {
       const a = a0 - Math.PI / 2 * k / cs;
       if (k) u += r * Math.PI / 2 / cs / C.CELL_W / 16;
@@ -136,6 +139,7 @@ C.boxGeo = function (w, h, d, floors, rnd, opt) {
   g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
   g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
   g.setIndex(idx); g.computeBoundingSphere(); g.computeBoundingBox();
+  g.userData = { sides: sideInfo, ov, floors, h };
   return g;
 };
 C.CORNER_R = { tower: 1.1, mid: 0.6, low: 0.45, house: 0.25 };
@@ -272,7 +276,7 @@ C.placeBuilding = function (lot, b) {
     roof.castShadow = true; roof.userData.building = b; roof.userData.roof = true;
     b.group.add(roof); b.meshes.push(roof); b.top = y + 2.8;
   }
-  scene.add(b.group); C.buildings.push(b);
+  scene.add(b.group); C.buildings.push(b); C.bver = (C.bver || 0) + 1;
 };
 
 C.removeBuilding = function (lot) {
@@ -286,6 +290,7 @@ C.removeBuilding = function (lot) {
   }
   lot.building = null; lot.dirt.visible = true;
   const k = C.buildings.indexOf(b); if (k >= 0) C.buildings.splice(k, 1);
+  C.bver = (C.bver || 0) + 1;
 };
 
 C.rebuildBuilding = function (b) { const lot = b.lot; C.removeBuilding(lot); C.placeBuilding(lot, b); C.refreshPickables(); };
@@ -311,7 +316,7 @@ C.updateBuildingsLOD = function (cam) {
     const dx = cam.x - b.lot.cx, dz = cam.z - b.lot.cz, dy = cam.y - b.top * 0.5;
     const d2 = dx * dx + dy * dy + dz * dz;
     const far = d2 > FAR2;
-    if (far !== b.isFar) { b.isFar = far; const mt = far ? b.farMats : b.nearMats; for (const m of b.meshes) if (!m.userData.roof) m.material = mt; }
+    if (far !== b.isFar) { b.isFar = far; for (const m of b.meshes) if (!m.userData.roof) m.material = far ? b.farMats : (m === b.meshes[0] && b.holeMats) || b.nearMats; }
     if (d2 < NEAR2) {
       if (!b.detail && made < 3) { C.buildDetail(b); made++; }
       if (b.detail) b.detail.visible = !b.cut;          // kesitteyken bina ve ayrıntısı gizli

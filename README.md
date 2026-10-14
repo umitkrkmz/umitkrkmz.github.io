@@ -31,6 +31,21 @@ Seçtiğin binaya **kat ekleyebilir**, **kat silebilir** ya da binayı **yıkabi
 
 Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, gölgeler, rastgele olaylar, "Olay çıkar" ve hazır kamera görünümleri (Kuş bakışı, Siluet, Sokağa in, Saat kulesi) var. "Yeni şehir kur" her seferinde başka bir şehir üretir.
 
+## Karakteri oyna 🎮
+
+Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından süzülüp bir vatandaşın arkasına iner.
+
+| Ne | Tuş |
+|---|---|
+| Yürü / koş | WASD veya yön tuşları, Shift ile koş |
+| Etrafa bak | Sahneye tıkla, imleç kilitlenir; fareyle bak (Esc bırakır) |
+| Kamera uzaklığı | Tekerlek |
+| Konuş / içeri gir / dışarı çık | E |
+
+Binalardan, ağaçlardan, lambalardan geçemezsin. Yanındaki birine E'ye basarsan sana döner ve cevap verir.
+
+Dükkânlara ve önemli yapılara girebilirsin: kafe ve çay ocağı, fırın, market, kırtasiye, eczane, optik, kuaför, kebapçı, çiçekçi, tamirci; Merkez Karakolu (nezarethanesiyle), hastanenin acil servisi, itfaiye garajı ve kubbesiyle Merkez Camii. İçerideki herkesle konuşulabilir.
+
 ## Olaylar
 
 Şehirde yarım dakikada bir, bazen daha seyrek, bir şeyler olur. Sol üstteki akışta saati, sokak adı ve durumuyla görünür; tıklayınca kamera olay yerine uçar.
@@ -68,7 +83,9 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - Dört yüzünde şehrin saatini gösteren bir saat kulesi.
 - Önemli yapılar: dört minareli Merkez Camii, helikopter pistli Şehir Hastanesi, İtfaiye Merkezi, bayraklı Merkez Karakolu ve ışık kuleli Şehir Stadı. Tıklayınca bilgi kartı açılır, "Yakından bak" kamerayı oraya götürür.
 - Sağdan akan, kavşaklarda düz giden, sağa ve sola dönen trafik; sola dönen araç karşıdan geleni bekler. Işıklar 20 saniyelik döngüyle çalışır.
+- Eli, kolu, dizi, ayakkabısı ve yüzü olan insanlar; yürür, koşar, oturur, konuşur, çay içer, yemek yapar, ders çalışır, uyur.
 - Kaldırımlarda yürüyen, köşelerde araçlara kırmızı yanınca karşıdan karşıya geçen yayalar.
+- Yakındaki binaların bazı pencerelerinin camı gerçekten açıktır: içeride biri televizyon izler, biri yemek yapar, biri ders çalışır, bazıları sofrada.
 - Yaklaşınca pencerelerin ardında derinliği olan odalar: duvarlar, zemin, tavan, mobilya ve perdeler bakış açısıyla değişir. Gece yalnızca ışığı yanan odalar aydınlıktır.
 - Kafe ve çay ocaklarının önünde masalar, fincanlar ve oturan insanlar.
 - İki otobüs hattı (12 ve 34): duraklarda bekleyen yolcular, durağa yanaşıp yolcu alan otobüsler.
@@ -84,6 +101,8 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - [x] Çatılarda dolaşan, suç olunca ağla sallanarak gelen bir kahraman
 - [x] Binaların içi, karşıdan karşıya geçen yayalar, şehrin küçük hayatı
 - [x] Görsel cila: daha çok ayrıntı, daha keskin görüntü, keskin kenarlar yerine yuvarlatılmış hatlar
+- [x] Ayrıntılı insanlar, karakter modu, girilebilir mekânlar, camın ardında yaşayan daireler
+- [ ] Örümcek Adam olarak oyna: ağ atma, çatıdan çatıya sallanma
 
 ## Teknik
 
@@ -93,15 +112,18 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | Dosya | Görevi |
 |---|---|
 | `js/world.js` | Sahne, kamera, ışıklar, gökyüzü, gün/gece, yollar |
+| `js/people.js` | Eklemli insan modeli, pozlar, örnekli kalabalık |
 | `js/details.js` | Tabelalar, balkonlar, çatı donanımı, park, meydan, saat kulesi |
 | `js/landmarks.js` | Cami, hastane, itfaiye, karakol, stadyum |
 | `js/buildings.js` | Cepheler, parseller, binalar, ayrıntı kademesi |
-| `js/interiors.js` | Pencere arkasındaki odalar (shader) ve kesit görünümü |
+| `js/interiors.js` | Pencere arkasındaki odalar (shader), camın ardında gerçek odalar, kesit görünümü |
 | `js/street.js` | Ağaçlar, lambalar, banklar |
 | `js/traffic.js` | Yol ağı, dönen araçlar, trafik ışıkları, karşıya geçen yayalar |
 | `js/events.js` | Olaylar, acil durum araçları, duman/alev/su, olay akışı |
 | `js/life.js` | Otobüs hatları, duraklar, bekleyen yolcular |
 | `js/hero.js` | Örümcek Adam: kostüm, devriye, kovalama, ağ |
+| `js/player.js` | Karakter modu: hareket, kamera, çarpışma, konuşma |
+| `js/venues.js` | Girilebilir dükkânlar ve önemli yapıların içi |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |
 
 ## Lisans

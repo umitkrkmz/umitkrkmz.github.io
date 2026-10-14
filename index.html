@@ -145,6 +145,18 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
 .feed-item.done .fs { color: var(--muted); }
 @media (max-width: 719px) { .feed li:nth-child(n+3) { display: none; } }
 
+/* karakter modu */
+#playHud { position: fixed; left: 50%; bottom: max(16px, calc(env(safe-area-inset-bottom, 0px) + 8px)); transform: translateX(-50%);
+  padding: 8px 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; max-width: calc(100vw - 32px); pointer-events: none; }
+.play-keys { font: 500 11px var(--f-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); text-align: center; }
+.play-lock { font: 600 13px var(--f-body); color: var(--accent); }
+.play-prompt { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); padding: 8px 14px; border-radius: 8px;
+  background: var(--panel); border: 1px solid var(--line); font: 800 18px var(--f-display); letter-spacing: .06em; text-transform: uppercase; pointer-events: none; }
+#bubbles { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+.bubble { position: absolute; left: 0; top: 0; max-width: 220px; padding: 7px 11px; border-radius: 12px; background: #fffdf6; color: #16212b;
+  font: 500 13px/1.3 var(--f-body); box-shadow: 0 2px 8px rgba(0,0,0,.25); white-space: normal; }
+.bubble::after { content: ""; position: absolute; left: 50%; bottom: -6px; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: #fffdf6; }
+body.playing .stack .card, body.playing .feed { display: none; }
 [hidden] { display: none !important; }
 </style>
 </head>
@@ -207,6 +219,7 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
         <button class="btn" id="btnCenter">Siluet</button>
         <button class="btn" id="btnStreet">Sokağa in</button>
         <button class="btn" id="btnClock">Saat kulesi</button>
+        <button class="btn wide" id="btnPlay" aria-pressed="false">Karakteri oyna</button>
         <button class="btn wide" id="btnHero" aria-pressed="false">Örümcek Adam'ı izle</button>
         <button class="btn wide" id="btnNew">Yeni şehir kur</button>
       </div>
@@ -214,12 +227,19 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   </section>
 </div>
 
+<div id="bubbles" aria-live="polite"></div>
+<div id="playHud" class="panel" hidden>
+  <div class="play-keys">WASD: yürü · Shift: koş · Fare: bak · Tekerlek: yakınlaş · E: konuş / gir · Esc: imleci bırak</div>
+  <div id="playLock" class="play-lock" hidden>Fareyle bakmak için sahneye tıkla</div>
+</div>
+<div id="playPrompt" class="play-prompt" hidden></div>
 <div id="boot">Şehir kuruluyor…</div>
 <div id="nogl" hidden>Bu tarayıcıda WebGL açık değil. Donanım hızlandırmayı açıp sayfayı yenileyin.</div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <script src="js/world.js"></script>
+<script src="js/people.js"></script>
 <script src="js/details.js"></script>
 <script src="js/landmarks.js"></script>
 <script src="js/buildings.js"></script>
@@ -229,6 +249,8 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
 <script src="js/events.js"></script>
 <script src="js/life.js"></script>
 <script src="js/hero.js"></script>
+<script src="js/player.js"></script>
+<script src="js/venues.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>

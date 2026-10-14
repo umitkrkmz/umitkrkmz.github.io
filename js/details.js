@@ -34,8 +34,26 @@ C.updaters.push((dt, t) => { C.blinkMat.opacity = Math.sin(t * 3) > 0 ? 1 : 0.25
 /* ---------- kafe önü: iki yuvarlak masa, sandalyeler, fincanlar, oturan insanlar ---------- */
 const CAFE = new Set([3, 7, 11]);                       // ÇAY OCAĞI, KAFE, SİMİT SARAYI
 const tableMat = std('#e8e2d0', 0.6), chairMat = std('#7a5a3a'), cupMat = std('#f6f3ea', 0.4);
-const shirtMats = ['#c9372c', '#2f6f8f', '#e8e2d0', '#3b7a57', '#d29a2d', '#6b4e8f', '#222b33'].map(h => std(h, 0.9));
-const skinMats = ['#f1c9a5', '#d9a37c', '#a8734f', '#7a4e33'].map(h => std(h, 0.9));
+/* kafede oturanlar tek bir kalabalıkta; ayrıntı grubu görünürken çizilir, bina yıkılınca yer boşalır */
+const cafeCrowd = new C.Crowd(260), seats = [], freeIdx = [], cpose = {};
+for (let i = 259; i >= 0; i--) freeIdx.push(i);
+scene.add(cafeCrowd.group);
+function seat(g, x, z, ry, rnd) {
+  if (!freeIdx.length) return;
+  const i = freeIdx.pop(); cafeCrowd.look(i, C.randomLook(rnd));
+  seats.push({ g, i, x, z, ry, ph: rnd() * 20 });
+}
+C.updaters.push((dt, t, D) => {
+  cafeCrowd.group.visible = D <= 130;
+  if (!cafeCrowd.group.visible) return;
+  for (let k = seats.length - 1; k >= 0; k--) {
+    const s = seats[k];
+    if (!s.g.parent) { cafeCrowd.hide(s.i); freeIdx.push(s.i); seats.splice(k, 1); continue; }   // bina yıkıldı
+    if (s.g.visible) cafeCrowd.set(s.i, s.x, C.SW, s.z, s.ry, C.pose(Math.sin(t * 0.13 + s.ph) > 0.4 ? 'drink' : 'sit', t + s.ph, cpose));
+    else cafeCrowd.hide(s.i);
+  }
+  cafeCrowd.commit();
+});
 function cafe(g, px, pz, f, tx, tz, rnd) {
   const add = (geo, mat, x, y, z, sx, sy, sz) => { const m = new THREE.Mesh(geo, mat); m.scale.set(sx, sy, sz); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };
   for (const s of [-1, 1]) {
@@ -47,14 +65,14 @@ function cafe(g, px, pz, f, tx, tz, rnd) {
       add(boxG, chairMat, sx, C.SW + 0.225, sz, 0.42, 0.45, 0.42);
       add(boxG, chairMat, sx + tx * c * 0.2, C.SW + 0.67, sz + tz * c * 0.2, Math.abs(tz) * 0.42 + 0.06, 0.45, Math.abs(tx) * 0.42 + 0.06);
       if (rnd() < 0.7) {
-        add(boxG, shirtMats[(rnd() * shirtMats.length) | 0], sx, C.SW + 0.83, sz, 0.32, 0.75, 0.32);
-        add(sphG, skinMats[(rnd() * skinMats.length) | 0], sx, C.SW + 1.34, sz, 0.13, 0.13, 0.13);
+        seat(g, sx, sz, Math.atan2(-(cz - sz), cx - sx), rnd);
         add(cylG, cupMat, cx + tx * c * 0.2, C.SW + 0.8, cz + tz * c * 0.2, 0.05, 0.09, 0.05);
       }
     }
   }
 }
 
+C.SIGNS = SIGNS; C.shopDoors = [];
 /* ---------- bina ayrıntısı (yalnızca yakınlaşınca kurulur) ---------- */
 C.buildDetail = function (b) {
   const g = new THREE.Group(), rnd = C.rng(b.seed + 777), lot = b.lot, bt = b.baseTier, tt = b.topTier;
@@ -88,6 +106,7 @@ C.buildDetail = function (b) {
       aw.rotation.order = 'YXZ'; aw.rotation.set(0.22, f.ry, 0); aw.scale.set(5.6, 0.12, 1.4);
       aw.position.set(px + f.nx * 0.75, C.SW + 2.8, pz + f.nz * 0.75); aw.castShadow = true; g.add(aw);
       if (CAFE.has(si)) cafe(g, px, pz, f, tx, tz, rnd);
+      C.shopDoors.push({ g, name: SIGNS[si], si, x: px, z: pz, nx: f.nx, nz: f.nz, len: f.len, two: nS === 2 });   // venues.js: girilebilir dükkân
     }
   }
   /* çatı donanımı */

@@ -41,7 +41,8 @@ const shirt = ['#c9372c', '#2f6f8f', '#e8e2d0', '#3b7a57', '#d29a2d', '#6b4e8f',
 const skin = ['#f1c9a5', '#d9a37c', '#a8734f', '#7a4e33'].map(h => std(h, 0.9));
 
 const stopRoot = new THREE.Group(); scene.add(stopRoot); C.streetLayers.push(stopRoot);
-const waitRoot = new THREE.Group(); scene.add(waitRoot); C.peopleLayers.push(waitRoot);
+const waitCrowd = new C.Crowd(64); let waitCrowdN = 0; const wpose = {};
+scene.add(waitCrowd.group); C.peopleLayers.push(waitCrowd.group);
 const MAXWAIT = 5;
 function makeStop(bi, bj, side, line) {
   const e = curbEdge(bi, bj, side); if (!e) return null;
@@ -60,13 +61,12 @@ function makeStop(bi, bj, side, line) {
   sign.castShadow = false;
   const people = [];
   for (let k = 0; k < MAXWAIT; k++) {
-    const p = new THREE.Group(); p.position.set(x + e.dx * (k - 2) * 0.65 - rx * 0.05 * k, B, z + e.dz * (k - 2) * 0.65 - rz * 0.05 * k);
-    part(p, boxG, pick(shirt), 0, 0.72, 0, 0.36, 1.45, 0.26); part(p, sphG, pick(skin), 0, 1.58, 0, 0.13, 0.13, 0.13);
-    p.rotation.y = Math.atan2(rx, rz) + (Math.random() - 0.5) * 0.8; p.visible = false; waitRoot.add(p); people.push(p);
+    const i = waitCrowdN++; waitCrowd.look(i, C.randomLook());
+    people.push({ i, x: x + e.dx * (k - 2) * 0.65 - rx * 0.05 * k, z: z + e.dz * (k - 2) * 0.65 - rz * 0.05 * k, ry: Math.atan2(rz, -rx) + (Math.random() - 0.5) * 0.8, on: false });
   }
   return { e, s, line, people, waiting: 1 + ((Math.random() * 3) | 0), spawn: 4 + Math.random() * 8 };
 }
-const showWaiting = st => st.people.forEach((p, k) => { p.visible = k < st.waiting; });
+const showWaiting = st => st.people.forEach((p, k) => { p.on = k < st.waiting; if (!p.on) waitCrowd.hide(p.i); });
 
 /* ---------- otobüs modeli: +x ileri ---------- */
 function makeBus(line) {
@@ -109,8 +109,10 @@ function build() {
   }
 }
 
-C.updaters.push(dt => {
+C.updaters.push((dt, t) => {
   if (!built) { if (!C.cars) return; build(); }
+  for (const st of stops) for (const p of st.people) if (p.on) waitCrowd.set(p.i, p.x, B, p.z, p.ry, C.pose('stand', t + p.i, wpose));
+  waitCrowd.commit();
   for (const st of stops) if (st.waiting < MAXWAIT && (st.spawn -= dt) <= 0) { st.waiting++; st.spawn = 6 + Math.random() * 10; showWaiting(st); }
   for (const bus of buses) {
     if (bus.state === 'drive') {

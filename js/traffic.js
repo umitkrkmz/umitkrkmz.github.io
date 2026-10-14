@@ -262,25 +262,12 @@ C.buildPeople = function () {
     const n = blk.kind === 'plaza' ? 6 : blk.kind === 'park' ? 3 : 2 + Math.floor(r() * 3);
     for (let k = 0; k < n; k++) people.push({ blk, f: r(), dir: r() < 0.5 ? 1 : -1, sp: 1.1 + r() * 0.6, lat: (r() - 0.5) * 1.4, ph: r() * 6.28 });
   }
-  const M = people.length;
-  const leg = () => C.inst(C.roundBox(0.16, 0.8, 0.2, 0.07, 1).clone().translate(0, -0.4, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
-  const arm = () => C.inst(C.roundBox(0.12, 0.6, 0.14, 0.055, 1).clone().translate(0, -0.3, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
-  pt.legA = leg(); pt.legB = leg(); pt.armA = arm(); pt.armB = arm();
-  pt.torso = C.inst(C.roundBox(0.42, 0.62, 0.26, 0.1, 1).clone().translate(0, 0.31, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
-  pt.head = C.inst(new THREE.SphereGeometry(0.13, 10, 8).translate(0, 0.78, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }), M);
-  const shirt = ['#c9372c', '#2f6f8f', '#e8e2d0', '#3b7a57', '#d29a2d', '#6b4e8f', '#222b33', '#b3566b'].map(C.col);
-  const jeans = ['#2d3b55', '#3a3a3a', '#4a4036', '#1f2a3a'].map(C.col);
-  const skin = ['#f1c9a5', '#d9a37c', '#a8734f', '#7a4e33'].map(C.col);
-  people.forEach((p, i) => {
-    const sc = shirt[(r() * shirt.length) | 0];
-    pt.torso.setColorAt(i, sc); pt.armA.setColorAt(i, sc); pt.armB.setColorAt(i, sc);
-    const jc = jeans[(r() * jeans.length) | 0]; pt.legA.setColorAt(i, jc); pt.legB.setColorAt(i, jc);
-    pt.head.setColorAt(i, skin[(r() * skin.length) | 0]);
-  });
-  for (const k in pt) { pt[k].castShadow = true; pt[k].instanceColor.needsUpdate = true; scene.add(pt[k]); pt[k].visible = false; C.peopleLayers.push(pt[k]); }
+  crowd = new C.Crowd(people.length);
+  people.forEach((p, k) => crowd.look(k, C.randomLook(r)));
+  crowd.group.visible = false; scene.add(crowd.group); C.peopleLayers.push(crowd.group);
 };
-const pd = new THREE.Object3D(); pd.rotation.order = 'YXZ';
-function put(mesh, i, x, y, z, ry, rz) { pd.position.set(x, y, z); pd.rotation.set(0, ry, rz || 0); pd.updateMatrix(); mesh.setMatrixAt(i, pd.matrix); }
+let crowd = null;
+const pp = {};
 /* karşıya geçiş: köşede, yürüme yönündeki yolun araçlarına kırmızı yanıyor ve kalan süre yetiyorsa */
 const SIDE_D = [[1, 0], [0, 1], [-1, 0], [0, -1]];
 const CORNER_END = [[1, -1], [1, 1], [-1, 1], [-1, -1]], CORNER_START = [[-1, -1], [1, -1], [1, 1], [-1, 1]];
@@ -298,9 +285,15 @@ function tryCross(p, k, h) {
     to: C.blocks[bi * N + bj], f: p.dir > 0 ? k / 4 + 1e-4 : (k + 1) / 4 - 1e-4, ry: Math.atan2(D[0], D[1]) };
 }
 C.updatePeople = function (dt) {
+  const cam = C.camera.position;
   for (let i = 0; i < people.length; i++) {
     const p = people[i], h = 20.5 + p.lat;
     let x, z, ry, moving = true;
+    if (p.talk > 0 && C.player) {
+      p.talk -= dt; const tp = C.player.pos;
+      crowd.set(i, p.x, C.SW, p.z, Math.atan2(-(tp.z - p.z), tp.x - p.x), C.pose('talk', p.ph + p.talk * 2, pp)); p.hid = false;
+      continue;
+    }
     if (p.cross) {
       const c = p.cross;
       if (!c.go) { c.go = redLeft(c.dx) > c.len / (p.sp * 1.25) + 0.5; moving = c.go; }
@@ -319,16 +312,14 @@ C.updatePeople = function (dt) {
       if (p.dir < 0) ry += Math.PI;
       x += p.blk.bx; z += p.blk.bz;
     }
-    if (moving) p.ph += p.sp * dt * 4.2; else p.ph *= 0.9;          // beklerken bacaklar durur
-    const sw = Math.sin(p.ph) * 0.55, bob = Math.abs(Math.sin(p.ph)) * 0.03;
-    const hip = C.SW + 0.85 + bob, lx = Math.sin(ry), lz = Math.cos(ry);
-    put(pt.torso, i, x, hip, z, ry);
-    put(pt.head, i, x, hip, z, ry);
-    put(pt.legA, i, x + lx * 0.1, hip, z + lz * 0.1, ry, sw);
-    put(pt.legB, i, x - lx * 0.1, hip, z - lz * 0.1, ry, -sw);
-    put(pt.armA, i, x + lx * 0.27, hip + 0.58, z + lz * 0.27, ry, -sw * 0.9);
-    put(pt.armB, i, x - lx * 0.27, hip + 0.58, z - lz * 0.27, ry, sw * 0.9);
+    if (moving) p.ph += p.sp * dt * 4.2;
+    p.x = x; p.z = z; p.ry = ry;
+    /* 160 m'den uzaktakiler çizilmez (zaten küçük), eklem hesabı da yapılmaz */
+    const dx = x - cam.x, dz = z - cam.z;
+    if (dx * dx + dz * dz > 160 * 160) { if (!p.hid) { crowd.hide(i); p.hid = true; } continue; }
+    p.hid = false;
+    crowd.set(i, x, C.SW, z, ry, moving ? C.pose('walk', p.ph, pp) : C.pose('stand', p.ph + i, pp));
   }
-  for (const k in pt) pt[k].instanceMatrix.needsUpdate = true;
+  crowd.commit();
 };
 })();

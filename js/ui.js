@@ -46,7 +46,7 @@ function setFollow(on) {
   follow = on; const b = $('btnHero'); if (!b) return;
   b.textContent = on ? 'İzlemeyi bırak' : "Örümcek Adam'ı izle"; b.setAttribute('aria-pressed', on);
 }
-C.controls = controls; C.flyTo = flyTo;     // olay akışı gibi dış kullanımlar için
+C.controls = controls; C.flyTo = flyTo; C.flying = () => !!fly;     // olay akışı gibi dış kullanımlar için
 
 /* ---------- imlece doğru yakınlaşma ---------- */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), gplane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
@@ -57,7 +57,9 @@ function groundPoint(e) {
   return ray.ray.intersectPlane(gplane, hit) && hit.distanceTo(camera.position) < 3000 ? hit.clone() : null;
 }
 stage.addEventListener('wheel', e => {
-  e.preventDefault(); e.stopPropagation(); fly = null;
+  e.preventDefault(); e.stopPropagation();
+  if (C.player && C.player.active) { C.player.zoom(e.deltaY); return; }
+  fly = null;
   const D = camera.position.distanceTo(controls.target);
   const k = Math.exp(e.deltaY * (e.deltaMode === 1 ? 0.05 : 0.0016));
   const nd = C.clamp(D * k, controls.minDistance, controls.maxDistance), kk = nd / D;
@@ -161,6 +163,7 @@ $('selActions').addEventListener('click', e => {
 let down = null;
 el.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, t: performance.now() }; fly = null; });
 el.addEventListener('pointerup', e => {
+  if (C.player && (C.player.active || C.player.entering)) { down = null; return; }
   if (!down || e.button !== 0) { down = null; return; }
   const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y), dt = performance.now() - down.t; down = null;
   if (moved > 6 || dt > 500) return;
@@ -199,6 +202,7 @@ $('btnHero').addEventListener('click', () => {
   off.y = Math.max(off.y, 8);
   flyTo(p.clone().add(off), p.clone(), 1600, true); setFollow(true);
 });
+$('btnPlay').addEventListener('click', () => { if (C.player.active || C.player.entering) C.player.exit(); else { select(null); C.player.enter(); } });
 $('btnNew').addEventListener('click', () => { select(null); C.populate((Math.random() * 1e6) | 0); });
 
 /* ---------- gün, trafik, gölge ---------- */
@@ -227,6 +231,7 @@ const keys = new Set(), kf = new THREE.Vector3(), kr = new THREE.Vector3();
 let boost = false;
 window.addEventListener('keydown', e => {
   boost = e.shiftKey;
+  if (C.player && (C.player.active || C.player.entering)) return;           // oyun modunda tuşlar karakterin
   if (!MOVE[e.code] || e.ctrlKey || e.metaKey || e.altKey || (e.target.closest && e.target.closest('input, textarea, select'))) return;
   keys.add(e.code); fly = null; setFollow(false); e.preventDefault();
 });
@@ -274,16 +279,19 @@ setHour(C.hour);
 function loop(now) {
   requestAnimationFrame(loop);
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  stepFly(now);
-  if (follow && !fly && C.hero) {
-    fdv.subVectors(C.hero.pos, controls.target); fdv.y += 1;
-    fdv.multiplyScalar(1 - Math.exp(-dt * 5)); controls.target.add(fdv); camera.position.add(fdv);
+  if (C.player && C.player.active) C.player.camera(dt);                // üçüncü şahıs kamera
+  else {
+    stepFly(now);
+    if (follow && !fly && C.hero) {
+      fdv.subVectors(C.hero.pos, controls.target); fdv.y += 1;
+      fdv.multiplyScalar(1 - Math.exp(-dt * 5)); controls.target.add(fdv); camera.position.add(fdv);
+    }
+    stepKeys(dt, camera.position.distanceTo(controls.target));
+    controls.update(); clampTarget();
+    if (camera.position.y < 1.4) camera.position.y = 1.4;
   }
-  stepKeys(dt, camera.position.distanceTo(controls.target));
-  controls.update(); clampTarget();
-  if (camera.position.y < 1.4) camera.position.y = 1.4;
   const D = camera.position.distanceTo(controls.target), level = levelOf(D);
-  const near = C.clamp(0.4 + 0.012 * D, 0.4, 7);
+  const near = C.clamp(0.4 + 0.012 * D, C.player && C.player.active ? 0.08 : 0.4, 7);   // oyunda yakın çekimde baş kesilmesin
   if (Math.abs(near - camera.near) > 0.05) { camera.near = near; camera.updateProjectionMatrix(); }
   if (C.playing) setHour((C.hour + dt * C.dayRate) % 24);
   const on1 = level >= 1, on2 = level >= 2;

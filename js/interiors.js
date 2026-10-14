@@ -38,6 +38,9 @@ const ROOM_APPLY = `
     vec2 wlo = vec2(0.19, 0.25), whi = vec2(0.81, 0.84);
     float win = step(wlo.x, lc.x) * step(lc.x, whi.x) * step(wlo.y, lc.y) * step(lc.y, whi.y) * step(0.035, abs(lc.x - 0.5));
   #endif
+  #ifdef HOLES
+  for (int hi = 0; hi < 4; hi++) { vec4 hh = uHoles[hi]; if (hh.w > 0.5 && win > 0.0 && cid.y == hh.y && cid.x >= hh.x && cid.x < hh.x + hh.z) discard; }   // gerçek oda var: cam açık
+  #endif
   float k = win * smoothstep(220.0, 90.0, length(vViewPosition));
   if (k > 0.0) {
     vec3 N = normalize(normal);
@@ -63,16 +66,17 @@ const ROOM_APPLY = `
 }
 #endif
 `;
-function interiorize(m, cw) {
-  m.defines = Object.assign(m.defines || {}, cw ? { INTERIOR: 1, CW: 1 } : { INTERIOR: 1 });
+function interiorize(m, cw, holes) {
+  m.defines = Object.assign(m.defines || {}, cw ? { INTERIOR: 1, CW: 1 } : { INTERIOR: 1 }, holes ? { HOLES: 1 } : {});
   m.extensions = Object.assign(m.extensions || {}, { derivatives: true });
   m.onBeforeCompile = sh => {
     C.addGroundAO(sh);
+    if (holes) { sh.uniforms.uHoles = holes; sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform vec4 uHoles[4];'); }
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', '#include <common>\n' + ROOM_FN)
       .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n' + ROOM_APPLY);
   };
-  m.customProgramCacheKey = () => cw ? 'interior-cw' : 'interior-apt';
+  m.customProgramCacheKey = () => (cw ? 'interior-cw' : 'interior-apt') + (holes ? '-holes' : '');
   m.needsUpdate = true;
 }
 for (const set of ['apt', 'cw']) for (const arr of C.mats.near[set]) interiorize(arr[0], set === 'cw');
@@ -81,7 +85,6 @@ for (const set of ['apt', 'cw']) for (const arr of C.mats.near[set]) interiorize
    Tüm kutular tek bir InstancedMesh (örnek başına renk), insanlar ikinci bir çift. Katlar açılırken
    yalnızca matrisler yeniden yazılır. Duvarlar alçak (1,1 m), böylece her açıdan içi görünür. */
 const unitBox = new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);           // tabanı y=0'da
-const headG = new THREE.SphereGeometry(0.13, 10, 8);
 const glow = { value: 0 };
 function cutMat() {
   const m = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.85 });
@@ -93,7 +96,7 @@ function cutMat() {
   m.customProgramCacheKey = () => 'cutaway';
   return m;
 }
-const boxMat = cutMat(), bodyMat = cutMat(), skinMat = cutMat();
+const boxMat = cutMat(), cpose = {};
 C.nightListeners.push(n => { glow.value = n * 0.45; });                        // gece odalar içeriden aydınlık
 
 const P = {
@@ -121,9 +124,9 @@ function layout(b) {
     put(r.cx, 0, r.z1 - 1.8, 1.0, 0.4, 0.55, P.wood);
     put(r.cx, 0, r.z0 + 0.35, Math.min(1.6, r.w - 1), 0.45, 0.4, P.dark); put(r.cx, 0.45, r.z0 + 0.3, Math.min(1.2, r.w - 1.2), 0.7, 0.06, '#11161c');
     plant(r.x0 + 0.5, r.z0 + 0.5);
-    if (rnd() < 0.8) man(r.cx - 0.4, r.z1 - 0.65, 'sit', Math.PI / 2);
-    if (rnd() < 0.5) man(r.cx + 0.5, r.z1 - 0.65, 'sit', Math.PI / 2);
-    if (rnd() < 0.4) man(r.x0 + r.w * 0.7, r.cz, 'stand');
+    if (rnd() < 0.8) man(r.cx - 0.4, r.z1 - 0.65, 'tv', Math.PI / 2);
+    if (rnd() < 0.5) man(r.cx + 0.5, r.z1 - 0.65, 'tv', Math.PI / 2);
+    if (rnd() < 0.4) man(r.x0 + r.w * 0.7, r.cz, rnd() < 0.5 ? 'talk' : 'stand');
   }
   function bedroom(r) {
     if (r.w < 2.6 || r.d < 2.8) return;
@@ -131,7 +134,7 @@ function layout(b) {
     put(r.cx, 0, r.z1 - 1.1, bw, 0.5, 2.0, P.wood); put(r.cx, 0.5, r.z1 - 0.32, bw - 0.2, 0.12, 0.35, P.white);
     put(r.cx, 0.5, r.z1 - 1.35, bw + 0.04, 0.07, 1.3, pick(P.bed));
     if (r.w > 3.4) put(r.x0 + 0.65, 0, r.z0 + 0.35, 1.1, 1.7, 0.55, P.wood);
-    if (rnd() < 0.45) man(r.cx, r.z1 - 1.2, 'lie', 0, 0.62);
+    if (rnd() < 0.45) man(r.cx, r.z1 - 1.2, 'lie', Math.PI / 2, 0.57);
   }
   function kitchen(r) {
     if (r.w < 2.4 || r.d < 2.4) return;
@@ -142,7 +145,7 @@ function layout(b) {
       put(r.cx, 0, r.cz - 0.3, 1.0, 0.75, 0.8, P.wood);
       for (const s of [-1, 1]) put(r.cx + s * 0.75, 0, r.cz - 0.3, 0.42, 0.45, 0.42, P.wood);
     }
-    if (rnd() < 0.7) man(r.x0 + 0.3 + cl / 2, r.z1 - 1.0, 'stand');
+    if (rnd() < 0.7) man(r.x0 + 0.3 + cl / 2, r.z1 - 1.0, 'cook', -Math.PI / 2);
   }
   function flat(x0, x1, z0, z1) {
     const zm = z0 + (z1 - z0) * 0.55, xm = (x0 + x1) / 2;
@@ -176,7 +179,7 @@ function layout(b) {
       if (meet && x > mx0 - 1 && z > mz0 - 1) continue;
       put(x, 0, z, 1.4, 0.75, 0.7, P.white); put(x, 0.75, z - 0.22, 0.55, 0.38, 0.05, '#11161c');
       put(x, 0, z + 0.6, 0.5, 0.5, 0.5, P.dark);
-      if (rnd() < 0.65) man(x, z + 0.6, 'sit', -Math.PI / 2);
+      if (rnd() < 0.65) man(x, z + 0.6, 'study', Math.PI / 2);
     }
     plant(-w / 2 + 0.7, -d / 2 + 0.7); plant(w / 2 - 0.7, -d / 2 + 0.7);
   }
@@ -207,16 +210,11 @@ function writeMatrices(t) {
     cd.updateMatrix(); cut.boxes.setMatrixAt(i, cd.matrix);
   });
   data.people.forEach((p, i) => {
-    const y0 = B + p[0] * step + p[2], pose = p[4], sway = pose === 'stand' ? Math.sin(t * 0.8 + p[8]) * 0.5 : 0;
-    const ry = p[5] + sway, tall = pose === 'stand' ? 1.45 : pose === 'sit' ? 0.95 : 0.4;
-    if (pose === 'lie') { cd.position.set(lot.cx + p[1], y0, lot.cz + p[3] - 0.75); cd.rotation.set(Math.PI / 2, 0, 0); cd.scale.set(0.42, 1.5, 0.28); }
-    else { cd.position.set(lot.cx + p[1], y0 + (pose === 'sit' ? 0.25 : 0), lot.cz + p[3]); cd.rotation.set(0, ry, 0); cd.scale.set(0.42, tall, 0.28); }
-    cd.updateMatrix(); cut.body.setMatrixAt(i, cd.matrix);
-    if (pose === 'lie') cd.position.set(lot.cx + p[1], y0 + 0.02, lot.cz + p[3] + 0.85);      // baş yastıkta
-    else cd.position.set(lot.cx + p[1], y0 + (pose === 'sit' ? 0.25 : 0) + tall + 0.13, lot.cz + p[3]);
-    cd.rotation.set(0, 0, 0); cd.scale.set(1, 1, 1); cd.updateMatrix(); cut.head.setMatrixAt(i, cd.matrix);
+    const y0 = B + p[0] * step + p[2], pose = p[4], q = C.pose(pose, t + p[8], cpose);
+    if (pose === 'lie') cut.crowd.set(i, lot.cx + p[1], y0 + 0.11, lot.cz + p[3] - 0.85, p[5], q);   // ayaklar yatağın ucunda, baş yastıkta
+    else cut.crowd.set(i, lot.cx + p[1], y0, lot.cz + p[3], p[5] + (pose === 'stand' ? Math.sin(t * 0.4 + p[8]) * 0.6 : 0), q);
   });
-  cut.boxes.instanceMatrix.needsUpdate = cut.body.instanceMatrix.needsUpdate = cut.head.instanceMatrix.needsUpdate = true;
+  cut.boxes.instanceMatrix.needsUpdate = true; cut.crowd.commit();
 }
 C.cutaway = {
   get building() { return cut.b; },
@@ -230,16 +228,17 @@ C.cutaway = {
     const g = new THREE.Group();
     cut.boxes = C.inst(unitBox, boxMat, data.boxes.length);
     data.boxes.forEach((o, i) => cut.boxes.setColorAt(i, ccol.set(o[7]).convertSRGBToLinear()));
-    cut.body = C.inst(unitBox, bodyMat, data.people.length); cut.head = C.inst(headG, skinMat, data.people.length);
-    data.people.forEach((p, i) => { cut.body.setColorAt(i, ccol.set(p[6]).convertSRGBToLinear()); cut.head.setColorAt(i, ccol.set(p[7]).convertSRGBToLinear()); });
-    for (const m of [cut.boxes, cut.body, cut.head]) { m.castShadow = m.receiveShadow = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; g.add(m); }
+    cut.crowd = new C.Crowd(Math.max(1, data.people.length), { glow });
+    data.people.forEach((p, i) => cut.crowd.look(i, C.randomLook()));
+    cut.boxes.castShadow = cut.boxes.receiveShadow = true; cut.boxes.instanceColor.needsUpdate = true;
+    g.add(cut.boxes, cut.crowd.group);
     scene.add(g); cut.group = g; writeMatrices(0);
     return data;
   },
   close() {
     if (!cut.b) return;
     const b = cut.b; b.cut = false; b.group.visible = true;
-    scene.remove(cut.group); for (const m of [cut.boxes, cut.body, cut.head]) m.dispose();
+    scene.remove(cut.group); cut.boxes.dispose(); cut.crowd.dispose();
     cut.b = cut.group = cut.data = null;
   }
 };
@@ -249,4 +248,127 @@ C.updaters.push((dt, t) => {
   cut.g = Math.min(1, cut.g + dt / 1.2);
   writeMatrices(t);
 });
+
+/* ---------- camın ardında gerçek odalar ----------
+   Kameraya yakın en fazla iki binada, kameraya bakan cephede birkaç pencerenin camı açılır (HOLES) ve arkasına
+   3B bir oda kurulur: TV izleyen, yemek yapan, ders çalışan ya da yemek yiyen biri. Bina uzaklaşınca kapanır. */
+const liveGlow = { value: 0.12 };
+C.nightListeners.push(n => { liveGlow.value = 0.12 + n * 0.55; });          // gündüz loş, gece ışık yanık
+const liveMat = (function () { const m = cutMat(); m.onBeforeCompile = sh => { sh.uniforms.uGlow = liveGlow; sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uGlow;').replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\ntotalEmissiveRadiance += diffuseColor.rgb * uGlow;'); }; m.customProgramCacheKey = () => 'living'; return m; })();
+const tvMat = new THREE.MeshBasicMaterial({ color: 0x6fa8ff }), lampGlow = new THREE.MeshBasicMaterial({ color: C.col('#ffe7b0') }), steamMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.55, depthWrite: false });
+const ACTS = ['tv', 'cook', 'study', 'dinner'];
+const live = new Map();                                   // bina -> { group, crowd, people, holes, mats, extras }
+function sideFacing(mesh, cam) {
+  const sides = mesh.geometry.userData.sides; if (!sides) return null;
+  let best = null, bd = 0.25;
+  for (const s of sides) {
+    const mx = mesh.position.x + (s.ax + s.bx) / 2, mz = mesh.position.z + (s.az + s.bz) / 2;
+    const vx = cam.x - mx, vz = cam.z - mz, l = Math.hypot(vx, vz) || 1, d = (vx * s.nx + vz * s.nz) / l;
+    if (d > bd && s.len > 6) { bd = d; best = s; }
+  }
+  return best;
+}
+function buildLive(b, cam) {
+  const mesh = b.meshes[0], ud = mesh.geometry.userData, s = sideFacing(mesh, cam);
+  if (!s) return null;
+  const rnd = C.rng(b.seed + 4242), cw = s.len / s.cells, dx = (s.bx - s.ax) / s.len, dz = (s.bz - s.az) / s.len;
+  const k0 = Math.ceil(s.u0 - 1e-6), k1 = Math.floor(s.u0 + s.cells + 1e-6) - 1;      // cephede tam duran pencere hücreleri
+  if (k1 < k0) return null;
+  const maxF = Math.min(ud.floors - 1, 6), picks = [], used = new Set();
+  for (let tries = 0; picks.length < 3 && tries < 20; tries++) {
+    const K = k0 + ((rnd() * (k1 - k0 + 1)) | 0), f = 1 + ((rnd() * maxF) | 0), key = K + ',' + f;
+    if (f >= ud.floors || used.has(key) || used.has((K - 1) + ',' + f) || used.has((K + 1) + ',' + f)) continue;
+    used.add(key); picks.push({ K, f, act: ACTS[(rnd() * ACTS.length) | 0] });
+  }
+  const holes = { value: [0, 1, 2, 3].map(i => picks[i] ? new THREE.Vector4(picks[i].K, picks[i].f + ud.ov, 1, 1) : new THREE.Vector4(0, 0, 0, 0)) };
+  const base = b.nearMats[0], m2 = base.clone(); interiorize(m2, b.style === 'cw', holes);
+  b.holeMats = [m2].concat(b.nearMats.slice(1)); if (!b.isFar) mesh.material = b.holeMats;
+  const g = new THREE.Group(), boxes = [], people = [], extras = [];
+  const yBase = mesh.position.y - ud.h / 2, th = Math.atan2(-dz, dx);
+  for (const p of picks) {
+    /* yerel çerçeve: x cephe boyunca, z dışarı (oda z -3,8..0), y kat tabanından */
+    const along = (p.K + 0.5 - s.u0) * cw, ox = mesh.position.x + s.ax + dx * along, oz = mesh.position.z + s.az + dz * along;
+    const rg = new THREE.Group(); rg.position.set(ox, yBase + p.f * C.FLOOR_H, oz); rg.rotation.y = th; g.add(rg);
+    const W = cw - 0.1, Dp = 3.8, H = C.FLOOR_H - 0.05, wall = ['#efe4d2', '#dfe7ea', '#e9dccf', '#e3ead9'][(rnd() * 4) | 0];
+    const bx = (x, y, z, sx, sy, sz, col) => boxes.push({ rg, o: [x, y, z, sx, sy, sz, col] });
+    bx(0, 0, -Dp / 2 - 0.1, W, 0.06, Dp, ['#a8805a', '#8b6340', '#c9b79a'][(rnd() * 3) | 0]);
+    bx(0, H, -Dp / 2 - 0.1, W, 0.06, Dp, '#f4f1ea');
+    bx(0, 0, -Dp - 0.1, W, H, 0.08, wall); bx(-W / 2, 0, -Dp / 2 - 0.1, 0.08, H, Dp, wall); bx(W / 2, 0, -Dp / 2 - 0.1, 0.08, H, Dp, wall);
+    const lamp = new THREE.Mesh(unitBox, lampGlow); lamp.scale.set(0.5, 0.05, 0.5); lamp.position.set(0, H - 0.05, -Dp / 2); rg.add(lamp);
+    const man = (x, z, ry, pose) => people.push({ rg, x, z, ry, pose, ph: rnd() * 10 });
+    if (p.act === 'tv') {
+      bx(-W / 2 + 0.5, 0, -Dp / 2, 0.85, 0.45, 2.0, '#3d5a80'); bx(-W / 2 + 0.2, 0.45, -Dp / 2, 0.22, 0.45, 2.0, '#3d5a80');
+      bx(W / 2 - 0.25, 0, -Dp / 2, 0.4, 0.5, 1.4, '#2a2e33');
+      const tv = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.65), tvMat.clone()); tv.position.set(W / 2 - 0.12, 1.15, -Dp / 2); tv.rotation.y = -Math.PI / 2; rg.add(tv); extras.push({ type: 'tv', m: tv, ph: rnd() * 10 });
+      bx(0, 0.01, -Dp / 2, 1.6, 0.02, 1.4, '#a8473a');
+      man(-W / 2 + 0.5, -Dp / 2 + 0.3, 0, 'tv');
+    } else if (p.act === 'cook') {
+      bx(0, 0, -Dp + 0.25, W - 0.3, 0.9, 0.6, '#f2f2ee'); bx(0.4, 0.9, -Dp + 0.25, 0.8, 0.04, 0.55, '#2a2e33');
+      bx(-W / 2 + 0.45, 0, -Dp + 0.5, 0.7, 1.8, 0.7, '#dfe3e6');
+      const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.18, 12), liveMat); pot.position.set(0.4, 1.03, -Dp + 0.28); rg.add(pot);
+      for (let i = 0; i < 5; i++) { const st = new THREE.Mesh(new THREE.SphereGeometry(0.07, 6, 5), steamMat); st.position.set(0.4, 1.15, -Dp + 0.28); rg.add(st); extras.push({ type: 'steam', m: st, t: i / 5 }); }
+      man(0.4, -Dp + 0.95, Math.PI / 2, 'cook');
+      bx(0, 0, -1.3, 0.9, 0.74, 0.7, '#8b6340');
+    } else if (p.act === 'study') {
+      bx(W / 2 - 0.4, 0, -Dp / 2, 0.65, 0.74, 1.3, '#8b6340'); bx(W / 2 - 0.45, 0.74, -Dp / 2 + 0.2, 0.3, 0.02, 0.4, '#f2f2ee');
+      bx(W / 2 - 0.5, 0.74, -Dp / 2 - 0.35, 0.22, 0.12, 0.3, '#c9372c'); bx(W / 2 - 0.5, 0.86, -Dp / 2 - 0.35, 0.2, 0.06, 0.28, '#2f6f8f');
+      const dl = new THREE.Mesh(unitBox, lampGlow); dl.scale.set(0.16, 0.12, 0.16); dl.position.set(W / 2 - 0.4, 1.1, -Dp / 2 + 0.5); rg.add(dl);
+      bx(W / 2 - 0.4, 0.74, -Dp / 2 + 0.5, 0.03, 0.36, 0.03, '#2a2e33');
+      bx(W / 2 - 1.15, 0, -Dp / 2, 0.45, 0.45, 0.45, '#2a2e33');
+      bx(-W / 2 + 0.25, 0, -Dp + 0.4, 0.4, 2.0, 1.4, '#8b6340');
+      for (let y = 0.4; y < 1.9; y += 0.4) for (let z = -Dp + 0.0; z < -Dp + 1.0; z += 0.14) bx(-W / 2 + 0.3, y, z, 0.25, 0.3, 0.1, ['#c9372c', '#2f6f8f', '#3b9a57', '#d29a2d', '#f2f2ee'][(rnd() * 5) | 0]);
+      man(W / 2 - 1.15, -Dp / 2, 0, 'study');
+    } else {
+      bx(0, 0, -Dp / 2, 1.1, 0.74, 0.8, '#8b6340');
+      for (const sx of [-1, 1]) { bx(sx * 0.8, 0, -Dp / 2, 0.42, 0.45, 0.42, '#7a5a3a'); man(sx * 0.8, -Dp / 2, sx > 0 ? Math.PI : 0, 'drink'); }
+      bx(0, 0.74, -Dp / 2, 0.3, 0.05, 0.3, '#f6f3ea');
+      const pl = new THREE.Mesh(unitBox, lampGlow); pl.scale.set(0.35, 0.18, 0.35); pl.position.set(0, H - 0.75, -Dp / 2); rg.add(pl);
+    }
+  }
+  const inst = C.inst(unitBox, liveMat, Math.max(1, boxes.length)), dd = new THREE.Object3D(), cc = new THREE.Color(), wm = new THREE.Matrix4();
+  inst.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(Math.max(1, boxes.length) * 3), 3);
+  g.updateMatrixWorld(true);
+  boxes.forEach((e, i) => {
+    const o = e.o; dd.position.set(o[0], o[1], o[2]); dd.rotation.set(0, 0, 0); dd.scale.set(o[3], o[4], o[5]); dd.updateMatrix();
+    wm.multiplyMatrices(e.rg.matrixWorld, dd.matrix); inst.setMatrixAt(i, wm); inst.setColorAt(i, cc.set(o[6]).convertSRGBToLinear());
+  });
+  inst.instanceMatrix.needsUpdate = inst.instanceColor.needsUpdate = true;
+  inst.receiveShadow = true;                                  // binanın gölgesinde: gündüz loş, gece kendi ışığıyla
+  const crowd = new C.Crowd(Math.max(1, people.length), { glow: liveGlow, shadow: false });
+  people.forEach((p, i) => crowd.look(i, C.randomLook(rnd)));
+  scene.add(g, inst, crowd.group);
+  return { g, inst, crowd, people, extras, m2, base, holes };
+}
+function freeLive(b) {
+  const L = live.get(b); if (!L) return;
+  scene.remove(L.g, L.inst, L.crowd.group); L.inst.dispose(); L.crowd.dispose();
+  L.g.traverse(o => { if (o.geometry && o.geometry !== unitBox) o.geometry.dispose(); });
+  L.m2.dispose(); b.holeMats = null; if (!b.isFar && b.meshes[0]) b.meshes[0].material = b.nearMats;
+  live.delete(b);
+}
+let liveT = 0;
+const lp = {}, lv = new THREE.Vector3(), lq = new THREE.Vector3();
+C.updaters.push((dt, t) => {
+  const cam = C.camera.position;
+  if ((liveT -= dt) <= 0) {
+    liveT = 0.6;
+    const want = C.buildings.filter(b => b.type !== 'house' && !b.cut && !b.isFar && b.lot.building === b && b.meshes[0] && b.meshes[0].geometry.userData.sides &&
+      Math.hypot(b.lot.cx - cam.x, b.lot.cz - cam.z) < 75).sort((p, q) => Math.hypot(p.lot.cx - cam.x, p.lot.cz - cam.z) - Math.hypot(q.lot.cx - cam.x, q.lot.cz - cam.z)).slice(0, 2);
+    for (const b of Array.from(live.keys())) if (!want.includes(b) || b.lot.building !== b || b.cut) freeLive(b);
+    for (const b of want) if (!live.has(b)) { const L = buildLive(b, cam); if (L) live.set(b, L); }
+  }
+  for (const [b, L] of live) {
+    L.m2.emissiveIntensity = L.base.emissiveIntensity;            // gece pencere ışığı ana malzemeyle aynı
+    L.people.forEach((p, i) => {
+      lv.set(p.x, 0, p.z); p.rg.localToWorld(lv);
+      L.crowd.set(i, lv.x, p.rg.position.y, lv.z, p.ry + p.rg.rotation.y, C.pose(p.pose, t + p.ph, lp));
+    });
+    L.crowd.commit();
+    for (const e of L.extras) {
+      if (e.type === 'tv') { const k = 0.55 + 0.45 * Math.sin(t * 7 + e.ph) * Math.sin(t * 2.3 + e.ph * 2); e.m.material.color.setRGB(0.3 + 0.4 * k, 0.45 + 0.35 * k, 0.8 + 0.2 * k); }
+      else { e.t = (e.t + dt * 0.5) % 1; e.m.position.y = 1.15 + e.t * 0.6; e.m.scale.setScalar(0.6 + e.t * 1.4); e.m.material.opacity = 0.5 * (1 - e.t); }
+    }
+  }
+});
+C.living = live;
 })();
