@@ -5,7 +5,8 @@ window.MSNews = (function () {
   const hm = h => pad(Math.floor(h)) + ':' + pad(Math.floor((h % 1) * 60));
   function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   function rng(seed) { let a = seed | 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-  const fill = (s, v) => s.replace(/\{(\w+)\}/g, (m, k) => v[k] !== undefined ? v[k] : m);
+  const T = window.T || (s => s);                                       // dil: şablon doldurulmadan önce çevrilir
+  const fill = (s, v) => T(s).replace(/\{(\w+)\}/g, (m, k) => v[k] !== undefined ? v[k] : m);
   const RAINY = /drizzle|rain|storm/;
 
   /* o: { kit, gags, date, hour, C (şehir ya da null), wx (MSWeather verisi ya da null), pick (elle seçilmiş hava türü ya da null) } */
@@ -20,7 +21,7 @@ window.MSNews = (function () {
     const [cadde, cadde2] = two(K.caddeler || ['Tunalı Hilmi']);
     const V = { semt, semt2, cadde, cadde2, n: 3 + Math.floor(r() * 12) };
     const today = w && w.daily && w.daily[0], tom = w && w.daily && w.daily[1];
-    if (w) Object.assign(V, { temp: Math.round(w.temp), feels: Math.round(w.feels), wind: Math.round(w.wind), windFrom: w.windFrom || '', max: today ? Math.round(today.max) : Math.round(w.temp), min: today ? Math.round(today.min) : Math.round(w.temp) });
+    if (w) Object.assign(V, { temp: Math.round(w.temp), feels: Math.round(w.feels), wind: Math.round(w.wind), windFrom: T(w.windFrom || ''), max: today ? Math.round(today.max) : Math.round(w.temp), min: today ? Math.round(today.min) : Math.round(w.temp) });
     if (tom) Object.assign(V, { tmax: Math.round(tom.max), tmin: Math.round(tom.min), drop: today ? Math.round(today.max - tom.max) : 0 });
     if (C) Object.assign(V, { cars: C.cars ? C.cars.filter(c => !c.off && !c.parked).length : 0, cats: C.cats ? C.cats.list.length : 0, hero: C.cityStats ? C.cityStats.hero : 0 });
 
@@ -41,7 +42,7 @@ window.MSNews = (function () {
       const m = /^(.+?) Cd\. × (.+?) Sk\., (.+)$/.exec(ev.place || '') || [];
       const status = String(ev.status || '').replace(/[✓🕸]/g, '').trim();
       add(ev.type === 'accident' || ev.type === 'pedestrian' ? 'Trafik' : 'Asayiş', one(K.event && K.event[ev.type], 'ev' + ev.id), 90 - i,
-        { cad: m[1] || cadde, sk: m[2] || 'Lale', esemt: m[3] || semt, time: ev.time, status }, ev.time);
+        { cad: m[1] || cadde, sk: m[2] || 'Lale', esemt: m[3] || semt, time: ev.time, status: T(status) }, ev.time);
     });
     /* hava: şehirde elle seçilmişse o, değilse Ankara'nın gerçek havası */
     const kind = o.pick || (w && w.kind);

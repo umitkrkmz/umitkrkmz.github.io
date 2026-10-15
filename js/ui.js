@@ -4,7 +4,7 @@
 if (!window.C || C.failed) return;
 const $ = id => document.getElementById(id);
 const camera = C.camera, scene = C.scene, renderer = C.renderer, stage = $('stage'), sun = C.sun;
-const fmt = new Intl.NumberFormat('tr-TR');
+const fmt = new Intl.NumberFormat(window.MSLang ? MSLang.locale : 'tr-TR');
 
 /* ---------- dünyayı kur ---------- */
 C.genBlocks(); C.buildStreet(); C.populate(2026); C.setDensity(C.Q.density); C.buildPeople(); C.refreshPickables();
@@ -237,6 +237,8 @@ $('traffic').value = Math.round(C.Q.density * 100); $('trafficOut').textContent 
 /* grafik kalitesi: seçim saklanır, sayfa yeniden yüklenir (orman, arazi, kalabalık baştan kurulur) */
 $('quality').value = C.qualityPick;
 $('qualityNow').textContent = { low: 'düşük', mid: 'orta', high: 'yüksek' }[C.QUALITY];
+/* dil: seçim saklanır, sayfa yeniden yüklenir (lang.js) */
+if (window.MSLang) { $('lang').value = MSLang.pick; $('lang').addEventListener('change', e => MSLang.set(e.target.value)); }
 $('quality').addEventListener('change', e => { try { localStorage.setItem('ms.quality', e.target.value); } catch (er) {} location.reload(); });
 $('shadowChk').addEventListener('change', e => { sun.castShadow = e.target.checked; });
 $('dockToggle').addEventListener('click', () => { const d = $('dock'), c = d.classList.toggle('collapsed'); $('dockToggle').setAttribute('aria-expanded', !c); });

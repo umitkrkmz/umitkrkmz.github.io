@@ -318,6 +318,10 @@ body:not(.hero-mode) .hero-only, body.hero-mode .cit-only { display: none; }
         <div class="field-top"><label for="quality">Grafik</label><output id="qualityNow"></output></div>
         <select id="quality" class="sel"><option value="auto">Otomatik (cihaza göre)</option><option value="high">Yüksek</option><option value="mid">Orta</option><option value="low">Düşük (telefon)</option></select>
       </div>
+      <div class="field">
+        <div class="field-top"><label for="lang">Dil · Language</label></div>
+        <select id="lang" class="sel"><option value="auto">Otomatik</option><option value="tr">Türkçe</option><option value="en">English</option></select>
+      </div>
       <div class="row2">
         <button class="btn wide find" id="btnFindMe">Beni bul 📱</button>
         <button class="btn" id="btnOverview">Kuş bakışı</button>
@@ -368,6 +372,8 @@ body:not(.hero-mode) .hero-only, body.hero-mode .cit-only { display: none; }
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="js/lang.js"></script>
+<script src="js/lang.en.js"></script>
 <script src="js/world.js"></script>
 <script src="js/terrain.js"></script>
 <script src="js/people.js"></script>

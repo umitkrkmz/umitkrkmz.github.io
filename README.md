@@ -18,6 +18,10 @@ python -m http.server 8123
 
 İnternet bağlantısı gerekir; Three.js ve yazı tipleri CDN'den gelir. Tarayıcıda WebGL açık olmalı.
 
+## Dil
+
+Arayüz Türkçe ve İngilizce. Tarayıcı dili Türkçeyse ya da saat dilimi İstanbul'sa Türkçe açılır, değilse İngilizce; Kontroller'deki **Dil · Language** ile elle seçilir (telefon tek başınayken sol üstte TR/EN). Semt, cadde ve takım adları, şehirdeki tabelalar Türkçe kalır.
+
 ## Kontroller
 
 | Ne | Fare | Dokunmatik |
@@ -189,6 +193,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/developer.js` | Şehirdeki geliştirici, Beni bul, portfolyo telefonu |
 | `portfolio/` | Bağımsız portfolyo sayfası (telefonun içi); içerik `content.js` |
 | `js/venues.js` | Girilebilir dükkânlar ve önemli yapıların içi |
+| `js/lang.js` | Dil seçimi ve çeviri (sözlükler `js/lang.en.js`, `portfolio/lang.en.js`) |
 | `js/wxdata.js` | Ankara'nın canlı havası (Open-Meteo), önbellek; şehir ve telefon ortak kullanır |
 | `js/weather.js` | Bulut, sis, ıslak ve karlı zemin, yağmur, kar, şimşek; hava seçimi |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |

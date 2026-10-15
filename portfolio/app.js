@@ -12,6 +12,9 @@ const city = () => { try { return embed && window.parent.C ? window.parent.C : n
 const pad = n => String(n).padStart(2, '0');
 const hourNow = () => { const C = city(); if (C && typeof C.hour === 'number') return C.hour; const d = new Date(); return d.getHours() + d.getMinutes() / 60; };
 const hm = h => pad(Math.floor(h)) + ':' + pad(Math.floor((h % 1) * 60));
+const LOC = window.MSLang ? MSLang.locale : 'tr-TR';
+/* dil düğmesi (tek başınayken): TR / EN arasında geçer, sayfa yenilenir */
+if ($('langBtn') && window.MSLang) { $('langBtn').textContent = MSLang.en ? 'TR' : 'EN'; $('langBtn').title = MSLang.en ? 'Türkçe' : 'English'; $('langBtn').addEventListener('click', () => MSLang.set(MSLang.en ? 'tr' : 'en')); }
 
 /* ---------- ana ekran ---------- */
 $('name').textContent = P.name || ''; $('role').textContent = P.role || ''; $('tagline').textContent = P.tagline || '';
@@ -25,7 +28,7 @@ $('dockbar').innerHTML = (P.contact || []).filter(c => c.href).map(c => `<a clas
 function tick() {
   const C = city();
   $('clock').textContent = hm(hourNow());
-  $('date').textContent = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' }) + (C ? ' · Ankara' : '');
+  $('date').textContent = new Date().toLocaleDateString(LOC, { weekday: 'long', day: 'numeric', month: 'long' }) + (C ? ' · Ankara' : '');
 }
 tick(); setInterval(tick, 1000);
 document.querySelectorAll('.url').forEach(u => { u.innerHTML = `<i class="lk">${SV('lock')}</i>${esc(P.site || '')}/<b>${esc(u.dataset.path)}</b>`; });
@@ -37,7 +40,7 @@ let gh = null;
 try { const c = JSON.parse(localStorage.getItem(GH_KEY)); if (c && c.repos) gh = c; } catch (e) {}
 const ago = iso => {                                                   // yakınsa "3 gün önce", eskiyse ay ve yıl ("9 ay önce" gibi eski izlenimi vermesin)
   const d = Math.floor((Date.now() - Date.parse(iso)) / 864e5);
-  return d < 1 ? 'bugün' : d < 2 ? 'dün' : d < 30 ? d + ' gün önce' : new Date(iso).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+  return d < 1 ? 'bugün' : d < 2 ? 'dün' : d < 30 ? d + ' gün önce' : new Date(iso).toLocaleDateString(LOC, { month: 'long', year: 'numeric' });
 };
 function projectCard(p) {
   const here = p.live === '../index.html', r = gh && p.repo ? gh.repos[p.repo] : null;
@@ -80,7 +83,7 @@ function weather(h, C) {
   const W = C && C.weather, d = (W && W.data) || wxd;
   if (!d) return `<div class="kicker">Ankara · Hava durumu · ${hm(h)}</div><h4>Hava bilgisi alınamadı</h4><p>Bağlantı gelince Ankara'nın anlık havası burada görünür.</p>`;
   const man = W && !W.live && W.KINDS ? W.KINDS[W.pick] : null;
-  const days = (d.daily || []).slice(0, 3).map((x, i) => `<div><small>${i === 0 ? 'Bugün' : i === 1 ? 'Yarın' : esc(new Date(x.date + 'T12:00').toLocaleDateString('tr-TR', { weekday: 'long' }))}</small><span class="wi">${WXI(window.MSWeather ? MSWeather.code(x.code)[0] : 'cloud', true)}</span><b>${Math.round(x.max)}° <i>${Math.round(x.min)}°</i></b></div>`).join('');
+  const days = (d.daily || []).slice(0, 3).map((x, i) => `<div><small>${i === 0 ? 'Bugün' : i === 1 ? 'Yarın' : esc(new Date(x.date + 'T12:00').toLocaleDateString(LOC, { weekday: 'long' }))}</small><span class="wi">${WXI(window.MSWeather ? MSWeather.code(x.code)[0] : 'cloud', true)}</span><b>${Math.round(x.max)}° <i>${Math.round(x.min)}°</i></b></div>`).join('');
   const age = Math.round((Date.now() - d.t) / 60000);
   return `<div class="kicker">Ankara · Hava durumu · ${hm(h)}</div><div class="big"><i class="wi">${WXI(man ? W.pick : d.kind, d.day)}</i>${Math.round(d.temp)}°<span>C</span></div>` +
     `<p>${esc(d.label)}. Hissedilen ${Math.round(d.feels)}°, nem %${Math.round(d.hum)}, ${esc(d.windFrom)} ${Math.round(d.wind)} km/sa rüzgâr.</p>` +
@@ -124,7 +127,7 @@ function renderNews(C, h) {
 $('cityHow').innerHTML = (P.how || []).map(([h, t]) => `<details class="card"><summary>${esc(h)}</summary><p>${esc(t)}</p></details>`).join('');
 function cityRender() {
   const C = city(), h = hourNow();
-  $('cityNow').textContent = (C ? 'Canlı · ' : '') + new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }) + ' · ' + hm(h);
+  $('cityNow').textContent = (C ? 'Canlı · ' : '') + new Date().toLocaleDateString(LOC, { day: 'numeric', month: 'long' }) + ' · ' + hm(h);
   $('cityWeather').innerHTML = weather(h, C); $('cityMatch').innerHTML = match(C); $('cityBreaking').innerHTML = breaking(C); $('cityStats').innerHTML = stats(C);
   renderNews(C, h);
 }
