@@ -17,7 +17,7 @@ const KINDS = {
 };
 const ORDER = Object.keys(KINDS);
 const W = C.weather = { live: true, pick: 'clear', data: null, status: 'loading', KINDS,
-  cur: { cloud: 0, rain: 0, snow: 0, fog: 0, storm: 0 }, wet: 0, cover: 0, wind: new THREE.Vector2(2, 1.5), snap: true };
+  cur: { cloud: 0, rain: 0, snow: 0, fog: 0, storm: 0 }, wet: 0, cover: 0, steam: 0, sun: 0, temp: 14, wind: new THREE.Vector2(2, 1.5), snap: true };
 
 /* hedef: canlıda veriden, elle seçimde türden */
 function target() {
@@ -39,10 +39,11 @@ function setWind() {
 
 /* ---------- yüzeyler: ıslaklık koyulaştırır ve parlatır (su birikintisi, gökyüzü yansıması), kar üste bakan yüzü örter ---------- */
 const WXU = { uWet: { value: 0 }, uSnow: { value: 0 }, uWxSky: { value: new THREE.Color() } };
-/* tür: [ıslanma, kar örtüsü, birikinti] */
-const KIND = { road: [1, 0.6, 1], mark: [1, 0.6, 0], pave: [0.9, 1, 0.45], grass: [0.35, 1, 0], roof: [0.6, 1, 0.15], terrain: [0.4, 1, 0], tree: [0.15, 0.85, 0] };
+/* tür: [ıslanma, en çok kar örtüsü, birikinti] ve karın tuttuğu aralık [başlangıç, tam]: kar önce çime, çatıya, ağaca tutar, yola en son;
+   erirken tersi: önce yol (araçlar ezer), sonra kaldırım, en son çim ve çatı */
+const KIND = { road: [1, 0.6, 1, 0.45, 1], mark: [1, 0.6, 0, 0.45, 1], pave: [0.9, 1, 0.45, 0.2, 0.9], grass: [0.35, 1, 0, 0, 0.6], roof: [0.6, 1, 0.15, 0, 0.6], terrain: [0.4, 1, 0, 0, 0.6], tree: [0.15, 0.85, 0, 0.05, 0.7] };
 const HEAD = [
-  'uniform float uWet; uniform float uSnow; uniform vec3 uWxSky; uniform vec3 uWxK;',
+  'uniform float uWet; uniform float uSnow; uniform vec3 uWxSky; uniform vec3 uWxK; uniform vec2 uWxR;',
   'float wxH(vec2 p) { vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }',
   'float wxN(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(wxH(i), wxH(i + vec2(1.0, 0.0)), f.x), mix(wxH(i + vec2(0.0, 1.0)), wxH(i + vec2(1.0, 1.0)), f.x), f.y); }'
 ].join('\n');
@@ -52,10 +53,14 @@ const BODY = [
   '  vec3 wxP = (vec4(-vViewPosition, 0.0) * viewMatrix).xyz + cameraPosition;            // dünya konumu',
   '  float wxUp = smoothstep(0.6, 0.9, (vec4(normalize(vNormal), 0.0) * viewMatrix).y);  // üste bakan yüz',
   '  float wxA = wxN(wxP.xz * 0.21) * 0.6 + wxN(wxP.xz * 0.93) * 0.4;',
-  '  float wxT = 1.0 - uSnow * 1.25;',
-  '  float wxS = wxUp * smoothstep(wxT, wxT + 0.18, wxA) * uWxK.y * step(0.001, uSnow);   // kar önce lekeler, sonra örter',
-  '  wxW = uWet * uWxK.x * wxUp * (1.0 - wxS);',
-  '  wxD = uWet * uWxK.z * wxUp * smoothstep(0.52, 0.64, wxN(wxP.xz * 0.11 + 7.0)) * (1.0 - wxS);   // birikinti',
+  '  float wxSe = smoothstep(uWxR.x, uWxR.y, uSnow);                                     // bu yüzeyin kar payı',
+  '  float wxT = 1.0 - wxSe * 1.25;',
+  '  float wxS = wxUp * smoothstep(wxT, wxT + 0.18, wxA) * uWxK.y * step(0.001, wxSe);   // kar önce lekeler, sonra örter',
+  '  float wxC = wxN(wxP.xz * 0.11 + 7.0);                                                // çukurlar: su burada birikir, en son burası kurur',
+  '  float wxL = smoothstep(1.0 - uWet * 1.2, 1.25 - uWet * 1.2, wxC * 0.6 + wxN(wxP.xz * 0.37 + 3.0) * 0.4);   // lekeli kuruma',
+  '  wxW = uWxK.x * wxUp * wxL * smoothstep(0.0, 0.1, uWet) * (1.0 - wxS);',
+  '  float wxPt = 0.52 + (1.0 - uWet) * 0.3;                                               // kurudukça birikinti küçülür',
+  '  wxD = uWxK.z * wxUp * smoothstep(wxPt, wxPt + 0.12, wxC) * smoothstep(0.0, 0.15, uWet) * (1.0 - wxS);',
   '  diffuseColor.rgb *= (1.0 - 0.38 * wxW) * (1.0 - 0.45 * wxD);',
   '  roughnessFactor = mix(roughnessFactor, 0.22, wxW * 0.9); roughnessFactor = mix(roughnessFactor, 0.05, wxD);',
   '  diffuseColor.rgb = mix(diffuseColor.rgb, mix(vec3(0.42, 0.44, 0.47), vec3(0.85, 0.88, 0.93), uWxK.y), wxS);',
@@ -67,10 +72,10 @@ const EMIS = 'float wxF = pow(1.0 - clamp(dot(normalize(vNormal), normalize(vVie
 let patched = 0;
 function patch(m, kind) {
   if (m.userData.wx) return; m.userData.wx = true;
-  const prev = m.onBeforeCompile, key = m.customProgramCacheKey(), K = new THREE.Vector3().fromArray(KIND[kind] || KIND.pave);
+  const prev = m.onBeforeCompile, key = m.customProgramCacheKey(), k = KIND[kind] || KIND.pave, K = new THREE.Vector3().fromArray(k), R = new THREE.Vector2(k[3], k[4]);
   m.onBeforeCompile = (sh, r) => {
     prev.call(m, sh, r);                                                 // önceki eklemeler (gölge AO, pencereler) korunur
-    Object.assign(sh.uniforms, WXU); sh.uniforms.uWxK = { value: K };
+    Object.assign(sh.uniforms, WXU); sh.uniforms.uWxK = { value: K }; sh.uniforms.uWxR = { value: R };
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\n' + HEAD)
       .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n' + BODY)
       .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n' + EMIS);
@@ -125,6 +130,32 @@ const snow = (function () {
   }));
   m.frustumCulled = false; m.visible = false; m.renderOrder = 5; scene.add(m); return m;
 })();
+/* buhar: yağmurdan sonra güneş çıkınca ıslak zeminden yükselen ince, yumuşak tüller (yalnızca şehirde, yere yakın, sokak kademesinde) */
+const NS = { low: 120, mid: 240, high: 400 }[C.QUALITY] || 240, VB = new THREE.Vector3(40, 3, 40);
+const steamU = { uCam: { value: new THREE.Vector3() }, uOff: { value: new THREE.Vector3() }, uBox: { value: VB }, uT: { value: 0 }, uSize: { value: 400 }, uHalf: { value: C.TOTAL / 2 },
+  uCol: { value: new THREE.Color('#eef1f4') }, uAlpha: { value: 0 } };
+const steam = (function () {
+  const pos = new Float32Array(NS * 3), r = C.rng(707);
+  for (let i = 0; i < NS * 3; i++) pos[i] = r();
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const m = new THREE.Points(g, new THREE.ShaderMaterial({
+    uniforms: steamU, transparent: true, depthWrite: false,
+    vertexShader: [
+      'uniform vec3 uCam; uniform vec3 uOff; uniform vec3 uBox; uniform float uT; uniform float uSize; uniform float uHalf; varying float vA;',
+      'void main() {',
+      '  vec2 p = mod(position.xz * uBox.xz + uOff.xz - uCam.xz + uBox.xz * 0.5, uBox.xz) - uBox.xz * 0.5;',
+      '  float life = fract(position.y + uT * (0.08 + 0.06 * fract(position.x * 13.7)));   // yerden kalkar, sönerek dağılır',
+      '  vec3 w = vec3(uCam.x + p.x, 0.15 + life * uBox.y, uCam.z + p.y);',
+      '  w.xz += vec2(sin(uT * 0.5 + position.z * 30.0), cos(uT * 0.4 + position.x * 20.0)) * 0.35 * life;',
+      '  vA = sin(3.14159 * life) * (1.0 - smoothstep(0.5, 1.0, length(p) / (uBox.x * 0.5))) * step(abs(w.x), uHalf) * step(abs(w.z), uHalf);',
+      '  vec4 mv = viewMatrix * vec4(w, 1.0);',
+      '  gl_PointSize = clamp(uSize * (0.7 + 0.8 * life) / -mv.z, 2.0, 120.0);',
+      '  gl_Position = projectionMatrix * mv;',
+      '}'].join('\n'),
+    fragmentShader: 'uniform vec3 uCol; uniform float uAlpha; varying float vA; void main() { float d = smoothstep(0.5, 0.0, length(gl_PointCoord - 0.5)); gl_FragColor = vec4(uCol, uAlpha * vA * d * d); }'
+  }));
+  m.frustumCulled = false; m.visible = false; m.renderOrder = 5; scene.add(m); return m;
+})();
 const wrap = (v, L) => ((v % L) + L) % L, lerp = THREE.MathUtils.lerp;
 
 /* ---------- güncelleme ---------- */
@@ -134,9 +165,21 @@ function update(dt, t, D) {
   if (patched < C.surfaces.length) { for (; patched < C.surfaces.length; patched++) patch(C.surfaces[patched][0], C.surfaces[patched][1]); }
   const T = target(), cur = W.cur, k = W.snap ? 1 : 1 - Math.exp(-dt / 3);    // ~3 sn'de yeni havaya geçer
   for (const key in cur) cur[key] += (T[key] - cur[key]) * k;
-  /* ıslaklık ve kar örtüsü yavaş birikir, daha yavaş kurur, erir */
+  /* ıslaklık ve kar örtüsü yavaş birikir; güneşte, rüzgârda ve sıcakta hızlı, gece ve soğukta yavaş kurur, erir. Eriyen kar zemini ıslatır.
+     sıcaklık canlıda gerçek; elle seçimde kar yağarken 0°, sonra 4°, diğer havada 14° sayılır */
+  const d = W.live && W.data;
+  W.temp = d ? d.temp : T.snow ? 0 : W.cover > 0.05 ? 4 : 14;
+  W.sun = (1 - C.night) * (1 - 0.75 * cur.cloud);
+  const dry = (0.3 + 1.6 * W.sun + 0.04 * W.wind.length()) * (W.temp < 3 ? 0.4 : 1) * (W.cover > 0.05 ? 0.3 : 1);
+  const melt = W.temp <= 0 ? 0.08 : (0.35 + 1.5 * W.sun) * C.clamp(W.temp / 4, 0.4, 2.5);
   const step = (v, to, up, down) => W.snap ? to : v + C.clamp(to - v, -dt / down, dt / up);
-  W.wet = step(W.wet, T.wet, 20, 150); W.cover = step(W.cover, T.cover, 40, 200);
+  const was = W.cover;
+  W.cover = step(W.cover, T.cover, 40, 420 / melt);
+  W.wet = step(W.wet, T.wet, 20, 300 / dry);
+  if (W.cover < was) W.wet = Math.min(1, W.wet + (was - W.cover) * 1.5);   // eriyen kar su olur
+  /* buhar: ıslak zemin + güneş + yağış yok + ılık */
+  const st = W.wet * C.clamp(W.sun * 1.5 - 0.3, 0, 1) * (cur.rain < 0.05 ? 1 : 0) * (W.temp > 2 ? 1 : 0) * (1 - W.cover);
+  W.steam += (st - W.steam) * (1 - Math.exp(-dt / 2));
   W.snap = false;
   WXU.uWet.value = W.wet; WXU.uSnow.value = W.cover;
   /* gökyüzü: değiştiyse ışıklar yeniden kurulur */
@@ -155,6 +198,13 @@ function update(dt, t, D) {
   const inside = C.player && C.player.indoor;
   const nr = Math.round(NQ[0] * C.clamp(cur.rain * 1.1, 0, 1)), ns = Math.round(NQ[1] * C.clamp(cur.snow * 1.2, 0, 1));
   rain.visible = nr > 20 && !inside; snow.visible = ns > 20 && !inside;
+  steam.visible = W.steam > 0.03 && !inside && D < 160;
+  if (steam.visible) {
+    const o = steamU.uOff.value; o.x = wrap(o.x + W.wind.x * 0.25 * dt, VB.x); o.z = wrap(o.z + W.wind.y * 0.25 * dt, VB.z);
+    steamU.uCam.value.copy(camera.position); steamU.uT.value = t % 600;
+    steamU.uSize.value = 1.1 * renderer.domElement.height / (2 * Math.tan(camera.fov * Math.PI / 360));
+    steamU.uAlpha.value = 0.11 * W.steam;
+  }
   if (rain.visible) {
     const sp = 5 + cur.rain * 5, o = rainU.uOff.value;
     o.y = wrap(o.y - sp * dt, RB.y); o.x = wrap(o.x + W.wind.x * 0.5 * dt, RB.x); o.z = wrap(o.z + W.wind.y * 0.5 * dt, RB.z);
