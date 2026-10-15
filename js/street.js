@@ -96,7 +96,7 @@ C.buildStreet = function () {
     const w = want();
     for (const p of places) if ((p.t -= dt) <= 0) {
       p.t = 40 + Math.random() * 90;
-      const was = p.on; p.on = !p.player && Math.random() < w;          // oyuncunun oturduğu yere kimse oturmaz
+      const was = p.on; p.on = !p.player && !p.dev && Math.random() < w;   // oyuncunun ya da geliştiricinin oturduğu yere kimse oturmaz
       if (p.on && !was) sitters.look(p.k, C.randomLook());
     }
     sitters.group.visible = D <= 130;

@@ -33,7 +33,7 @@ Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", hava seçimi, trafik y
 
 ## Portfolyo telefonu 📱
 
-Şehirde bir geliştirici dolaşıyor: koyu kapüşonlu, sırtında laptop çantası, meydanın doğusundaki kaldırımda. Kontrol panelindeki **Beni bul** kamerayı onun önüne indirir; el sallar, cebinden telefonunu çıkarır ve telefon ekranda açılır. Telefonun içi portfolyodur; kilit ekranındaki saat şehrin saatidir. Sağ üstteki ⤢ düğmesi telefonu GTA'daki internet siteleri gibi tam ekrana büyütür, ⤡ geri küçültür.
+Şehirde bir geliştirici yaşıyor: koyu kapüşonlu, sırtında laptop çantası. Günün saatine göre başka yerde: sabah Kızılay'da bir kafede laptopla çalışır, öğle arası yürür, öğleden sonra parkta bankta oturur, akşam stadyumda maç izler, gece kedi toplantısını izler, geç saatte evinde uyur. Kontrol panelindeki **Beni bul** kamerayı onun önüne indirir; el sallar, cebinden telefonunu çıkarır ve telefon ekranda açılır. Telefonun içi portfolyodur; kilit ekranındaki saat şehrin saatidir. Sağ üstteki ⤢ düğmesi telefonu GTA'daki internet siteleri gibi tam ekrana büyütür, ⤡ geri küçültür.
 
 - **Ana ekran:** duvar kâğıdı canlı: gökyüzü saate ve Ankara'nın havasına göre değişir (güneş ya da ay, yıldızlar, bulutlar, yağmur, kar, sis, şimşek), önde gece pencereleri yanan, Atakule'li bir Ankara silueti. Hava ve maç araçları; şehirde bir olay olunca üstten bildirim düşer. Uygulamalar simgeden büyüyerek açılır.
 - **Projeler:** iki grup (öne çıkanlar, Windows araçları); dil ve son güncelleme GitHub'dan canlı, makale ve kod bağlantıları.
@@ -130,7 +130,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - Ortada saat kulesi olan bir meydan, on park, merkeze yaklaştıkça yükselen binalar.
 - Parklarda göller: kıyı taşları, nilüferler ve pembe çiçekleri, sazlar, yüzen ördekler, suda açılan halkalar. Banklarda oturup çay içenler; gündüz kalabalık, gece seyrek.
 - Sokak kedileri. Gece 21.30'dan sonra merkeze en yakın parkta kedi toplantısı olur: sekiz kedi çember olup oturur, ortada Reis; yakındaysan konuşmalarını duyarsın.
-- Ankara Stadı'nda 13.30–17.00 ve 19.00–22.30 arası maç: semt takımları (Kızılay Gücü, Söğütözü İdmanyurdu gibi), kaleciler, hakem, tribünde takım renklerinde taraftar, gol sevinci ve skor tabelası. Stada tıklayınca kartta skor ve dakika görünür.
+- Ankara Stadı'nda her gün 13.30 ve 19.00'da gerçek süreli maç (45 dakika, 15 dakika devre arası, 45 dakika; skor ve takımlar herkes için aynı): semt takımları (Kızılay Gücü, Söğütözü İdmanyurdu gibi), kaleciler, hakem, tribünde takım renklerinde taraftar, gol sevinci ve skor tabelası. Stada tıklayınca kartta skor ve dakika görünür.
 - Şehir dağların eteğinde bir vadide: çevresinde çayırlar, tepelerde çam ormanları, yamaçlarda kaya, zirvelerde kar; güneyinden doğudaki dağlardan inip batıdaki boğazdan çıkan bir akarsu geçer.
 - Doğu kavşağından vadi boyunca tırmanan, dağdaki bir tünele giren dört şeritli bir yol: tünelden gelen araçlar şehrin trafiğine katılır, şehirden ayrılanlar yola çıkıp tünelde kaybolur.
 - Dört yüzünde şehrin saatini gösteren bir saat kulesi.

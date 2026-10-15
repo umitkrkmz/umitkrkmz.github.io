@@ -1,4 +1,5 @@
-/* ===== stadium.js: Ankara Stadı'nda maç: öğleden sonra ve akşam; iki takım, hakem, top, tribünde taraftar, skor tabelası ===== */
+/* ===== stadium.js: Ankara Stadı'nda maç: 13.30 ve 19.00'da, şehrin saatiyle gerçek süre (45 + 15 devre arası + 45 dakika); iki takım, hakem, top,
+   tribünde taraftar, skor tabelası. Takımlar ve o ana kadarki skor tarih ve saatten tohumlanır: sayfayı yenileyince aynı maç ===== */
 (function () {
 'use strict';
 if (!window.C || C.failed) return;
@@ -39,12 +40,13 @@ const SUFFIX = ['SK', 'Spor', 'Gücü', 'FK', 'Belediyespor', 'İdmanyurdu'];
 const FORM = [[-0.95, 0], [-0.62, -0.62], [-0.66, -0.2], [-0.66, 0.2], [-0.62, 0.62], [-0.18, -0.62], [-0.22, -0.2], [-0.22, 0.2], [-0.18, 0.62], [0.32, -0.28], [0.32, 0.28]];
 const players = new C.Crowd(23), fans = new C.Crowd(340), pp = {}, fp = {};
 C.scene.add(players.group, fans.group); C.peopleLayers.push(players.group, fans.group);
-const M = { on: false, min: 0, score: [0, 0], teams: null, ph: 'off', wait: 0, cheer: [0, 0], msgT: 0 };
+const M = { on: false, min: 0, score: [0, 0], teams: null, ph: 'off', wait: 0, cheer: [0, 0], msgT: 0, slot: null, saves: 0, tries: 0 };
 const team = (k) => M.teams[k];
 const P = [];                                                   // oyuncular: { k (takım), f (dizilim), x, z, ry, sp, cool }
-function newTeams() {
-  const names = C.DISTRICTS.map(d => d.name).sort(() => Math.random() - 0.5), kits = KITS.slice().sort(() => Math.random() - 0.5);
-  M.teams = [0, 1].map(k => ({ name: names[k] + ' ' + pick(SUFFIX), short: names[k].slice(0, 3).toLocaleUpperCase('tr'), kit: kits[k] }));
+function newTeams(r) {
+  const sh = a => a.map(x => [x, r()]).sort((p, q) => p[1] - q[1]).map(x => x[0]);
+  const names = sh(C.DISTRICTS.map(d => d.name)), kits = sh(KITS);
+  M.teams = [0, 1].map(k => ({ name: names[k] + ' ' + SUFFIX[Math.floor(r() * SUFFIX.length)], short: names[k].slice(0, 3).toLocaleUpperCase('tr'), kit: kits[k] }));
   P.length = 0;
   for (let k = 0; k < 2; k++) FORM.forEach((f, i) => {
     const look = C.randomLook(); look.shirt = i === 0 ? (k ? '#16212b' : '#3fbf6a') : M.teams[k].kit[0]; look.pants = M.teams[k].kit[1]; look.shoes = '#16212b';
@@ -102,7 +104,13 @@ function stepBall(dt) {
   if (Math.abs(bp.z) > FZ) { bp.z = Math.sign(bp.z) * FZ; bv.z *= -0.5; bv.x *= 0.6; }                // taç: kenardan geri
   if (Math.abs(bp.x) > FX) {
     const side = Math.sign(bp.x);
-    if (Math.abs(bp.z) < GW && bp.y < GH) { goal(side > 0 ? 0 : 1); return; }
+    if (Math.abs(bp.z) < GW && bp.y < GH) {
+      M.tries++;
+      if (Math.random() < GOAL_P) { goal(side > 0 ? 0 : 1); return; }
+      const gk = P.find(o => o.i === 0 && dirOf(o.k) === -side);                 // kurtarış: kaleci çizgide uzanıp alır
+      M.saves++; bp.x = side * (FX - 0.7); bv.x = bv.z = bv.y = 0; if (gk) { gk.x = side * (FX - 0.6); gk.z = C.clamp(bp.z, -GW, GW); holder = gk; holdT = 1.4; }
+      return;
+    }
     /* aut: kaleci alır */
     const gk = P.find(o => o.i === 0 && dirOf(o.k) === -side); bp.x = side * (FX - 0.8); bp.z = 0; bv.x = bv.z = bv.y = 0;
     if (gk) { gk.x = side * (FX - 0.6); gk.z = 0; holder = gk; holdT = 1.2; }
@@ -110,9 +118,29 @@ function stepBall(dt) {
 }
 
 /* ---------- oyun döngüsü ---------- */
-const MATCH_S = 300;                                            // 90 dakika = 5 gerçek dakika
-const inWindow = () => (C.hour >= 13.5 && C.hour < 17) || (C.hour >= 19 && C.hour < 22.5);
-function startMatch() { newTeams(); M.on = true; M.min = 0; M.score = [0, 0]; M.half = 1; kickoff(Math.random() < 0.5 ? 0 : 1, true); ball.visible = true; drawBoard(); }
+/* maç takvimi (dakika, başlama düdüğüne göre): 10 dk önce tribün dolar, 0-45 ilk yarı, 45-60 devre arası, 60-105 ikinci yarı, 105-115 maç sonu */
+const SLOTS = [13.5, 19], PRE = 10, HT = 45, HT_END = 60, FT = 105, POST = 115;
+const GOAL_P = 0.05;                                            // kaleyi bulan topun gol olma payı (gerçek sürede maç başına ~2-3 gol)
+const pad = n => String(n).padStart(2, '0');
+const clockState = () => { for (const s of SLOTS) { const el = (C.hour - s) * 60; if (el >= -PRE && el < POST) return { s, el }; } return null; };
+const playedOf = el => el < 0 ? 0 : el < HT ? el : el < HT_END ? 45 : Math.min(90, el - 15);
+const seedOf = s => { const d = new Date(); let h = 2166136261; for (const c of d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + '|' + s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return C.rng(h >>> 0); };
+C.matchTimes = SLOTS.map(s => pad(Math.floor(s)) + ':' + pad(Math.round(s % 1 * 60)));
+function startMatch(S) {
+  const r = seedOf(S.s); newTeams(r);
+  M.on = true; M.slot = S.s; M.kick0 = r() < 0.5 ? 0 : 1; M.half = S.el >= HT_END ? 2 : 1;
+  /* sonradan açılınca o ana kadarki skor: dakika başına sabit gol olasılığıyla (tohumlu) */
+  const played = playedOf(S.el); M.score = [0, 0];
+  for (let m = 0; m < played; m++) for (let k = 0; k < 2; k++) if (r() < 1.3 / 90) M.score[k]++;
+  M.min = played; ball.visible = true;
+  if (S.el < 0) { M.ph = 'pre'; kickoff(M.kick0, true); M.ph = 'pre'; ball.visible = false; }
+  else if (S.el < HT) kickoff(M.kick0, true);
+  else if (S.el < HT_END) M.ph = 'half';
+  else if (S.el < FT) kickoff(1 - M.kick0, true);
+  else { M.ph = 'end'; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice() }; }
+  drawBoard();
+}
+function stopMatch() { M.on = false; M.ph = 'off'; M.slot = null; ball.visible = false; drawBoard(); }
 function stepPlayers(dt) {
   const near = [0, 1].map(k => P.filter(p => p.k === k && p.i > 0).sort((a, b) => Math.hypot(a.x - bp.x, a.z - bp.z) - Math.hypot(b.x - bp.x, b.z - bp.z))[0]);
   /* karede tek dokunuş; sıra her karede döner: aynı anda topa giden iki oyuncudan hep sonraki kazanmasın */
@@ -146,16 +174,22 @@ function stepPlayers(dt) {
   if (holder && (holdT -= dt) <= 0) decide(holder);
 }
 function stepMatch(dt) {
+  /* saate göre evre: devre arası, ikinci yarı, maç sonu; saat ileri sarılırsa da tutarlı */
+  const S = clockState();
+  if (!S || S.s !== M.slot) { stopMatch(); return; }
+  const m0 = M.min; M.min = playedOf(S.el);
+  if (S.el < 0) { M.ph = 'pre'; }
+  else if (S.el < HT) { if (M.ph === 'pre') { ball.visible = true; kickoff(M.kick0, false); } }
+  else if (S.el < HT_END) { if (M.ph !== 'half') { M.ph = 'half'; holder = null; bv.x = bv.z = 0; ball.visible = false; drawBoard(); } }
+  else if (S.el < FT) { if (M.half === 1 || M.ph === 'half' || M.ph === 'pre') { M.half = 2; ball.visible = true; kickoff(1 - M.kick0, true); } }
+  else if (M.ph !== 'end') { M.ph = 'end'; holder = null; bv.x = bv.z = 0; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice() }; drawBoard(); }   // son maç sonucu (telefondaki haberler)
+  /* saat hızlı akınca (Günü ilerlet) atlanan dakikalarda da gol olabilir; gerçek sürede kare başına fark çok küçük, eklenmez */
+  const gap = M.min - m0;
+  if (gap > 0.05 && gap < 60 && M.ph !== 'end') for (let k = 0; k < 2; k++) if (Math.random() < 1.3 / 90 * gap) { M.score[k]++; M.cheer[k] = 3; }
+  if (Math.floor(m0) !== Math.floor(M.min) || gap > 0.05) drawBoard();
   if (M.ph === 'kick') { if ((M.wait -= dt) <= 0) { M.ph = 'play'; const p = P.filter(o => o.k === M.kickTeam && o.i >= 9)[0]; if (p) { p.x = -dirOf(p.k) * 0.4; p.z = 0; kick(p, -dirOf(p.k) * 6, (Math.random() - 0.5) * 6, 7, 0); } } }
   else if (M.ph === 'goal') { if ((M.wait -= dt) <= 0) kickoff(1 - M.scorer); }
-  else if (M.ph === 'half') { if ((M.wait -= dt) <= 0) { M.half = 2; kickoff(1 - M.kickTeam); } }
-  else if (M.ph === 'end') { if ((M.wait -= dt) <= 0) { M.on = false; M.ph = 'off'; M.wait = 40; ball.visible = false; drawBoard(); } return; }
-  if (M.ph === 'play') {
-    const m0 = M.min; M.min += dt / MATCH_S * 90;
-    if (m0 < 45 && M.min >= 45 && M.half === 1) { M.ph = 'half'; M.wait = 8; holder = null; bv.x = bv.z = 0; }
-    if (M.min >= 90) { M.min = 90; M.ph = 'end'; M.wait = 25; holder = null; bv.x = bv.z = 0; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice() }; }   // son maç sonucu (telefondaki haberler)
-    if (Math.floor(m0) !== Math.floor(M.min)) drawBoard();
-  }
+  if (M.ph === 'half') return;                                   // oyuncular soyunma odasında
   stepPlayers(dt); if (M.ph === 'play' || M.ph === 'kick') stepBall(dt);
   for (let k = 0; k < 2; k++) if (M.cheer[k] > 0) M.cheer[k] -= dt;
 }
@@ -164,19 +198,19 @@ function drawBoard() {
   x.fillStyle = '#10161c'; x.fillRect(0, 0, w, h);
   x.textAlign = 'center'; x.textBaseline = 'middle';
   const f = (s, wt) => `${wt || 800} ${s}px "Big Shoulders Display","Arial Narrow",sans-serif`;
-  if (!M.teams || (!M.on && M.ph === 'off')) { x.fillStyle = '#ffb53d'; x.font = f(56); x.fillText('ŞEHİR STADI', w / 2, h / 2 - 14); x.fillStyle = '#9aa7b3'; x.font = f(30, 600); x.fillText('Maçlar 13:30 ve 19:00', w / 2, h / 2 + 34); sbTex.needsUpdate = true; return; }
+  if (!M.teams || (!M.on && M.ph === 'off')) { x.fillStyle = '#ffb53d'; x.font = f(56); x.fillText('ANKARA STADI', w / 2, h / 2 - 14); x.fillStyle = '#9aa7b3'; x.font = f(30, 600); x.fillText('Maçlar ' + C.matchTimes.join(' ve '), w / 2, h / 2 + 34); sbTex.needsUpdate = true; return; }
   const [a, b] = M.teams;
   x.fillStyle = a.kit[0]; x.fillRect(18, 24, 14, 72); x.fillStyle = b.kit[0]; x.fillRect(w - 32, 24, 14, 72);
   x.fillStyle = '#f2f2ee'; x.font = f(62); x.fillText(a.short, 110, 60); x.fillText(b.short, w - 110, 60);
   x.fillStyle = '#ffb53d'; x.font = f(84); x.fillText(`${M.score[0]} - ${M.score[1]}`, w / 2, 62);
   x.fillStyle = '#9aa7b3'; x.font = f(30, 600);
-  x.fillText(M.ph === 'half' ? 'DEVRE ARASI' : M.ph === 'end' ? 'MAÇ SONU' : `${Math.floor(M.min)}'`, w / 2, 130);
+  x.fillText(M.ph === 'pre' ? 'BAŞLAMA ' + C.matchTimes[SLOTS.indexOf(M.slot)] : M.ph === 'half' ? 'DEVRE ARASI' : M.ph === 'end' ? 'MAÇ SONU' : `${Math.floor(M.min)}'`, w / 2, 130);
   sbTex.needsUpdate = true;
 }
 drawBoard();
 C.nightListeners.push(n => { sbMat.emissiveIntensity = 0.6 + n * 0.5; });
 /* kart satırı */
-L.rows.push(['Maç', () => M.on ? `${team(0).name} ${M.score[0]} - ${M.score[1]} ${team(1).name} · ${M.ph === 'half' ? 'devre arası' : M.ph === 'end' ? 'maç sonu' : Math.floor(M.min) + "'"}` : 'Bugün 13:30 ve 19:00']);
+L.rows.push(['Maç', () => M.on ? `${team(0).name} ${M.score[0]} - ${M.score[1]} ${team(1).name} · ${M.ph === 'pre' ? 'birazdan' : M.ph === 'half' ? 'devre arası' : M.ph === 'end' ? 'maç sonu' : Math.floor(M.min) + "'"}` : 'Bugün ' + C.matchTimes.join(' ve ')]);
 C.match = M;
 
 /* ---------- tribün yerleri ---------- */
@@ -185,27 +219,30 @@ const fanSeats = [];
 for (const s of [-1, 1]) for (let k = 0; k < 3; k++) for (let x = -14.6; x <= 14.6; x += 0.85) fanSeats.push({ x, z: s * (12.4 + k * 2.2 - 0.85), y: B + 1.4 * (k + 1) - 0.42, ry: Math.atan2(s, 0), ph: Math.random() * 9 });
 for (const s of [-1, 1]) for (let k = 0; k < 2; k++) for (let z = -10; z <= 10; z += 0.85) fanSeats.push({ x: s * (17.1 + k * 1.6 - 0.55), z, y: B + 1.4 * (k + 1) - 0.42, ry: Math.atan2(0, -s), ph: Math.random() * 9 });
 fanSeats.length = Math.min(fanSeats.length, 340);
+/* geliştiricinin koltuğu: ana tribün, orta saha hizası, ön sıra (developer.js oturur; orada taraftar çizilmez) */
+const devSeat = fanSeats.reduce((b, s) => s.z < 0 && Math.abs(s.x) < 1 && (!b || s.y < b.y) ? s : b, null);
+M.seat = devSeat ? { x: OX + devSeat.x, y: devSeat.y, z: OZ + devSeat.z, ry: devSeat.ry, team: devSeat.x < 0 ? 0 : 1, ref: devSeat } : null;
 
 return function (dt, t, D) {
-  if (!M.on) { if ((M.wait -= dt) <= 0 && inWindow()) startMatch(); }
+  if (!M.on) { if ((M.wait -= dt) <= 0) { M.wait = 1; const S = clockState(); if (S) startMatch(S); } }   // saniyede bir takvime bakar
   else stepMatch(dt);
   const vis = M.on && D <= 130 && Math.hypot(C.camera.position.x - OX, C.camera.position.z - OZ) < 260;
   players.group.visible = fans.group.visible = vis;
   if (!vis) { if (M.on) { ball.position.set(bp.x, B + 0.06 + bp.y, bp.z); } return; }
   ball.position.set(bp.x, B + 0.06 + bp.y, bp.z); ball.rotation.z -= bv.x * dt * 4; ball.rotation.x += bv.z * dt * 4;
   players.begin();
-  for (const p of P) {
+  if (M.ph !== 'half') for (const p of P) {
     const cel = M.ph === 'goal' && p.k === M.scorer, pose = cel ? C.pose('handsup', t, pp) : p.sp > 3.6 ? C.pose('run', p.ph, pp) : p.sp > 0.3 ? C.pose('walk', p.ph * 1.4, pp) : C.pose('stand', t + p.slot, pp);
     players.put(p.slot, OX + p.x, B + 0.06, OZ + p.z, p.ry, pose);
   }
   /* hakem topun biraz gerisinde */
   const rx = bp.x * 0.85 - 2.5, rz = C.clamp(bp.z + 3, -FZ, FZ);
   M.rx = M.rx === undefined ? rx : M.rx + (rx - M.rx) * Math.min(1, dt * 1.2); M.rz = M.rz === undefined ? rz : M.rz + (rz - M.rz) * Math.min(1, dt * 1.2);
-  players.put(22, OX + M.rx, B + 0.06, OZ + M.rz, Math.atan2(-(bp.z - M.rz), bp.x - M.rx), C.pose(Math.abs(rx - M.rx) > 0.5 ? 'walk' : 'stand', t * 3, pp));
+  if (M.ph !== 'half') players.put(22, OX + M.rx, B + 0.06, OZ + M.rz, Math.atan2(-(bp.z - M.rz), bp.x - M.rx), C.pose(Math.abs(rx - M.rx) > 0.5 ? 'walk' : 'stand', t * 3, pp));
   players.end();
   fans.begin();
   fanSeats.forEach((s, n) => {
-    if (!s.on) return;
+    if (!s.on || s === devSeat) return;
     const up = M.cheer[s.team] > 0 || (M.ph === 'play' && Math.sin(t * 0.7 + s.ph) > 0.97);
     fans.put(n, OX + s.x, s.y, OZ + s.z, s.ry, up ? C.pose('handsup', t, fp) : C.pose('sit', t + s.ph, fp));
   });
