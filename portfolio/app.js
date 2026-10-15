@@ -18,7 +18,7 @@ $('name').textContent = P.name || ''; $('role').textContent = P.role || ''; $('t
 $('status').textContent = P.status || ''; $('status').hidden = !P.status;
 $('avatar').textContent = (P.name || '?').trim().charAt(0).toLocaleUpperCase('tr');
 const ICON = { github: ['🐙', '#2b3036'], linkedin: ['💼', '#0a66c2'], mail: ['✉️', '#e2452b'], web: ['🌐', '#2f7bff'] };
-$('dockbar').innerHTML = (P.contact || []).filter(c => c.href).map(c => `<a class="app small" href="${esc(c.href)}" target="_blank" rel="noopener"><span class="ico" style="--c:${(ICON[c.kind] || ICON.web)[1]}">${(ICON[c.kind] || ICON.web)[0]}</span><span class="sr">${esc(c.label)}</span></a>`).join('');
+$('dockbar').innerHTML = (P.contact || []).filter(c => c.href).map(c => `<a class="app small" href="${esc(c.href)}" target="_blank" rel="noopener"><span class="ico" style="--c:${(ICON[c.kind] || ICON.web)[1]}">${(ICON[c.kind] || ICON.web)[0]}</span>${esc(c.label)}</a>`).join('');   // ana ekrandaki gibi simgenin altında adı
 function tick() {
   const C = city();
   $('clock').textContent = hm(hourNow());

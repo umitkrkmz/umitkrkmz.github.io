@@ -62,7 +62,7 @@ body:not(.embed) .home { padding-top: max(58px, calc(env(safe-area-inset-top, 0p
 .app { display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: 0; padding: 0; cursor: pointer; font-size: 12.5px; color: #eef2f4; text-decoration: none; text-align: center; }
 .ico { width: 60px; height: 60px; border-radius: 17px; display: grid; place-items: center; font-size: 28px; background: var(--c); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 6px 16px rgba(0,0,0,.25); transition: transform .12s; }
 .app:active .ico { transform: scale(.92); }
-.dockbar { margin-top: auto; display: flex; justify-content: space-around; padding: 12px; border-radius: 28px; background: rgba(255, 255, 255, .12); backdrop-filter: blur(10px); }
+.dockbar { margin-top: auto; display: flex; justify-content: space-around; padding: 12px 12px 10px; border-radius: 28px; background: rgba(255, 255, 255, .12); backdrop-filter: blur(10px); }
 .app.small .ico { width: 54px; height: 54px; font-size: 24px; }
 
 /* uygulama: tarayıcı gibi, üstte adres çubuğu */
