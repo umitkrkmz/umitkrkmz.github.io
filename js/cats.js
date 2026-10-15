@@ -100,7 +100,7 @@ let club = null;
 function spawn() {
   cats.length = 0;
   const city = C.blocks.filter(b => b.kind === 'city'), parks = C.blocks.filter(b => b.kind === 'park');
-  for (let k = 0; k < 54 && city.length; k++) make('ring', pick(city));
+  for (let k = 0; k < C.Q.cats && city.length; k++) make('ring', pick(city));
   for (const p of parks) for (let k = 0; k < 2; k++) make('park', p);
   /* toplantı parkı: merkeze en yakın park; sekiz kedisi orada yaşar, reis iri bir sarman */
   const cp = parks.slice().sort((a, b) => Math.hypot(a.bx, a.bz) - Math.hypot(b.bx, b.bz))[0];

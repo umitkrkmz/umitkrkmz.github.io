@@ -39,8 +39,19 @@ try {
 }
 const stage = document.getElementById('stage');
 C.coarse = window.matchMedia('(pointer:coarse)').matches;
-/* keskinlik: masaüstünde yüksek çözünürlüklü ekranda tam 2x, dokunmatikte pil ve ısı için 1,5x */
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, C.coarse ? 1.5 : 2));
+/* grafik kalitesi: otomatikte telefon düşük, tablet orta, masaüstü yüksek; seçim tarayıcıda saklanır, sayfa yenilenince uygulanır.
+   pr: en yüksek piksel oranı, smap: gölge haritası, forest: dağ ormanı oranı, seg: arazi ağı, far: görüş, density: trafik, crowd: yaya oranı, cats, live: camın ardında oda kurulan bina */
+C.QS = {
+  low: { pr: 1, shadow: false, smap: 1024, forest: 0.3, seg: 352, far: 5200, density: 0.3, crowd: 0.55, cats: 28, live: 1 },
+  mid: { pr: 1.5, shadow: true, smap: 2048, forest: 0.6, seg: 400, far: 7000, density: 0.4, crowd: 0.8, cats: 42, live: 1 },
+  high: { pr: 2, shadow: true, smap: 4096, forest: 1, seg: 448, far: 8500, density: 0.5, crowd: 1, cats: 54, live: 2 }
+};
+try { C.qualityPick = localStorage.getItem('ms.quality') || 'auto'; } catch (e) { C.qualityPick = 'auto'; }
+C.small = Math.min(screen.width, screen.height) < 720;
+C.QUALITY = C.QS[C.qualityPick] ? C.qualityPick : C.coarse ? (C.small ? 'low' : 'mid') : 'high';
+C.Q = C.QS[C.QUALITY];
+C.maxPR = Math.min(window.devicePixelRatio || 1, C.Q.pr);
+renderer.setPixelRatio(C.maxPR);
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -106,7 +117,7 @@ C.mergeGeos = function (list) {
 const hemi = C.hemi = new THREE.HemisphereLight(0xffffff, 0x3a3f45, 0.6);
 const sun = C.sun = new THREE.DirectionalLight(0xfff2dc, 1.5);
 sun.castShadow = true;
-sun.shadow.mapSize.set(C.coarse ? 2048 : 4096, C.coarse ? 2048 : 4096);
+sun.shadow.mapSize.set(C.Q.smap, C.Q.smap);
 sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.35;
 sun.shadow.camera.near = 10; sun.shadow.camera.far = 1600;
 const moon = new THREE.DirectionalLight(0x8fa8ff, 0.2);

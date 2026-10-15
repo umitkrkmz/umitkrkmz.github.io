@@ -381,7 +381,7 @@ const pt = {};
 C.buildPeople = function () {
   const r = C.rng(77);
   for (const blk of C.blocks) {
-    const n = blk.kind === 'plaza' ? 6 : blk.kind === 'park' ? 3 : 2 + Math.floor(r() * 3);
+    const n = Math.max(1, Math.round((blk.kind === 'plaza' ? 6 : blk.kind === 'park' ? 3 : 2 + Math.floor(r() * 3)) * C.Q.crowd));
     for (let k = 0; k < n; k++) people.push({ blk, f: r(), dir: r() < 0.5 ? 1 : -1, sp: 1.1 + r() * 0.6, lat: (r() - 0.5) * 1.4, ph: r() * 6.28 });
   }
   crowd = new C.Crowd(people.length);

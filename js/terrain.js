@@ -92,7 +92,7 @@ function H(x, z) {
 C.terrainH = H;
 
 /* ---------- arazi ağı: merkeze sık, dışa seyrek ızgara; renk yükseklik ve eğimden ---------- */
-const SEG = 448, EXT = 9000, WARP = 1.6;          // merkezde ~20 m, dağlarda ~35 m, ufukta seyrek
+const SEG = C.Q.seg, EXT = 9000, WARP = 1.6;          // merkezde ~20 m, dağlarda ~35 m, ufukta seyrek
 const tg = new THREE.PlaneGeometry(2, 2, SEG, SEG); tg.rotateX(-Math.PI / 2);
 const tp = tg.attributes.position, tcol = new Float32Array(tp.count * 3);
 for (let i = 0; i < tp.count; i++) {
@@ -118,7 +118,7 @@ if (C.grass) C.grass.visible = false;
 
 /* ---------- orman: tepelerde çam kümeleri, vadide yapraklı ağaçlar (örnekli, gölge düşürmez) ---------- */
 const rnd = C.rng(5151), d = new THREE.Object3D(), spots = [], leafy = [];
-for (let n = 0; n < 60000 && spots.length < 15000; n++) {
+for (let n = 0; n < 60000 * C.Q.forest && spots.length < 15000 * C.Q.forest; n++) {   // kaliteye göre seyrek
   const x = (rnd() * 2 - 1) * 3600, z = (rnd() * 2 - 1) * 3600, dBox = Math.max(Math.abs(x), Math.abs(z)) - half;
   if (dBox < 25) continue;
   const y = H(x, z), sl = Math.hypot(H(x + 4, z) - y, H(x, z + 4) - y) / 4;
@@ -210,6 +210,6 @@ C.nightListeners.push(n => { headMat.emissiveIntensity = n * 2.2; });
 C.highway = { pts: road, L: roadL, y: roadY, lane: C.LANE + 0.9, startNode: [C.N, C.MID] };
 
 /* ---------- sis ve uzak düzlem: dağlar puslu bir silüet olsun ---------- */
-scene.fog.near = 1100; scene.fog.far = 7800;
-C.camera.far = 8500; C.camera.updateProjectionMatrix();
+scene.fog.near = 1100 * C.Q.far / 8500; scene.fog.far = C.Q.far - 700;
+C.camera.far = C.Q.far; C.camera.updateProjectionMatrix();
 })();

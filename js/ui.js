@@ -7,7 +7,7 @@ const camera = C.camera, scene = C.scene, renderer = C.renderer, stage = $('stag
 const fmt = new Intl.NumberFormat('tr-TR');
 
 /* ---------- dünyayı kur ---------- */
-C.genBlocks(); C.buildStreet(); C.populate(2026); C.setDensity(0.5); C.buildPeople(); C.refreshPickables();
+C.genBlocks(); C.buildStreet(); C.populate(2026); C.setDensity(C.Q.density); C.buildPeople(); C.refreshPickables();
 C.playing = false; C.dayRate = 0.25;
 /* saat: varsayılan gerçek Türkiye saati (GMT+3, yaz saati yok); kaydırıcıyla elle, "Günü ilerlet" ile hızlı, "Canlı" ile gerçeğe döner */
 C.trHour = () => ((Date.now() / 3.6e6 + 3) % 24 + 24) % 24;
@@ -232,7 +232,12 @@ $('playBtn').addEventListener('click', () => { const on = !C.playing; if (on) se
 $('nowBtn').addEventListener('click', () => setLive(true));
 $('traffic').addEventListener('input', e => { C.setDensity(parseInt(e.target.value, 10) / 100); $('trafficOut').textContent = e.target.value + '%'; });
 const coarse = window.matchMedia('(pointer:coarse)').matches || window.innerWidth < 720;
-$('shadowChk').checked = !coarse; sun.castShadow = !coarse;
+$('shadowChk').checked = C.Q.shadow; sun.castShadow = C.Q.shadow;
+$('traffic').value = Math.round(C.Q.density * 100); $('trafficOut').textContent = $('traffic').value + '%';
+/* grafik kalitesi: seçim saklanır, sayfa yeniden yüklenir (orman, arazi, kalabalık baştan kurulur) */
+$('quality').value = C.qualityPick;
+$('qualityNow').textContent = { low: 'düşük', mid: 'orta', high: 'yüksek' }[C.QUALITY];
+$('quality').addEventListener('change', e => { try { localStorage.setItem('ms.quality', e.target.value); } catch (er) {} location.reload(); });
 $('shadowChk').addEventListener('change', e => { sun.castShadow = e.target.checked; });
 $('dockToggle').addEventListener('click', () => { const d = $('dock'), c = d.classList.toggle('collapsed'); $('dockToggle').setAttribute('aria-expanded', !c); });
 if (window.innerWidth < 720) { $('dock').classList.add('collapsed'); $('dockToggle').setAttribute('aria-expanded', 'false'); }
@@ -293,8 +298,20 @@ function hud(D, level) {
 const sdir = new THREE.Vector3(), fdv = new THREE.Vector3();
 let last = performance.now(), frameN = 0, booted = false;
 setHour(C.hour);
+/* uyarlanır çözünürlük: iki saniyelik ortalama kare süresi uzunsa piksel oranı düşer, rahatlayınca kaliteye göre en yükseğe kadar çıkar */
+let frSum = 0, frN = 0, frT = 0, curPR = renderer.getPixelRatio();
+function adapt(ms) {
+  if (ms > 250 || document.hidden) return;                          // sekme arkadaydı
+  frSum += ms; frN++; if ((frT += ms) < 2000) return;
+  const avg = frSum / frN; frSum = frN = frT = 0;
+  let pr = curPR;
+  if (avg > 30 && pr > 0.6) pr = Math.max(0.6, pr - 0.15);
+  else if (avg < 17 && pr < C.maxPR) pr = Math.min(C.maxPR, pr + 0.1);
+  if (Math.abs(pr - curPR) > 0.01) { curPR = pr; renderer.setPixelRatio(pr); C.pixelRatio = pr; }
+}
 function loop(now) {
   requestAnimationFrame(loop);
+  adapt(now - last);
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   if (C.player && C.player.active) C.player.camera(dt);                // üçüncü şahıs kamera
   else {

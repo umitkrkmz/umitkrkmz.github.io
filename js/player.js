@@ -156,12 +156,15 @@ function draw(t) {
   P.crowd.set(0, P.pos.x, P.pos.y, P.pos.z, P.face, pose); P.crowd.commit();
 }
 /* tuşlardan bakış yönüne göre istenen hareket (kahraman modu da kullanır) */
+P.stick = { x: 0, y: 0 }; P.touchRun = false;                       // dokunmatik joystick (-1..1, y aşağı +) ve koş düğmesi
 P.input = function () {
   let f = 0, s = 0; for (const k of keys) { f += MOVE[k][0]; s += MOVE[k][1]; }
+  const sm = Math.hypot(P.stick.x, P.stick.y);
+  if (sm > 0.12) { f = -P.stick.y; s = P.stick.x; }
   const cy = Math.cos(P.yaw), sy = -Math.sin(P.yaw);
   let wx = cy * f + (-sy) * s, wz = sy * f + cy * s; const wl = Math.hypot(wx, wz);
   if (wl > 0) { wx /= wl; wz /= wl; }
-  return { f: Math.sign(f), s: Math.sign(s), wx, wz, wl, run };
+  return { f: Math.abs(f) > 0.3 ? Math.sign(f) : 0, s: Math.abs(s) > 0.3 ? Math.sign(s) : 0, wx, wz, wl, run: run || P.touchRun || sm > 0.95 };
 };
 /* araç çarparsa: savrulur, yere düşer, biraz sonra kalkar; yaya kazası olayı başlar */
 function knock(car) {
@@ -176,11 +179,8 @@ P.update = function (dt, t) {
   if (C.setObstacle) { if (!P.indoor && P.pos.y < 1) C.setObstacle(P.pos.x, P.pos.z); else C.setObstacle(1e9, 1e9); }
   if (gridSig !== C.buildings.length + ':' + (C.bver || 0)) buildGrid();
   if (P.mode === 'hero') { C.heroPlay.update(dt, t); if (talkT > 0) talkT -= dt; updatePrompt(); updateBubbles(dt); return; }
-  let f = 0, s = 0; for (const k of keys) { f += MOVE[k][0]; s += MOVE[k][1]; }
-  const cy = Math.cos(P.yaw), sy = -Math.sin(P.yaw);           // bakış yönü (x, z)
-  let wx = cy * f + (-sy) * s, wz = sy * f + cy * s;              // sağ = (-sy, cy)
-  let wl = Math.hypot(wx, wz), top = run ? 5.6 : 2.0;
-  if (wl > 0) { wx /= wl; wz /= wl; }
+  const inp = P.input();                                          // tuşlar ya da joystick, bakış yönüne göre
+  let wx = inp.wx, wz = inp.wz, wl = inp.wl, top = inp.run ? 5.6 : 2.0;
   if (P.seat) { if (wl) standUp(); else { wx = wz = 0; wl = 0; top = 0; P.vel.set(0, 0, 0); } }   // bankta: yürümeye kalkınca kalkar
   if (P.down > 0) { P.down -= dt; wx = wz = 0; wl = 0; top = 0; }        // yerde: hareket yok
   if (P.petT > 0) { P.petT -= dt; if (wl) P.petT = 0; else top = 0; }    // kedi severken; yürüyünce bırakır
@@ -342,7 +342,7 @@ window.addEventListener('keyup', e => {
   if (P.active && P.mode === 'hero') { if (e.code === 'Space') C.heroPlay.jump(false); else if (e.code === 'KeyF') C.heroPlay.web(false); }
 });
 window.addEventListener('blur', () => keys.clear());
-el.addEventListener('click', () => { if (P.active && document.pointerLockElement !== el) el.requestPointerLock(); });
+el.addEventListener('click', () => { if (P.active && !C.touch && document.pointerLockElement !== el) el.requestPointerLock(); });
 /* kahraman: sol tık basılı ağla sallan, sağ tık ağla çekil (imleç kilitliyken) */
 el.addEventListener('mousedown', e => {
   if (!P.active || P.mode !== 'hero' || document.pointerLockElement !== el) return;
@@ -356,8 +356,44 @@ document.addEventListener('mousemove', e => {
   P.yaw -= e.movementX * 0.0026; P.pitch = C.clamp(P.pitch + e.movementY * 0.0022, -0.45, 1.25);
   if (e.movementX || e.movementY) P.mouseT = performance.now();
 });
+/* ---------- dokunmatik: sol altta joystick, ekranı sürükleyerek bakış, iki parmakla uzaklık; düğmeler tuş olayı gönderir ---------- */
+C.touch = C.coarse;
+window.addEventListener('touchstart', () => { if (!C.touch) { C.touch = true; document.body.classList.add('touch'); setHud(); } }, { passive: true, once: true });
+if (C.touch) document.body.classList.add('touch');
+const sendKey = (code, down) => window.dispatchEvent(new KeyboardEvent(down ? 'keydown' : 'keyup', { code }));
+(function touchUI() {
+  const stick = $('stick'), knob = $('knob'); if (!stick) return;
+  let sid = null, cx = 0, cy = 0;
+  const setKnob = (x, y) => { knob.style.transform = `translate(${x * 42}px, ${y * 42}px)`; };
+  stick.addEventListener('pointerdown', e => { sid = e.pointerId; try { stick.setPointerCapture(sid); } catch (er) {} const r = stick.getBoundingClientRect(); cx = r.left + r.width / 2; cy = r.top + r.height / 2; e.preventDefault(); move(e); });
+  const move = e => { if (e.pointerId !== sid) return; let x = (e.clientX - cx) / 46, y = (e.clientY - cy) / 46; const l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; } P.stick.x = x; P.stick.y = y; setKnob(x, y); };
+  stick.addEventListener('pointermove', move);
+  const end = e => { if (e.pointerId !== sid) return; sid = null; P.stick.x = P.stick.y = 0; setKnob(0, 0); };
+  stick.addEventListener('pointerup', end); stick.addEventListener('pointercancel', end);
+  /* bakış: sahnede tek parmak; iki parmak aralığı kamera uzaklığı */
+  const pts = new Map(); let pinch = 0;
+  el.addEventListener('pointerdown', e => { if (!P.active || e.pointerType !== 'touch') return; pts.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = Math.hypot(a.x - b.x, a.y - b.y); } });
+  el.addEventListener('pointermove', e => {
+    if (!P.active || !pts.has(e.pointerId)) return;
+    const p = pts.get(e.pointerId), dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+    if (pts.size === 1) { P.yaw -= dx * 0.006; P.pitch = C.clamp(P.pitch + dy * 0.005, -0.45, 1.25); P.mouseT = performance.now(); }
+    else if (pts.size === 2) { const [a, b] = [...pts.values()], d = Math.hypot(a.x - b.x, a.y - b.y); if (pinch) P.zoom((pinch - d) * 4); pinch = d; }
+  });
+  const up = e => { pts.delete(e.pointerId); if (pts.size < 2) pinch = 0; };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  /* düğmeler: basılınca keydown, bırakınca keyup (Space, F basılı tutulur) */
+  document.querySelectorAll('#touchUI [data-key]').forEach(b => {
+    const code = b.dataset.key;
+    b.addEventListener('pointerdown', e => { e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch (er) {} b.classList.add('on'); sendKey(code, true); });
+    const rel = () => { if (!b.classList.contains('on')) return; b.classList.remove('on'); sendKey(code, false); };
+    b.addEventListener('pointerup', rel); b.addEventListener('pointercancel', rel);
+  });
+  $('tbRun').addEventListener('click', () => { P.touchRun = !P.touchRun; $('tbRun').setAttribute('aria-pressed', P.touchRun); });
+  $('tbExit').addEventListener('click', () => P.exit());
+})();
 P.zoom = dy => { P.dist = C.clamp(P.dist * Math.exp(dy * 0.0012), 1.6, P.mode === 'hero' ? 20 : 12); };
 const KEYS = {
+  touch: 'Sol alttaki çubuk: yürü · Ekranı sürükle: bak · İki parmak: yakınlaş · Sağdaki düğmeler: zıpla, koş, E',
   citizen: 'WASD: yürü · Shift: koş · Space: zıpla · Fare: bak · Tekerlek: yakınlaş · E: konuş / gir / kediyi sev · Q: kediyi kucağına al · Esc: imleci bırak',
   hero: 'WASD: koş · Shift: hızlı koş, duvarda yukarı koş · Space: zıpla (basılı tut: yüksek) · Sol tık / F basılı: ağla sallan · Sağ tık / Q: ağla çekil · Duvara koş: tırman · E: hırsızı ağla sar · Esc: imleci bırak'
 };
@@ -371,10 +407,12 @@ function setHud() {
   hud.hidden = !on; document.body.classList.toggle('playing', on);
   if (btn) { btn.textContent = on ? 'Kuş bakışına dön' : 'Karakteri oyna'; btn.setAttribute('aria-pressed', on && P.mode === 'citizen'); }
   const hb = $('btnPlayHero'); if (hb) { hb.textContent = on ? 'Kuş bakışına dön' : 'Pijamalı Çocuk olarak oyna'; hb.setAttribute('aria-pressed', on && P.mode === 'hero'); }
-  $('playKeys').textContent = KEYS[P.mode];
+  $('playKeys').textContent = C.touch ? KEYS.touch : KEYS[P.mode];
+  if (C.touch && on) { hud.classList.remove('fade'); clearTimeout(setHud.t); setHud.t = setTimeout(() => hud.classList.add('fade'), 6000); }   // dokunmatikte ipucu birkaç saniye
+  document.body.classList.toggle('hero-mode', P.mode === 'hero');
   $('xhair').hidden = !(P.active && P.mode === 'hero');
   if (!on) { $('heroTask').hidden = true; $('heroMsg').hidden = true; }
-  $('playLock').hidden = !P.active || document.pointerLockElement === el;
+  $('playLock').hidden = !P.active || C.touch || document.pointerLockElement === el;
   if (!on) $('playPrompt').hidden = true;
 }
 C.updaters.push((dt, t) => P.update(dt, t));

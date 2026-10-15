@@ -115,6 +115,8 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
 .btn.tiny.on { color: #1f9d55; border-color: currentColor; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.tiny.on { color: #5ee08f; } }
 :root[data-theme="dark"] .btn.tiny.on { color: #5ee08f; }
+.sel { width: 100%; min-height: 32px; padding: 4px 8px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--fg); font: 500 12px var(--f-mono); }
+.sel option { color: #16212b; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .row2 .wide { grid-column: 1 / -1; }
 .opts { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -127,7 +129,10 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   .stack { left: max(16px, env(safe-area-inset-left, 0px)); width: auto; }
   .steps span { font-size: 9.5px; letter-spacing: 0; }
   .hint { display: none; }
-  .desc { min-height: 0; }
+  .desc, .scale { display: none; }   /* telefonda kısa: ad, ilçe, kademe */
+  .brand { padding: 9px 12px; gap: 7px; }
+  h1 { font-size: 24px; }
+  .left { width: min(240px, calc(100vw - 150px)); }
 }
 /* olay akışı */
 .feed { pointer-events: auto; padding: 8px 6px 6px; }
@@ -201,6 +206,24 @@ body.phone-open .phone-btn { display: none; }
   .phone-full { display: none; }   /* telefonda zaten tam ekran */
 }
 @media (prefers-reduced-motion: reduce) { .phone { transition: none; } }
+/* dokunmatik oyun: joystick ve düğmeler, yalnızca dokunmatikte ve oyunda */
+.touch-ui { display: none; }
+body.touch.playing .touch-ui { display: block; }
+body.touch.playing #playHud { bottom: auto; top: max(62px, calc(env(safe-area-inset-top, 0px) + 56px)); transition: opacity .6s; }
+body.touch.playing #playHud.fade { opacity: 0; }
+body.touch.playing .left, body.touch.playing .stack { display: none; }   /* telefonda oynarken üst panel ve kontroller gizli; Çık düğmesi var */
+.tb.exit { position: fixed; left: max(12px, env(safe-area-inset-left, 0px)); top: max(12px, env(safe-area-inset-top, 0px)); width: auto; height: 40px; padding: 0 14px; border-radius: 20px; z-index: 26; }
+body.touch.playing .play-prompt { bottom: 200px; }
+body.touch.playing .phone-btn { top: max(14px, env(safe-area-inset-top, 0px)); bottom: auto; }
+.stick { position: fixed; left: max(22px, env(safe-area-inset-left, 0px)); bottom: max(28px, env(safe-area-inset-bottom, 0px)); width: 128px; height: 128px; border-radius: 50%;
+  background: rgba(16, 22, 28, .32); border: 2px solid rgba(255, 255, 255, .35); touch-action: none; z-index: 25; }
+.knob { position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; margin: -26px 0 0 -26px; border-radius: 50%; background: rgba(255, 255, 255, .7); box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+.tbtns { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: max(24px, env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: repeat(2, 64px); gap: 10px; z-index: 25; }
+.tb { width: 64px; height: 64px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .4); background: rgba(16, 22, 28, .5); color: #f2f2ee;
+  font: 800 15px var(--f-display); letter-spacing: .05em; text-transform: uppercase; touch-action: none; -webkit-user-select: none; user-select: none; }
+.tb.big { grid-column: 1 / -1; width: 138px; border-radius: 32px; }
+.tb.on, .tb[aria-pressed="true"] { background: var(--accent); color: #16212b; border-color: transparent; }
+body:not(.hero-mode) .hero-only, body.hero-mode .cit-only { display: none; }
 #xhair { position: fixed; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; pointer-events: none;
   border: 2px solid rgba(255,255,255,.55); box-shadow: 0 0 0 1px rgba(0,0,0,.25); transition: transform .12s, border-color .12s; }
 #xhair::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: rgba(255,255,255,.85); }
@@ -268,6 +291,10 @@ body.phone-open .phone-btn { display: none; }
         <label class="check"><input type="checkbox" id="eventsChk" checked> Rastgele olaylar</label>
         <button class="btn" id="eventBtn">Olay çıkar</button>
       </div>
+      <div class="field">
+        <div class="field-top"><label for="quality">Grafik</label><output id="qualityNow"></output></div>
+        <select id="quality" class="sel"><option value="auto">Otomatik (cihaza göre)</option><option value="high">Yüksek</option><option value="mid">Orta</option><option value="low">Düşük (telefon)</option></select>
+      </div>
       <div class="row2">
         <button class="btn wide find" id="btnFindMe">Beni bul 📱</button>
         <button class="btn" id="btnOverview">Kuş bakışı</button>
@@ -290,6 +317,18 @@ body.phone-open .phone-btn { display: none; }
 </div>
 <div id="playPrompt" class="play-prompt" hidden></div>
 <div id="xhair" hidden></div>
+<div id="touchUI" class="touch-ui" aria-hidden="true">
+  <button class="tb exit" id="tbExit" aria-label="Kuş bakışına dön">‹ Çık</button>
+  <div class="stick" id="stick"><div class="knob" id="knob"></div></div>
+  <div class="tbtns">
+    <button class="tb big" data-key="Space">Zıpla</button>
+    <button class="tb" data-key="KeyE">E</button>
+    <button class="tb" id="tbRun" aria-pressed="false">Koş</button>
+    <button class="tb hero-only" data-key="KeyF">Ağ</button>
+    <button class="tb hero-only" data-key="KeyQ">Çekil</button>
+    <button class="tb cit-only" data-key="KeyQ">Kucak</button>
+  </div>
+</div>
 <button id="phoneBtn" class="phone-btn" aria-label="Portfolyoyu aç"><span aria-hidden="true">📱</span> Portfolyo</button>
 <div id="phone" class="phone" role="dialog" aria-modal="true" aria-label="Portfolyo telefonu" hidden>
   <div class="phone-frame">

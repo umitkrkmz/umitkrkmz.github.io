@@ -353,7 +353,7 @@ C.updaters.push((dt, t) => {
   if ((liveT -= dt) <= 0) {
     liveT = 0.6;
     const want = C.buildings.filter(b => b.type !== 'house' && !b.cut && !b.isFar && b.lot.building === b && b.meshes[0] && b.meshes[0].geometry.userData.sides &&
-      Math.hypot(b.lot.cx - cam.x, b.lot.cz - cam.z) < 75).sort((p, q) => Math.hypot(p.lot.cx - cam.x, p.lot.cz - cam.z) - Math.hypot(q.lot.cx - cam.x, q.lot.cz - cam.z)).slice(0, 2);
+      Math.hypot(b.lot.cx - cam.x, b.lot.cz - cam.z) < 75).sort((p, q) => Math.hypot(p.lot.cx - cam.x, p.lot.cz - cam.z) - Math.hypot(q.lot.cx - cam.x, q.lot.cz - cam.z)).slice(0, C.Q.live);
     for (const b of Array.from(live.keys())) if (!want.includes(b) || b.lot.building !== b || b.cut) freeLive(b);
     for (const b of want) if (!live.has(b)) { const L = buildLive(b, cam); if (L) live.set(b, L); }
   }

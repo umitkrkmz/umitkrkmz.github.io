@@ -45,6 +45,10 @@ Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, g�
 - Sağ üstteki X ya da Esc kapatır. Telefon boyunda ekranda tam ekran açılır.
 - Portfolyo tek başına da açılır: `portfolio/` (WebGL'i olmayan cihazlar ve hızlı bağlantı için). Yazıların hepsi `portfolio/content.js` içinde.
 
+## Telefonda ve zayıf cihazlarda
+
+Grafik kalitesi cihaza göre kendiliğinden seçilir: telefonda düşük (gölge yok, düşük çözünürlük, seyrek orman, daha az araç ve yaya, kısa görüş), tablette orta, masaüstünde yüksek. Kontrol panelindeki **Grafik** seçimiyle değiştirilebilir; seçim saklanır, sayfa yeniden yüklenir. Kare süresi uzarsa çözünürlük kendiliğinden azalır, akıcılık dönünce yeniden artar.
+
 ## Karakteri oyna 🎮
 
 Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından süzülüp bir vatandaşın arkasına iner.
@@ -52,6 +56,7 @@ Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından s�
 | Ne | Tuş |
 |---|---|
 | Yürü / koş / zıpla | WASD veya yön tuşları, Shift ile koş, Space ile zıpla |
+| Telefonda | Sol altta çubukla yürü, ekranı sürükleyerek bak, iki parmakla yakınlaş; sağ alttaki düğmeler: Zıpla, E, Koş, Kucak (kahramanda Ağ ve Çekil); sol üstte Çık |
 | Saat | Varsayılan gerçek Türkiye saati (GMT+3); kaydırıcı elle, "Günü ilerlet" hızlı, "● Canlı" gerçeğe döner |
 | Etrafa bak | Sahneye tıkla, imleç kilitlenir; fareyle bak (Esc bırakır) |
 | Kamera uzaklığı | Tekerlek |
