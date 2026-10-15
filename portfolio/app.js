@@ -17,7 +17,7 @@ const hm = h => pad(Math.floor(h)) + ':' + pad(Math.floor((h % 1) * 60));
 $('name').textContent = P.name || ''; $('role').textContent = P.role || ''; $('tagline').textContent = P.tagline || '';
 $('status').textContent = P.status || ''; $('status').hidden = !P.status;
 $('avatar').textContent = (P.name || '?').trim().charAt(0).toLocaleUpperCase('tr');
-const ICON = { github: ['🐙', '#2b3036'], linkedin: ['💼', '#0a66c2'], mail: ['✉️', '#e2452b'], web: ['🌐', '#2f7bff'] };
+const ICON = { github: ['🐙', '#2b3036'], linkedin: ['💼', '#0a66c2'], mail: ['✉️', '#e2452b'], orcid: ['🎓', '#6e9a1f'], sponsor: ['💖', '#bf3989'], web: ['🌐', '#2f7bff'] };
 $('dockbar').innerHTML = (P.contact || []).filter(c => c.href).map(c => `<a class="app small" href="${esc(c.href)}" target="_blank" rel="noopener"><span class="ico" style="--c:${(ICON[c.kind] || ICON.web)[1]}">${(ICON[c.kind] || ICON.web)[0]}</span>${esc(c.label)}</a>`).join('');   // ana ekrandaki gibi simgenin altında adı
 function tick() {
   const C = city();
@@ -28,15 +28,44 @@ tick(); setInterval(tick, 1000);
 document.querySelectorAll('.url').forEach(u => { u.innerHTML = `${esc(P.site || '')}/<b>${esc(u.dataset.path)}</b>`; });
 
 /* ---------- Projeler, Hakkımda, İletişim ---------- */
-$('projectList').innerHTML = (P.projects || []).map(p => {
-  const here = p.live === '../index.html';
-  const live = here ? (embed ? '<span>Şu an içindesin</span>' : '<a href="../index.html">Şehre gir</a>') : p.live ? `<a href="${esc(p.live)}" target="_blank" rel="noopener">Canlı</a>` : '';
-  const code = p.code ? `<a class="ghost" href="${esc(p.code)}" target="_blank" rel="noopener">Kod</a>` : '<span>Kod yakında</span>';
-  return `<article class="card"><h4>${esc(p.title)}</h4><p>${esc(p.desc)}</p><ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul><div class="links">${live}${code}</div></article>`;
-}).join('');
+/* projeler gruplu; GitHub'dan (anahtarsız, tek istek, tarayıcıda 1 saat saklanır) dil ve son güncelleme gelir. Yıldız bilerek gösterilmez */
+const GH_KEY = 'ms.gh', LANG = { Python: '#3572A5', 'C#': '#178600', JavaScript: '#f1e05a', 'Jupyter Notebook': '#DA5B0B' };
+let gh = null;
+try { const c = JSON.parse(localStorage.getItem(GH_KEY)); if (c && c.repos) gh = c; } catch (e) {}
+const ago = iso => {                                                   // yakınsa "3 gün önce", eskiyse ay ve yıl ("9 ay önce" gibi eski izlenimi vermesin)
+  const d = Math.floor((Date.now() - Date.parse(iso)) / 864e5);
+  return d < 1 ? 'bugün' : d < 2 ? 'dün' : d < 30 ? d + ' gün önce' : new Date(iso).toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+};
+function projectCard(p) {
+  const here = p.live === '../index.html', r = gh && p.repo ? gh.repos[p.repo] : null;
+  const go = (label, href, cls) => `<a${cls ? ` class="${cls}"` : ''} href="${esc(href)}" target="_blank" rel="noopener">${label}</a>`;
+  const links = [
+    here ? (embed ? '<span>Şu an içindesin</span>' : '<a href="../index.html">Şehre gir</a>') : p.live ? go('Canlı', p.live) : '',
+    p.paper ? go('Makale', p.paper) : '',
+    p.repo ? go('Kod', 'https://github.com/' + (P.github || '') + '/' + p.repo, 'ghost') : here ? '<span>Kod yakında</span>' : '',
+    p.extra ? go(esc(p.extra[0]), p.extra[1], 'ghost') : ''
+  ].join('');
+  const lang = r && r.lang ? `<span class="lang" style="--l:${LANG[r.lang] || '#8b949e'}">${esc(r.lang)}</span>` : '';
+  const meta = r ? `<div class="meta">${lang}<span>Son güncelleme: ${esc(ago(r.pushed))}</span></div>` : '';
+  return `<article class="card proj"><h4>${esc(p.title)}</h4>${meta}<p>${esc(p.desc)}</p>${p.cite ? `<p class="cite">${esc(p.cite)}</p>` : ''}<ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul><div class="links">${links}</div></article>`;
+}
+function renderProjects() {
+  const groups = [];
+  for (const p of P.projects || []) { let g = groups.find(x => x.name === (p.group || '')); if (!g) groups.push(g = { name: p.group || '', list: [] }); g.list.push(p); }
+  $('projectList').innerHTML = groups.map(g => (g.name ? `<h3 class="group">${esc(g.name)}</h3>` : '') + `<div class="grid">${g.list.map(projectCard).join('')}</div>`).join('');
+}
+renderProjects();
+if (P.github && !(gh && Date.now() - gh.t < 36e5)) {
+  fetch('https://api.github.com/users/' + encodeURIComponent(P.github) + '/repos?per_page=100').then(r => r.ok ? r.json() : Promise.reject(r.status)).then(list => {
+    const repos = {}; for (const x of list) repos[x.name] = { lang: x.language, pushed: x.pushed_at };
+    gh = { t: Date.now(), repos }; try { localStorage.setItem(GH_KEY, JSON.stringify(gh)); } catch (e) {}
+    renderProjects();
+  }).catch(() => {});                                                   // ağ yoksa ya da sınır dolduysa elle yazılmış özet yeter
+}
 if (P.more) { $('moreLink').href = P.more.href; $('moreLink').textContent = P.more.label + ' →'; } else $('moreLink').hidden = true;
 $('aboutText').innerHTML = (P.about || []).map(t => `<p>${esc(t)}</p>`).join('');
-$('skills').innerHTML = (P.skills || []).map(t => `<li>${esc(t)}</li>`).join('');
+$('edu').textContent = P.edu || ''; $('edu').hidden = !P.edu;
+$('skills').innerHTML = (P.skills || []).map(s => Array.isArray(s) ? `<li><b>${esc(s[0])}</b><span>${esc(s[1])}</span></li>` : `<li><b>${esc(s)}</b></li>`).join('');
 $('contactList').innerHTML = (P.contact || []).filter(c => c.href).map(c =>
   `<li><a href="${esc(c.href)}" target="_blank" rel="noopener"><span class="ri" aria-hidden="true">${(ICON[c.kind] || ICON.web)[0]}</span><span><b>${esc(c.label)}</b><small>${esc(c.value)}</small></span></a></li>`).join('');
 

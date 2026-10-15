@@ -88,6 +88,18 @@ body:not(.embed) .home { padding-top: max(58px, calc(env(safe-area-inset-top, 0p
 .grid { display: grid; gap: 12px; }
 .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; }
 .chips li { padding: 3px 10px; border-radius: 999px; background: var(--card2); font: 500 12px var(--f-mono); color: #d6dde2; }
+/* proje kartı: GitHub'dan dil ve son güncelleme; makale künyesi; grup başlığı */
+#projectList .group:first-child { margin-top: 4px; }
+.proj .meta { display: flex; flex-wrap: wrap; gap: 12px; margin: 4px 0 8px; font: 500 12px var(--f-mono); color: var(--muted); }
+.proj .lang::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--l); margin-right: 6px; vertical-align: -1px; }
+.proj .cite { margin-top: 6px; font-size: 13px; font-style: italic; color: var(--muted); }
+.proj .chips { margin-top: 10px; }
+/* hakkımda: eğitim satırı, beceri başlıkları */
+.edu { margin-top: 12px; font: 500 13px var(--f-mono); color: var(--muted); }
+.skillrows { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.skillrows li { padding: 11px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.skillrows b { display: block; font-weight: 600; }
+.skillrows span { display: block; margin-top: 2px; font-size: 13px; color: var(--muted); }
 .links { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
 .links a, .links span { padding: 6px 12px; border-radius: 10px; font-weight: 600; font-size: 13px; text-decoration: none; }
 .links a { background: var(--accent); color: var(--accent-fg); }
@@ -141,10 +153,11 @@ details.card p { margin-top: 8px; }
 @container (min-width: 640px) {
   .app-view header, .body { padding-left: max(32px, calc((100% - 980px) / 2)); padding-right: max(32px, calc((100% - 980px) / 2)); }
   .app-view h2 { font-size: 40px; }
-  #projectList, #cityNews { grid-template-columns: repeat(2, 1fr); }
+  #projectList .grid, #cityNews { grid-template-columns: repeat(2, 1fr); }
   .grid.two { grid-template-columns: 1fr 1fr; }
   .stats { grid-template-columns: repeat(4, 1fr); }
   .lead { max-width: 680px; }
+  .skillrows { grid-template-columns: repeat(2, 1fr); }
 }
 @container (min-width: 960px) { #cityNews { grid-template-columns: repeat(3, 1fr); } }
 

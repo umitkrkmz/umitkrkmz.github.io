@@ -1,33 +1,86 @@
 /* ===== content.js: portfolyonun bütün yazıları burada; sayfanın geri kalanına dokunmadan değiştirilebilir. ===== */
 window.PORTFOLIO = {
   name: 'Zeynel Ümit Korkmaz',
-  role: 'Yazılım geliştirici',
-  status: 'Geliştirme aşamasında',
+  role: 'Bilgisayar mühendisi',
+  status: 'Ankara · .NET ve Python',
   tagline: 'Bu telefonun sahibi, arkadaki şehrin de yapımcısı.',
   site: 'umitkrkmz.github.io',                                  // uygulamaların adres çubuğunda görünür
+  github: 'umitkrkmz',                                          // projelerin dili ve son güncellemesi buradan canlı gelir
 
   about: [
-    'Merhaba, ben Ümit. Yazılım geliştiriyorum; en çok bir şeyin gerçekten çalışır hâle geldiği anı seviyorum.',
-    'Arkadaki Mikro Şehir boş zamanlarımda eğlencesine yaptığım bir proje: tarayıcıda, derleme adımı olmadan, düz JavaScript ve Three.js ile.'
+    'Merhaba, ben Ümit. Ankara\'da yaşayan bir bilgisayar mühendisiyim. .NET ve Python nerede varsa ben de oradayım; merak ettiğim şeyleri deniyor, işe yarayanları açık kaynak olarak paylaşıyorum.'
   ],
-  skills: ['JavaScript', 'Three.js / WebGL', 'GLSL', 'HTML / CSS', 'Git'],
+  edu: 'Kırıkkale Üniversitesi · Bilgisayar Mühendisliği · 2020–2025',
+  /* beceriler: genel başlık ve birkaç örnek */
+  skills: [
+    ['Backend ve servisler', '.NET, ASP.NET Core, Python, FastAPI'],
+    ['Masaüstü ve geliştirici araçları', 'PySide6, komut satırı araçları, paketleme'],
+    ['Veri ve makine öğrenmesi', 'NumPy, scikit-learn'],
+    ['Yapay zekâ entegrasyonu', 'Yerel LLM, RAG, AI destekli geliştirme'],
+    ['Veritabanları', 'SQL Server, PostgreSQL'],
+    ['Web ve 3B grafik', 'HTML, CSS, JavaScript, Three.js'],
+    ['Ortamlar', 'Linux, Docker, Git']
+  ],
 
-  /* kod: kaynak kodun bağlantısı, canli: çalışan sürüm ('../index.html' = bu şehir) */
+  /* group: başlık (sırası ilk geçişe göre), repo: GitHub deposu (Kod bağlantısı ve canlı bilgi), live: çalışan sürüm ('../index.html' = bu şehir),
+     paper: makale bağlantısı, extra: [ad, bağlantı] ek düğme. Açıklamalar Türkçe ve elle yazılır, GitHub'a ulaşılamazsa da görünür */
   projects: [
     {
-      title: 'Mikro Şehir',
+      group: 'Öne çıkanlar', title: 'Mikro Şehir',
       desc: 'Tarayıcıda çalışan prosedürel 3B Ankara: Kızılay\'dan Söğütözü\'ne semtler, canlı Ankara havası, dağlarla çevrili vadi, trafik ve yayalar, camın ardında yaşayan odalar, olaylar, kediler, stadyumda maç ve ağla sallanan bir kahraman.',
-      tags: ['Three.js', 'GLSL', 'Prosedürel üretim', 'Simülasyon'],
-      code: '', live: '../index.html'
+      tags: ['JavaScript', 'Three.js', 'GLSL', 'Prosedürel üretim'], live: '../index.html'
+    },
+    {
+      group: 'Öne çıkanlar', title: 'MediaGrab', repo: 'mediagrab',
+      desc: 'Link yapıştır, indir. yt-dlp tabanlı, kendi bilgisayarında çalışan video ve ses indirme aracı: 1700\'den fazla site, playlist ve kanal takibi, QR kodla telefondan kullanım, tek tıkla Windows kurulumu, Docker ve Raspberry Pi. Reklam, hesap ve telemetri yok.',
+      tags: ['Python', 'FastAPI', 'yt-dlp', 'Docker']
+    },
+    {
+      group: 'Öne çıkanlar', title: 'Kurumsal Bilgi Yönetim Platformu', repo: 'CorporateKnowledgeBase',
+      desc: 'Şirket içi belgeler, yazılar ve duyurular için bilgi platformu. Ollama ile yerel RAG asistanı bilgi tabanından soruları yanıtlar; SignalR ile anlık bildirimler, Hangfire ile arka plan işleri, rol tabanlı yetki ve içerik onay akışı.',
+      tags: ['.NET 10', 'ASP.NET Core', 'Clean Architecture', 'CQRS', 'RAG']
+    },
+    {
+      group: 'Öne çıkanlar', title: 'StegoTester', repo: 'StegoTester',
+      desc: 'Görsel, ses ve metin dosyalarında gizli veri arayan, steganografi yöntemlerini 30\'dan fazla metrikle karşılaştıran analiz aracı. Hızlı matematiksel eşik ile Random Forest ve Gradient Boosting modellerini birleştiren hibrit tespit, pHash ve spektral parmak iziyle otomatik eşleştirme, PDF rapor.',
+      tags: ['Python', 'PySide6', 'scikit-learn', 'Veri analizi'], extra: ['Model eğitimi', 'https://github.com/umitkrkmz/StegoTester-AI-Training']
+    },
+    {
+      group: 'Öne çıkanlar', title: 'Chaotic Audio Steganography', repo: 'Chaotic_Audio_Steganography',
+      desc: 'Hakemli dergide yayımlanan "Secure Audio Steganography Using Vectorized LSB and Chaos-Based Encryption" makalesinin resmi kodu: yedi kaotik harita, NumPy ile vektörize LSB gömme, PySide6 arayüzü.',
+      cite: 'Electrical Engineering and Energy (2025), 4(3), 68–86',
+      tags: ['Python', 'NumPy', 'Kaos teorisi', 'Akademik'], paper: 'https://doi.org/10.64470/elene.2025.12'
+    },
+    {
+      group: 'Öne çıkanlar', title: 'ai-context-mapping', repo: 'ai-context-mapping',
+      desc: 'AI kodlama ajanlarının (Claude Code, Cursor, Copilot) bağlamdan kopmasını, boşa token harcamasını ve koruyucu kodu "temizlemesini" engelleyen çerçeve: proje haritası, makinece okunur kurallar, AST denetimleri ve mutasyon testi. Bağımlılık yok, yalnızca Python standart kütüphanesi.',
+      tags: ['Python', 'AI ajanları', 'Geliştirici araçları']
+    },
+    {
+      group: 'Windows araçları', title: 'Limbo', repo: 'Limbo',
+      desc: 'Alan adına göre ayrı profiller kullanan DPI aşma motoru: yedi teknik, engellenen alan adlarını kendisi bulan Radar, gerçek bağlantı üzerinde otomatik kalibrasyon, DNS over HTTPS, ECH ve canlı trafik paneli. Paket ayrıştırma AVX2 ile hızlandırılmış.',
+      tags: ['C#', '.NET', 'WinDivert', 'Ağ']
+    },
+    {
+      group: 'Windows araçları', title: 'ZeroDivert', repo: 'ZeroDivert',
+      desc: 'VPN olmadan, hız kaybı olmadan Discord erişimi. Yalnızca Discord\'un TLS el sıkışma paketlerini düzenler, bir yöntem işe yaramazsa otomatik olarak sıradakini dener; geri kalan trafiğe dokunmaz.',
+      tags: ['C#', '.NET', 'WinDivert']
+    },
+    {
+      group: 'Windows araçları', title: 'ui2py-pyside6', repo: 'ui2py-pyside6',
+      desc: 'Qt Designer .ui dosyalarını tek tıkla PySide6 Python koduna çeviren masaüstü aracı: toplu dönüştürme, sürükle bırak, sanal ortam algılama, açık ve koyu tema.',
+      tags: ['Python', 'PySide6', 'Qt']
     }
   ],
-  more: { label: 'Diğer projelerim GitHub\'da', href: 'https://github.com/umitkrkmz?tab=repositories' },
+  more: { label: 'Tüm projelerim GitHub\'da', href: 'https://github.com/umitkrkmz?tab=repositories' },
 
-  /* tür: github, linkedin, mail */
+  /* tür: github, linkedin, mail, orcid, sponsor (simge ve renk app.js'te) */
   contact: [
     { kind: 'github', label: 'GitHub', value: 'github.com/umitkrkmz', href: 'https://github.com/umitkrkmz' },
     { kind: 'linkedin', label: 'LinkedIn', value: 'zeynel-umit-korkmaz', href: 'https://www.linkedin.com/in/zeynel-umit-korkmaz' },
-    { kind: 'mail', label: 'E-posta', value: 'zeynelumitkorkmaz@gmail.com', href: 'mailto:zeynelumitkorkmaz@gmail.com' }
+    { kind: 'mail', label: 'E-posta', value: 'zeynelumitkorkmaz@gmail.com', href: 'mailto:zeynelumitkorkmaz@gmail.com' },
+    { kind: 'orcid', label: 'ORCID', value: '0009-0001-5787-9859', href: 'https://orcid.org/0009-0001-5787-9859' },
+    { kind: 'sponsor', label: 'Sponsor', value: 'github.com/sponsors/umitkrkmz', href: 'https://github.com/sponsors/umitkrkmz' }
   ],
 
   /* "Bu şehir" uygulamasının gündem haberleri: canlı olayların yanında karışık gösterilir */
