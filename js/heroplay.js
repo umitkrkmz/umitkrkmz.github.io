@@ -74,6 +74,7 @@ function collide(p, y) {
     if (Math.abs(dx) >= Math.abs(dz)) { hit.nx = Math.sign(dx); hit.nz = 0; } else { hit.nx = 0; hit.nz = Math.sign(dz); }
     hit.b = b;
   });
+  if (y < 1.6 && C.carPush) { const car = C.carPush(p, R); if (car && !car.parked && car.v > 2) { car.v = 0; if (car.v0 > 0) msg('Arabayı tek elle durdurdu!'); } }   // Pijamalı Çocuğa çarpan araç durur
   const lim = C.TOTAL / 2 - 0.4; p.x = C.clamp(p.x, -lim, lim); p.z = C.clamp(p.z, -lim, lim);   // görünmez duvar
   return hit.b ? hit : null;
 }

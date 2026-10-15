@@ -41,8 +41,11 @@ Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından s�
 | Etrafa bak | Sahneye tıkla, imleç kilitlenir; fareyle bak (Esc bırakır) |
 | Kamera uzaklığı | Tekerlek |
 | Konuş / içeri gir / dışarı çık | E |
+| Kediyi sev / kucağına al, bırak | E / Q |
 
-Binalardan, ağaçlardan, lambalardan geçemezsin. Yanındaki birine E'ye basarsan sana döner ve cevap verir.
+Binalardan, ağaçlardan, lambalardan ve araçlardan geçemezsin. Yolda durursan gelen araç fren yapar; ama birden önüne atlarsan çarpabilir: yere düşer, biraz sonra kalkarsın, ambulans ve polis gelir. Yanındaki birine E'ye basarsan sana döner ve cevap verir.
+
+Sokaklarda ve parklarda kediler dolaşır, oturur, yalanır, kıvrılıp uyur. Yanına gidip E ile sevebilir (mırlar, kuyruğunu dikip gözlerini kapatır), Q ile kucağına alıp gezdirebilir, Q ile yere bırakabilirsin; bıraktığın yer artık onun mahallesidir.
 
 Dükkânlara ve önemli yapılara girebilirsin: kafe ve çay ocağı, Ankara simidi, fırın, market, kırtasiye, eczane, optik, kuaför, kebapçı, çiçekçi, tamirci; Merkez Karakolu (nezarethanesiyle), hastanenin acil servisi ve itfaiye garajı. İçerideki herkesle konuşulabilir. Space ile zıplarsın.
 
@@ -53,6 +56,7 @@ Dükkânlara ve önemli yapılara girebilirsin: kafe ve çay ocağı, Ankara sim
 - **Yangın:** pencerelerden alev, çatıdan duman çıkar. İtfaiye gelir, su sıkıp söndürür; ambulans da yetişir.
 - **Trafik kazası:** iki araç çarpışır, şerit kapanır, diğer araçlar başka yoldan gider. Ambulans ve polis gelir, yol açılır.
 - **Hırsızlık:** sırt çantalı bir şüpheli kaldırımda kaçar, polis gelince elleri havada yakalanır.
+- **Yaya kazası:** bir araç yayaya çarpar; yaralı yolda yatar, meraklılar kaldırımda toplanır, araç durur, şerit kapanır. Ambulans yaralıyı alır, polis ifade alır, yol açılır.
 
 Acil durum araçları sirenle kırmızıda geçer, önlerindeki araçlar kenara çekilip yol verir. İş bitince istasyonlarına dönerler.
 
@@ -99,11 +103,14 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 
 - Hayali bir şehir: 17 × 17 blok, kenarı yaklaşık 964 m, dokuz ilçe. Ortada gökdelenleriyle Saatçi; çevresinde Yeşiltepe, Çınaraltı, Akpınar, Gülbahçe, Değirmendere, Taşbayır, Kuyubaşı ve Limanköy. Kenar ilçelerde müstakil evler ve alçak binalar çoğunlukta, her ilçenin kaldırım tonu ayrı; sol üstte bulunduğun ilçe yazar.
 - Ortada saat kulesi olan bir meydan, on park, merkeze yaklaştıkça yükselen binalar.
+- Parklarda göller: kıyı taşları, nilüferler ve pembe çiçekleri, sazlar, yüzen ördekler, suda açılan halkalar. Banklarda oturup çay içenler; gündüz kalabalık, gece seyrek.
+- Sokak kedileri. Gece 21.30'dan sonra merkeze en yakın parkta kedi toplantısı olur: sekiz kedi çember olup oturur, ortada Reis; yakındaysan konuşmalarını duyarsın.
+- Şehir Stadı'nda 13.30–17.00 ve 19.00–22.30 arası maç: ilçe takımları, kaleciler, hakem, tribünde takım renklerinde taraftar, gol sevinci ve skor tabelası. Stada tıklayınca kartta skor ve dakika görünür.
 - Şehir dağların eteğinde bir vadide: çevresinde çayırlar, tepelerde çam ormanları, yamaçlarda kaya, zirvelerde kar; güneyinden doğudaki dağlardan inip batıdaki boğazdan çıkan bir akarsu geçer.
 - Doğu kavşağından vadi boyunca tırmanan, dağdaki bir tünele giren dört şeritli bir yol: tünelden gelen araçlar şehrin trafiğine katılır, şehirden ayrılanlar yola çıkıp tünelde kaybolur.
 - Dört yüzünde şehrin saatini gösteren bir saat kulesi.
 - Önemli yapılar: helikopter pistli Şehir Hastanesi, İtfaiye Merkezi, bayraklı Merkez Karakolu ve ışık kuleli Şehir Stadı. Tıklayınca bilgi kartı açılır, "Yakından bak" kamerayı oraya götürür.
-- Sağdan akan, kavşaklarda düz giden, sağa ve sola dönen trafik; sola dönen araç karşıdan geleni bekler. Işıklar 20 saniyelik döngüyle çalışır.
+- Sağdan akan, kavşaklarda düz giden, sağa ve sola dönen trafik; dönecek araç sinyal verir, sola dönen araç karşıdan geleni bekler. Işıklar 20 saniyelik döngüyle çalışır.
 - Eli, kolu, dizi, ayakkabısı ve yüzü olan insanlar; yürür, koşar, oturur, konuşur, çay içer, yemek yapar, ders çalışır, uyur.
 - Kaldırımlarda yürüyen, köşelerde araçlara kırmızı yanınca karşıdan karşıya geçen yayalar.
 - Yakındaki binaların bazı pencerelerinin camı gerçekten açıktır: içeride biri televizyon izler, biri yemek yapar, biri ders çalışır, bazıları sofrada.
@@ -125,6 +132,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - [x] Ayrıntılı insanlar, karakter modu, girilebilir mekânlar, camın ardında yaşayan daireler
 - [x] İlçelere ayrılmış daha büyük hayali şehir, zıplama, dağlarla çevrili vadi, akarsu, şehre giriş-çıkış yolu
 - [x] Pijamalı Çocuk olarak oyna: koşu, yüksek zıplama, duvara tırmanma ve duvarda koşma, ağla sallanma ve çekilme, hırsızı ağla sarma
+- [x] Kediler ve kedi toplantısı, araç çarpışması ve yaya kazası, dönüş sinyalleri, banklarda oturanlar, park gölleri, stadyumda maç
 
 ## Teknik
 
@@ -147,6 +155,9 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/hero.js` | Pijamalı Çocuk: kostüm, devriye, kovalama, ağ |
 | `js/player.js` | Karakter modu: hareket, kamera, çarpışma, konuşma |
 | `js/heroplay.js` | Pijamalı Çocuk olarak oyna: koşu, tırmanma, ağla sallanma ve çekilme |
+| `js/cats.js` | Sokak kedileri, sevme ve kucağa alma, kedi toplantısı |
+| `js/ponds.js` | Park göllerinin taşları, nilüferleri, sazları, ördekleri |
+| `js/stadium.js` | Stadyumda maç: oyuncular, top, taraftarlar, skor tabelası |
 | `js/venues.js` | Girilebilir dükkânlar ve önemli yapıların içi |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |
 

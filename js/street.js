@@ -65,12 +65,45 @@ C.buildStreet = function () {
   const B = C.benchSpots, nB = B.length;
   const seat = C.inst(new THREE.BoxGeometry(1.8, 0.08, 0.5), std('#7a5a3a'), nB);
   const back = C.inst(new THREE.BoxGeometry(1.8, 0.5, 0.06), std('#7a5a3a'), nB);
+  /* dökme demir ayaklar: oturağın altında iki ayak, sırtlığı taşıyan iki dikme, kolçak */
+  const legG = C.mergeGeos([-0.78, 0.78].flatMap(x => [
+    new THREE.BoxGeometry(0.07, 0.45, 0.46).translate(x, 0.225, 0),
+    new THREE.BoxGeometry(0.07, 0.62, 0.06).translate(x, 0.71, -0.24),
+    new THREE.BoxGeometry(0.07, 0.05, 0.44).translate(x, 0.66, -0.02)
+  ]));
+  const legs = C.inst(legG, std('#2b2f33', 0.5), nB);
   B.forEach((b, i) => {
     const ry = b[2], nx = Math.sin(ry), nz = Math.cos(ry);
     C.setM(seat, i, b[0], C.SW + 0.45, b[1], ry);
     C.setM(back, i, b[0] - nx * 0.22, C.SW + 0.75, b[1] - nz * 0.22, ry);
+    C.setM(legs, i, b[0], C.SW, b[1], ry);
   });
-  seat.instanceMatrix.needsUpdate = back.instanceMatrix.needsUpdate = true;
-  scene.add(seat, back); C.streetLayers.push(seat, back);
+  seat.instanceMatrix.needsUpdate = back.instanceMatrix.needsUpdate = legs.instanceMatrix.needsUpdate = true;
+  seat.castShadow = back.castShadow = legs.castShadow = true;
+  scene.add(seat, back, legs); C.streetLayers.push(seat, back, legs);
+
+  /* bankta oturanlar: gündüz kalabalık, gece seyrek; ara sıra biri kalkar, başkası oturur */
+  const sitters = new C.Crowd(nB * 2), sp = {}, places = [];
+  scene.add(sitters.group);
+  B.forEach(b => {
+    const ry = b[2], nx = Math.sin(ry), nz = Math.cos(ry);
+    for (const s of [-1, 1]) places.push({ k: places.length, x: b[0] + nz * s * 0.45 - nx * 0.04, z: b[1] - nx * s * 0.45 - nz * 0.04, ry: Math.atan2(-nz, nx), on: false, t: Math.random() * 30, ph: Math.random() * 20 });
+  });
+  const want = () => C.hour > 7 && C.hour < 21.5 ? 0.45 : 0.06;
+  for (const p of places) { p.on = Math.random() < want(); sitters.look(p.k, C.randomLook()); }
+  C.benchSitters = places;
+  C.updaters.push((dt, t, D) => {
+    const w = want();
+    for (const p of places) if ((p.t -= dt) <= 0) {
+      p.t = 40 + Math.random() * 90;
+      const was = p.on; p.on = Math.random() < w;
+      if (p.on && !was) sitters.look(p.k, C.randomLook());
+    }
+    sitters.group.visible = D <= 130;
+    if (!sitters.group.visible) return;
+    sitters.begin();
+    for (const p of places) if (p.on) sitters.put(p.k, p.x, C.SW, p.z, p.ry, C.pose(Math.sin(t * 0.11 + p.ph) > 0.6 ? 'drink' : 'sit', t + p.ph, sp));
+    sitters.end();
+  });
 };
 })();

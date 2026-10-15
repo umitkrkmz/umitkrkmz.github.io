@@ -155,6 +155,13 @@ const slabGeo = new THREE.BoxGeometry(C.BLOCK, C.SW, C.BLOCK);
 const circG = new THREE.CircleGeometry(1, 28); circG.rotateX(-Math.PI / 2);
 const waterMat = new THREE.MeshStandardMaterial({ color: C.col('#4f86a6'), roughness: 0.15, metalness: 0.2 });
 const pathMat = std('#c8bfa8', 1), stoneMat = std('#a9a49a', 0.9);
+/* park gölü: ortası derin (koyu), kıyısı sığ (açık); altında çamurlu kıyı halkası */
+const pondG = new THREE.CircleGeometry(1, 48); pondG.rotateX(-Math.PI / 2);
+{ const deep = C.col('#2c5f7c'), shallow = C.col('#79aeb8'), n = pondG.attributes.position.count, col = new Float32Array(n * 3), cc = new THREE.Color();
+  for (let i = 0; i < n; i++) { const r = Math.hypot(pondG.attributes.position.getX(i), pondG.attributes.position.getZ(i)); cc.copy(deep).lerp(shallow, Math.pow(r, 2.2)); col.set([cc.r, cc.g, cc.b], i * 3); }
+  pondG.setAttribute('color', new THREE.BufferAttribute(col, 3)); }
+const pondMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.06, metalness: 0.25 }), bankMat = std('#7d7356', 1);
+C.ponds = [];
 
 C.makePark = function (blk, rnd) {
   const bx = blk.bx, bz = blk.bz;
@@ -162,8 +169,10 @@ C.makePark = function (blk, rnd) {
   const p1 = new THREE.Mesh(boxG, pathMat); p1.scale.set(40, 0.03, 3); p1.position.set(bx, C.SW + 0.015, bz); p1.receiveShadow = true;
   const p2 = new THREE.Mesh(boxG, pathMat); p2.scale.set(3, 0.03, 40); p2.position.set(bx, C.SW + 0.015, bz); p2.receiveShadow = true;
   const px = bx + (rnd() < 0.5 ? -9 : 9), pz = bz + (rnd() < 0.5 ? -9 : 9);
-  const pond = new THREE.Mesh(circG, waterMat); pond.scale.set(6.5, 1, 5); pond.position.set(px, C.SW + 0.05, pz); pond.receiveShadow = true;
-  scene.add(p1, p2, pond);
+  const pond = new THREE.Mesh(pondG, pondMat); pond.scale.set(6.5, 1, 5); pond.position.set(px, C.SW + 0.05, pz); pond.receiveShadow = true;
+  const bank = new THREE.Mesh(circG, bankMat); bank.scale.set(7.2, 1, 5.7); bank.position.set(px, C.SW + 0.03, pz); bank.receiveShadow = true;
+  scene.add(p1, p2, bank, pond); blk.pond = { x: px, z: pz };
+  C.ponds.push({ x: px, z: pz, a: 6.5, b: 5, y: C.SW + 0.05 });                // ponds.js süsler: taş, nilüfer, saz, ördek
   let placed = 0, guard = 0;
   while (placed < 26 && guard++ < 300) {
     const x = bx + (rnd() - 0.5) * 38, z = bz + (rnd() - 0.5) * 38;

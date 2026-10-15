@@ -192,6 +192,7 @@ function makeThief() {
 
 /* ---------- olaylar ---------- */
 const active = [], log = [];
+C.activeEvents = active;                                      // sürmekte olan olaylar (deneme ve dış kullanım için)
 let nextId = 1;
 const near = (x, z) => { const t = C.controls ? C.controls.target : { x: 0, z: 0 }; return Math.hypot(x - t.x, z - t.z); };
 const prefer = list => { const close = list.filter(o => near(o.x, o.z) < 260); return pick(close.length && Math.random() < 0.7 ? close : list); };
@@ -370,12 +371,82 @@ function updateCrime(ev, dt) {
   return false;
 }
 
-const START = { fire: startFire, accident: startAccident, crime: startCrime };
-const UPDATE = { fire: updateFire, accident: updateAccident, crime: updateCrime };
+/* yaya kazası: araç yayaya çarpar; yaralı yolda yatar, araç durur, meraklılar toplanır, ambulans ve polis gelir.
+   Oyuncuya çarpan araç da bunu başlatır (C.pedestrianHit); o zaman yaralı oyuncunun kendisidir. */
+const vict = new C.Crowd(16), vpose = {}, vFree = [];
+for (let k = 15; k >= 0; k--) vFree.push(k);
+scene.add(vict.group);
+function curbOf(e, x, z) {                                   // şeridin sağındaki kaldırım
+  const lat = e.axis === 'x' ? z : x, rc = C.roadX(Math.round((lat - C.roadX(0)) / C.PITCH)), side = Math.sign(lat - rc) || 1;
+  return rc + side * (C.ROAD / 2 + 1.1);
+}
+function startPedestrian(hitCar, hx, hz) {
+  let car = hitCar, x = hx, z = hz, e;
+  if (car) e = car.e;
+  else {
+    const list = [];
+    for (const ed of R.edges) for (const c of ed.cars) if (!c.special && !c.crashed && c.v > 4 && c.s > 14 && c.s < ed.len - 8) list.push({ e: ed, c, x: ed.ox + ed.dx * c.s, z: ed.oz + ed.dz * c.s });
+    if (!list.length) return false;
+    const q = prefer(list); car = q.c; e = q.e;
+    const a = car.s + car.len / 2 + 0.9; x = e.ox + e.dx * a - e.dz * 0.4; z = e.oz + e.dz * a + e.dx * 0.4;
+  }
+  if (active.length >= 4 || !e) return false;
+  car.crashed = true; car.v = 0; car.yaw = 0.07;
+  C.blockEdge(e, true);
+  const ev = {
+    type: 'pedestrian', title: 'Yaya kazası', x, z, h: 4, place: C.placeName(x, z), status: 'Ambulans ve polis yolda', car, edge: e, onScene: 0, player: !!hitCar, slots: [],
+    ry: Math.atan2(e.dz, -e.dx) + 0.5,                          // yatan: ayak araca dönük, baş ileride
+    view: () => [V3(x - e.dx * 18 - e.dz * 6, 8, z - e.dz * 18 + e.dx * 6), V3(x, 0.6, z)],
+    arrive() { if (this.amb && this.amb.state === 'scene' && this.pol && this.pol.state === 'scene') setStatus(this, 'Ekipler olay yerinde'); }
+  };
+  /* yaralı (oyuncu değilse) ve kaldırımdan bakan iki kişi */
+  const cb = curbOf(e, x, z);
+  const spots = [];
+  if (!hitCar) spots.push({ x, z, ry: ev.ry, pose: 'lie' });
+  for (const o of [-1.6, 1.4]) {
+    const sx = e.axis === 'x' ? x + o : cb, sz = e.axis === 'x' ? cb : z + o;
+    spots.push({ x: sx, z: sz, ry: Math.atan2(-(z - sz), x - sx), pose: o < 0 ? 'handsup' : 'talk', walk: 0 });
+  }
+  for (const s of spots) { if (!vFree.length) break; s.k = vFree.pop(); vict.look(s.k, C.randomLook()); ev.slots.push(s); }
+  addEvent(ev);
+  const st = Math.max(3, car.s - 9);
+  ev.amb = dispatch('hospital', e, st, ev);
+  ev.pol = dispatch('police', e, Math.max(2, st - 7), ev);
+  return true;
+}
+C.pedestrianHit = (car, x, z) => startPedestrian(car, x, z);
+function updatePedestrian(ev, dt) {
+  if (!ev.done) {
+    const both = [ev.amb, ev.pol].filter(v => v && v.state === 'scene').length;
+    if (both === 2 || (both && ev.age > 90)) ev.onScene += dt;
+    if (ev.onScene > 6 && !ev.taken) {                         // sedyeyle ambulansa
+      ev.taken = true; const v = ev.slots.find(s => s.pose === 'lie'); if (v) v.gone = true;
+      setStatus(ev, ev.player ? 'Yaralı kendi kalktı, ifade alınıyor' : 'Yaralı ambulansa alındı');
+    }
+    if (ev.onScene > 14 || ev.age > 200) {
+      ev.car.crashed = false; ev.car.yaw = 0;
+      C.blockEdge(ev.edge, false);
+      for (const s of ev.slots) vFree.push(s.k); ev.slots.length = 0;
+      setStatus(ev, 'Yol açıldı ✓', true);
+      if (ev.amb) sendHome(ev.amb); if (ev.pol) sendHome(ev.pol);
+    }
+  }
+  return ev.done;
+}
+C.updaters.push((dt, t, D) => {
+  vict.group.visible = D <= 130;
+  if (!vict.group.visible) return;
+  vict.begin();
+  for (const ev of active) if (ev.type === 'pedestrian') for (const s of ev.slots) if (!s.gone) vict.put(s.k, s.x, s.pose === 'lie' ? 0.02 : C.SW, s.z, s.ry, C.pose(s.pose, t + s.k, vpose));
+  vict.end();
+});
+
+const START = { fire: startFire, accident: startAccident, crime: startCrime, pedestrian: () => startPedestrian() };
+const UPDATE = { fire: updateFire, accident: updateAccident, crime: updateCrime, pedestrian: updatePedestrian };
 C.startEvent = function (type) {
   if (active.length >= 4) return false;
-  if (!type) { const r = Math.random(); type = r < 0.35 ? 'fire' : r < 0.75 ? 'accident' : 'crime'; }
-  return START[type]() || START[pick(['fire', 'accident', 'crime'])]();
+  if (!type) { const r = Math.random(); type = r < 0.3 ? 'fire' : r < 0.6 ? 'accident' : r < 0.8 ? 'crime' : 'pedestrian'; }
+  return START[type]() || START[pick(['fire', 'accident', 'crime', 'pedestrian'])]();
 };
 C.eventsOn = true;
 let timer = 8;

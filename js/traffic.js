@@ -123,6 +123,11 @@ const parts = [
 /* r128 setColorAt, renk tamponunu o anki count kadar açar; count 0'a inmeden önce tam boy aç */
 parts[0].instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAXC * 3).fill(1), 3);
 parts.forEach((p, k) => { p.count = 0; p.castShadow = k === 0; scene.add(p); C.carLayers.push(p); });   // gölgeyi gövde düşürür
+/* dönüş sinyalleri: ön ve arka köşede turuncu; dönecek araçta dönüş yönündeki taraf yanıp söner (araç yerelinde +z sağ) */
+const sigM = new THREE.MeshBasicMaterial({ color: C.col('#ffa21a') });
+const sigGeo = s => C.mergeGeos([new THREE.BoxGeometry(0.14, 0.13, 0.16).translate(2.12, 0.84, s * 0.84), new THREE.BoxGeometry(0.14, 0.13, 0.16).translate(-2.12, 0.88, s * 0.84)]);
+const sigs = [C.inst(sigGeo(-1), sigM, MAXC), C.inst(sigGeo(1), sigM, MAXC)];   // 0 sol, 1 sağ
+sigs.forEach(m => { m.count = 0; scene.add(m); C.carLayers.push(m); });
 const CAR_COLORS = ['#c9372c', '#1f5fa8', '#e8e8e8', '#2b2d31', '#f2b705', '#2f8f5b', '#8d939a', '#ffffff', '#6b3fa0', '#d9822b'].map(C.col);
 
 C.setDensity = function (d) {
@@ -145,7 +150,7 @@ C.setDensity = function (d) {
   for (let k = 0; k < RES; k++) { const car = { e: edges[0], s: 0, v: 0, v0: 10 + r() * 3, len: 4.6, idx: idx++, tin: null, next: edges[0], off: true, col: CAR_COLORS[(r() * CAR_COLORS.length) | 0] }; for (const p of parts) p.setMatrixAt(car.idx, ZERO4); reserve.push(car); cars.push(car); }
   hwCars.length = 0;
   for (const c of keep) { cars.push(c); if (!c.parked) c.e.cars.push(c); }
-  parts.forEach(p => p.count = idx);
+  parts.forEach(p => p.count = idx); sigs.forEach(m => m.count = idx);
   if (parts[0].instanceColor) parts[0].instanceColor.needsUpdate = true;
 };
 
@@ -193,6 +198,31 @@ function carPos(car, o) {
   return bez(car.tin, C.clamp(1 + car.s / car.tin.len, 0, 1), o);
 }
 C.carPos = carPos;
+
+/* oyuncu engeli: player.js her karede yerdeyken konumunu verir, değilse uzağa (1e9) */
+let obsX = 1e9, obsZ = 1e9;
+C.setObstacle = (x, z) => { obsX = x; obsZ = z; };
+/* araç gövdesi (yönlü kutu) ile daire: p'yi dışarı iter, değdiği aracı döndürür */
+C.carPush = function (p, R) {
+  let hit = null;
+  for (const c of cars) {
+    if (c.off) continue;
+    let x, z, ry;
+    if (c.parked) { if (!c.group) continue; x = c.group.position.x; z = c.group.position.z; ry = c.group.rotation.y; }
+    else { if (c.wx === undefined) continue; x = c.wx; z = c.wz; ry = c.wr; }
+    const dx = p.x - x, dz = p.z - z; if (dx * dx + dz * dz > 49) continue;
+    const fx = Math.cos(ry), fz = -Math.sin(ry), rx = -fz, rz = fx, hl = c.len / 2, hw = c.len > 6 ? 1.25 : 0.95;
+    let lx = dx * fx + dz * fz, lz = dx * rx + dz * rz;
+    const qx = C.clamp(lx, -hl, hl), qz = C.clamp(lz, -hw, hw), ex = lx - qx, ez = lz - qz, d = Math.hypot(ex, ez);
+    if (d >= R) continue;
+    if (d > 1e-6) { lx = qx + ex / d * R; lz = qz + ez / d * R; }
+    else if (hl - Math.abs(lx) < hw - Math.abs(lz)) lx = (Math.sign(lx) || 1) * (hl + R);
+    else lz = (Math.sign(lz) || 1) * (hw + R);
+    p.x = x + lx * fx + lz * rx; p.z = z + lx * fz + lz * rz;
+    hit = c;
+  }
+  return hit;
+};
 
 /* ---------- şehir dışı yol (terrain.js'deki C.highway): her yönde iki şerit ----------
    dir 1: şehirden tünele (s artar), dir -1: tünelden şehre (s azalır). Tünelden gelen araç doğu kavşağında
@@ -280,6 +310,9 @@ C.updateTraffic = function (dt) {
   for (const e of edges) {
     const list = e.cars, n = list.length; if (!n) continue;
     const st = e.axis === 'x' ? lightX : lightZ;
+    /* oyuncu bu şeritteyse önündeki araçlar onu engel sayar (çok yakından fırlarsa fren yetmez) */
+    let oa = -1e9;
+    if (obsX < 1e8) { const rx = obsX - e.ox, rz = obsZ - e.oz, a = rx * e.dx + rz * e.dz; if (Math.abs(rz * e.dx - rx * e.dz) < 1.5 && a > -2 && a < e.len + 3) oa = a; }
     /* sirene yol ver: arkasında 32 m içinde sirenli araç olan araç kaldırıma çekilip durur */
     for (const c of list) {
       let want = 0;
@@ -303,6 +336,7 @@ C.updateTraffic = function (dt) {
         else if (t.kind === 'l' && d < 14 && oncoming(e)) sgap = Math.max(0, d);
       }
       if (car.stopEdge === e && car.stopS - car.s > -0.5) sgap = Math.min(sgap, car.stopS - car.s + 1.5);
+      if (oa > car.s) gap = Math.min(gap, oa - car.s - car.len / 2 - 0.6);
       const free = Math.max(0, Math.min(gap, sgap) - 1.5);
       const des = car.pull > 0.3 ? 0 : Math.min(car.v0, Math.sqrt(9 * free));
       car.v = car.v < des ? Math.min(des, car.v + 3 * dt) : Math.max(des, car.v - 9 * dt);
@@ -322,16 +356,23 @@ C.updateTraffic = function (dt) {
     car.next = chooseNext(car, f);
   }
   if (HW) updateHighway(dt);
+  const blinkOn = (simT * 1.6) % 1 < 0.55;
   for (const car of cars) {
-    if (car.parked || car.off) continue;
+    if (car.parked || car.off || car.model) { sigs[0].setMatrixAt(car.idx, ZERO4); sigs[1].setMatrixAt(car.idx, ZERO4); if (car.parked || car.off) continue; }
     carPos(car, pos);
     const ry = Math.atan2(-pos.hz, pos.hx) + (car.yaw || 0);
+    if (car.pull > 0.01 && !car.model) { const l = Math.hypot(pos.hx, pos.hz) || 1, o = car.pull * 1.9 / l; pos.x -= pos.hz * o; pos.z += pos.hx * o; }
+    car.wx = pos.x; car.wz = pos.z; car.wr = ry;                        // çarpışma için (C.carPush)
     if (car.model) { car.model(pos.x, pos.z, ry); continue; }
-    if (car.pull > 0.01) { const l = Math.hypot(pos.hx, pos.hz) || 1, o = car.pull * 1.9 / l; pos.x -= pos.hz * o; pos.z += pos.hx * o; }
     dm.position.set(pos.x, 0, pos.z); dm.rotation.set(0, ry, 0); dm.updateMatrix();
     for (const p of parts) p.setMatrixAt(car.idx, dm.matrix);
+    /* dönüşte ya da kavşağa 25 m kala, dönüş düz değilse */
+    const tk = car.s < 0 && car.tin ? car.tin.kind : car.next && car.e.len - car.s < 25 ? turnOf(car.e, car.next).kind : 's';
+    sigs[0].setMatrixAt(car.idx, blinkOn && tk === 'l' ? dm.matrix : ZERO4);
+    sigs[1].setMatrixAt(car.idx, blinkOn && tk === 'r' ? dm.matrix : ZERO4);
   }
   for (const p of parts) p.instanceMatrix.needsUpdate = true;
+  for (const m of sigs) m.instanceMatrix.needsUpdate = true;
 };
 
 /* ---------- yayalar: her bloğun kaldırımında dolaşır ---------- */

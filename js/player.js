@@ -129,6 +129,7 @@ P.exit = function () {
   P.active = P.entering = false; keys.clear();
   if (document.pointerLockElement) document.exitPointerLock();
   if (P.mode === 'hero') C.heroPlay.stop();
+  if (C.cats && C.cats.held) C.cats.drop();
   P.crowd.group.visible = false; hideBubbles();
   C.flyTo(V(P.pos.x + 70, 110, P.pos.z + 90), V(P.pos.x, 0, P.pos.z), 2200);
   setHud();
@@ -138,7 +139,8 @@ P.exit = function () {
 const pp = {};
 function draw(t) {
   const sp = Math.hypot(P.vel.x, P.vel.z);
-  const pose = P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
+  const pose = P.down > 0 ? C.pose(P.down > 0.7 ? 'lie' : 'kneel', t, pp) : P.petT > 0 ? C.pose('pet', t, pp) : P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
+  if (C.cats && C.cats.held && !(P.down > 0)) { pose.sh = [1.0, 1.0]; pose.el = [1.35, 1.35]; pose.ab = [0.04, 0.04]; }   // kucakta kedi
   P.crowd.set(0, P.pos.x, P.pos.y, P.pos.z, P.face, pose); P.crowd.commit();
 }
 /* tuşlardan bakış yönüne göre istenen hareket (kahraman modu da kullanır) */
@@ -149,21 +151,36 @@ P.input = function () {
   if (wl > 0) { wx /= wl; wz /= wl; }
   return { f: Math.sign(f), s: Math.sign(s), wx, wz, wl, run };
 };
+/* araç çarparsa: savrulur, yere düşer, biraz sonra kalkar; yaya kazası olayı başlar */
+function knock(car) {
+  const fx = Math.cos(car.wr), fz = -Math.sin(car.wr), k = Math.min(7, car.v * 0.6);
+  P.down = 3.2; P.vel.set(fx * k, 0, fz * k); P.air = false; P.vy = 0; P.face = Math.atan2(fz, -fx) + Math.PI;
+  if (C.pedestrianHit) C.pedestrianHit(car, P.pos.x, P.pos.z);
+  car.v = 0;
+}
 P.update = function (dt, t) {
   if (P.entering && !C.flying()) { P.entering = false; P.active = true; setHud(); }
-  if (!P.active) return;
+  if (!P.active) { if (C.setObstacle) C.setObstacle(1e9, 1e9); return; }
+  if (C.setObstacle) { if (!P.indoor && P.pos.y < 1) C.setObstacle(P.pos.x, P.pos.z); else C.setObstacle(1e9, 1e9); }
   if (gridSig !== C.buildings.length + ':' + (C.bver || 0)) buildGrid();
   if (P.mode === 'hero') { C.heroPlay.update(dt, t); if (talkT > 0) talkT -= dt; updatePrompt(); updateBubbles(dt); return; }
   let f = 0, s = 0; for (const k of keys) { f += MOVE[k][0]; s += MOVE[k][1]; }
   const cy = Math.cos(P.yaw), sy = -Math.sin(P.yaw);           // bakış yönü (x, z)
   let wx = cy * f + (-sy) * s, wz = sy * f + cy * s;              // sağ = (-sy, cy)
-  const wl = Math.hypot(wx, wz), top = run ? 5.6 : 2.0;
+  let wl = Math.hypot(wx, wz), top = run ? 5.6 : 2.0;
   if (wl > 0) { wx /= wl; wz /= wl; }
+  if (P.down > 0) { P.down -= dt; wx = wz = 0; wl = 0; top = 0; }        // yerde: hareket yok
+  if (P.petT > 0) { P.petT -= dt; if (wl) P.petT = 0; else top = 0; }    // kedi severken; yürüyünce bırakır
   const ax = wx * top - P.vel.x, az = wz * top - P.vel.z, k = Math.min(1, dt * (P.air ? 2 : wl ? 10 : 8));   // havada az kontrol
   P.vel.x += ax * k; P.vel.z += az * k;
   const sp = Math.hypot(P.vel.x, P.vel.z);
   const q = { x: P.pos.x + P.vel.x * dt, z: P.pos.z + P.vel.z * dt };
-  if (P.indoor) C.venues.confine(q); else resolve(q);
+  if (P.indoor) C.venues.confine(q);
+  else {
+    resolve(q);
+    const car = C.carPush && P.pos.y < 1.5 ? C.carPush(q, R) : null;     // araçların içinden geçilmez
+    if (car && !car.parked && car.v > 3.5 && !P.down) knock(car);
+  }
   P.vel.x = (q.x - P.pos.x) / Math.max(dt, 1e-4); P.vel.z = (q.z - P.pos.z) / Math.max(dt, 1e-4);
   P.pos.x = q.x; P.pos.z = q.z;
   const gy = P.indoor ? P.indoor.floor : groundAt(P.pos.x, P.pos.z);
@@ -171,7 +188,7 @@ P.update = function (dt, t) {
     P.vy -= 13 * dt; P.pos.y += P.vy * dt;
     if (P.pos.y <= gy && P.vy < 0) { P.pos.y = gy; P.vy = 0; P.air = false; }
   } else P.pos.y += (gy - P.pos.y) * Math.min(1, dt * 14);
-  if (sp > 0.25 && !P.air) {
+  if (sp > 0.25 && !P.air && !(P.down > 0)) {
     const want = Math.atan2(-P.vel.z, P.vel.x); let d = want - P.face; d = Math.atan2(Math.sin(d), Math.cos(d));
     P.face += d * Math.min(1, dt * 10); P.ph += sp * dt * (sp > 3.2 ? 2.6 : 3.4);
   }
@@ -207,6 +224,10 @@ function updatePrompt() {
     if (C.heroPlay.thiefNear()) { prompt = { kind: 'web' }; text = 'E: Hırsızı ağla sar'; }
     else if (p) { prompt = { kind: 'talk', p }; text = 'E: Konuş'; }
   }
+  else if (!P.indoor && C.cats && (C.cats.held || C.cats.near(P.pos))) {          // kedi: sev, kucağa al, bırak
+    prompt = { kind: 'cat', c: C.cats.held || C.cats.near(P.pos) };
+    text = C.cats.held ? 'E: Sev · Q: Yere bırak' : 'E: Kediyi sev (' + prompt.c.name + ') · Q: Kucağına al';
+  }
   else if (P.indoor) {
     const p = nearestPerson();
     if (C.venues.exitNear()) { prompt = { kind: 'exit' }; text = 'E: Dışarı çık'; }
@@ -229,6 +250,10 @@ function act() {
     const hl = hero ? HERO_HELLO : HELLO;
     bubble(() => V(P.pos.x, P.pos.y + 2.1, P.pos.z), hl[(Math.random() * hl.length) | 0], 0, 2.2);
     bubble(() => V(px(p), B + 2.1 + (p.y || 0), pz(p)), lines[(Math.random() * lines.length) | 0], 0.8, 4.6);
+  } else if (prompt.kind === 'cat') {
+    const c = C.cats.pet(prompt.c);
+    if (!C.cats.held) { P.petT = 2.6; P.vel.set(0, 0, 0); P.face = Math.atan2(-(c.z - P.pos.z), c.x - P.pos.x); }
+    bubble(() => V(c.x, c.y + 0.7, c.z), 'Mırr… ♥', 0.3, 2.6);
   } else if (prompt.kind === 'web') C.heroPlay.webThief();
   else if (prompt.kind === 'door') C.venues.enter(prompt.v);
   else if (prompt.kind === 'exit') C.venues.leave();
@@ -252,6 +277,7 @@ function updateBubbles(dt) {
   }
 }
 function hideBubbles() { for (const b of bubbles) b.el.remove(); bubbles.length = 0; }
+P.say = bubble;                                                   // başka dosyalar da balon çıkarabilsin (kedi toplantısı)
 
 /* ---------- girdi ---------- */
 const el = C.renderer.domElement;
@@ -266,7 +292,12 @@ window.addEventListener('keydown', e => {
     else if (e.code === 'KeyF') { e.preventDefault(); if (!e.repeat) C.heroPlay.web(true); }
     else if (e.code === 'KeyQ') { e.preventDefault(); if (!e.repeat) C.heroPlay.zip(); }
   }
-  else if (e.code === 'Space') { e.preventDefault(); if (!P.air && !e.repeat) { P.air = true; P.vy = 4.8; } }
+  else if (e.code === 'KeyQ' && !e.repeat && C.cats && !P.indoor) {           // kediyi kucağa al / bırak
+    e.preventDefault();
+    if (C.cats.held) C.cats.drop();
+    else { const c = C.cats.near(P.pos); if (c) { C.cats.pick(c); bubble(() => V(c.x, c.y + 0.5, c.z), C.cats.meow(c), 0.2, 2); } }
+  }
+  else if (e.code === 'Space') { e.preventDefault(); if (!P.air && !e.repeat && !(P.down > 0)) { P.air = true; P.vy = 4.8; } }
 });
 window.addEventListener('keyup', e => {
   run = e.shiftKey; keys.delete(e.code);
@@ -289,7 +320,7 @@ document.addEventListener('mousemove', e => {
 });
 P.zoom = dy => { P.dist = C.clamp(P.dist * Math.exp(dy * 0.0012), 1.6, P.mode === 'hero' ? 20 : 12); };
 const KEYS = {
-  citizen: 'WASD: yürü · Shift: koş · Space: zıpla · Fare: bak · Tekerlek: yakınlaş · E: konuş / gir · Esc: imleci bırak',
+  citizen: 'WASD: yürü · Shift: koş · Space: zıpla · Fare: bak · Tekerlek: yakınlaş · E: konuş / gir / kediyi sev · Q: kediyi kucağına al · Esc: imleci bırak',
   hero: 'WASD: koş · Shift: hızlı koş, duvarda yukarı koş · Space: zıpla (basılı tut: yüksek) · Sol tık / F basılı: ağla sallan · Sağ tık / Q: ağla çekil · Duvara koş: tırman · E: hırsızı ağla sar · Esc: imleci bırak'
 };
 

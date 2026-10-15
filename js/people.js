@@ -99,6 +99,7 @@ C.pose = function (name, t, out) {
     case 'jump': p.hip = [0.95, 0.35]; p.knee = [-1.35, -0.7]; p.sh = [2.3, 2.5]; p.el = [0.35, 0.35]; p.ab = [0.3, 0.3]; p.lean = -0.12; break;
     case 'kneel': p.y = -0.47; p.hip = [0.12, 0.12]; p.knee = [-1.6, -1.6]; p.sh = [0.15, 0.15]; p.el = [0.5, 0.5]; p.lean = -0.05; break;   // halıda diz çökmüş
     case 'lie': p.roll = Math.PI / 2; p.sh = [0.1, 0.1]; p.hp = -0.2; break;     // kök ayak ucunda, baş -x yönünde
+    case 'pet': p.y = -0.47; p.hip = [0.12, 0.12]; p.knee = [-1.6, -1.6]; p.lean = -0.3; p.sh = [0.95 + s(t * 5) * 0.15, 0.2]; p.el = [0.25, 0.5]; break;   // diz çöküp kedi sever
     case 'handsup': p.sh = [2.9, 2.9]; p.el = [0.2, 0.2]; p.ab = [0.25, 0.25]; break;
     default: break;
   }
