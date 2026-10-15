@@ -7,7 +7,7 @@ const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const $ = id => document.getElementById(id);
 
 const P = C.player = {
-  active: false, entering: false, pos: V(0, 0, 0), vel: V(0, 0, 0), vy: 0, air: false, yaw: 0, pitch: 0.22, dist: 4.2, face: 0, ph: 0,
+  active: false, entering: false, mode: 'citizen', pos: V(0, 0, 0), vel: V(0, 0, 0), vy: 0, air: false, yaw: 0, pitch: 0.22, dist: 4.2, distAdd: 0, face: 0, ph: 0, mouseT: 0,
   crowd: new C.Crowd(1), look: null, indoor: null
 };
 scene.add(P.crowd.group); P.crowd.group.visible = false;
@@ -78,14 +78,15 @@ const head = V(0, 0, 0), camRay = new THREE.Raycaster(), dir = V(0, 0, 0), wp = 
 let near = [], nearT = 0;
 function camPose(out, dist) {
   head.set(P.pos.x, P.pos.y + 1.55, P.pos.z);
-  const d = dist === undefined ? P.dist : dist, cp = Math.cos(P.pitch), sp = Math.sin(P.pitch);
+  const d = dist === undefined ? P.dist + P.distAdd : dist, cp = Math.cos(P.pitch), sp = Math.sin(P.pitch);
   out.set(head.x - Math.cos(P.yaw) * cp * d, head.y + sp * d, head.z + Math.sin(P.yaw) * cp * d);
   return out;
 }
 const camWant = V(0, 0, 0);
 P.camera = function (dt) {
   if ((nearT -= dt) <= 0) {
-    nearT = 0.4; near = C.pickables.filter(m => { m.getWorldPosition(wp); return Math.hypot(wp.x - P.pos.x, wp.z - P.pos.z) < 70; });
+    const rr = P.mode === 'hero' ? 110 : 70;                       // kahraman hızlı: daha geniş çevre
+    nearT = 0.4; near = C.pickables.filter(m => { m.getWorldPosition(wp); return Math.hypot(wp.x - P.pos.x, wp.z - P.pos.z) < rr; });
     if (P.indoor) near = near.concat(P.indoor.walls);
   }
   camPose(camWant);
@@ -94,6 +95,7 @@ P.camera = function (dt) {
   const hit = camRay.intersectObjects(near, false)[0];
   if (hit) camPose(camWant, Math.max(0.7, hit.distance - 0.3));
   if (P.indoor) C.venues.keepCam(camWant, head);
+  else camWant.y = Math.max(camWant.y, groundAt(camWant.x, camWant.z) + 0.25);   // kamera yerin altına inmesin
   camera.position.copy(camWant); camera.lookAt(head);
   C.controls.target.copy(head);
 };
@@ -108,12 +110,16 @@ function spawnPoint() {
   const along = Math.abs(Math.abs(x) - h) < 0.01 ? Math.PI / 2 : 0;                   // halka boyunca bak
   return { x: p.x, z: p.z, face: along };
 }
-P.enter = function () {
+P.enter = function (mode) {
   if (P.active || P.entering) return;
   if (gridSig !== C.buildings.length + ':' + (C.bver || 0)) buildGrid();
-  const s = spawnPoint();
-  P.pos.set(s.x, groundAt(s.x, s.z), s.z); P.vel.set(0, 0, 0); P.face = P.yaw = s.face; P.pitch = 0.22; P.dist = 4.2;
-  P.look = C.randomLook(); P.crowd.look(0, P.look); P.crowd.group.visible = true; draw(0);
+  P.mode = mode === 'hero' && C.heroPlay ? 'hero' : 'citizen'; P.distAdd = 0;
+  if (P.mode === 'hero') C.heroPlay.start();                     // Pijamalı Çocuk: bulunduğu çatıdan başlar
+  else {
+    const s = spawnPoint();
+    P.pos.set(s.x, groundAt(s.x, s.z), s.z); P.vel.set(0, 0, 0); P.face = P.yaw = s.face; P.pitch = 0.22; P.dist = 4.2;
+    P.look = C.randomLook(); P.crowd.look(0, P.look); P.crowd.group.visible = true; draw(0);
+  }
   const cam = camPose(V(0, 0, 0)); C.flyTo(cam, head.clone(), 2600);
   P.entering = true; setHud();
 };
@@ -122,6 +128,7 @@ P.exit = function () {
   if (P.indoor && C.venues) C.venues.leave(true);
   P.active = P.entering = false; keys.clear();
   if (document.pointerLockElement) document.exitPointerLock();
+  if (P.mode === 'hero') C.heroPlay.stop();
   P.crowd.group.visible = false; hideBubbles();
   C.flyTo(V(P.pos.x + 70, 110, P.pos.z + 90), V(P.pos.x, 0, P.pos.z), 2200);
   setHud();
@@ -134,10 +141,19 @@ function draw(t) {
   const pose = P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
   P.crowd.set(0, P.pos.x, P.pos.y, P.pos.z, P.face, pose); P.crowd.commit();
 }
+/* tuşlardan bakış yönüne göre istenen hareket (kahraman modu da kullanır) */
+P.input = function () {
+  let f = 0, s = 0; for (const k of keys) { f += MOVE[k][0]; s += MOVE[k][1]; }
+  const cy = Math.cos(P.yaw), sy = -Math.sin(P.yaw);
+  let wx = cy * f + (-sy) * s, wz = sy * f + cy * s; const wl = Math.hypot(wx, wz);
+  if (wl > 0) { wx /= wl; wz /= wl; }
+  return { f: Math.sign(f), s: Math.sign(s), wx, wz, wl, run };
+};
 P.update = function (dt, t) {
   if (P.entering && !C.flying()) { P.entering = false; P.active = true; setHud(); }
   if (!P.active) return;
   if (gridSig !== C.buildings.length + ':' + (C.bver || 0)) buildGrid();
+  if (P.mode === 'hero') { C.heroPlay.update(dt, t); if (talkT > 0) talkT -= dt; updatePrompt(); updateBubbles(dt); return; }
   let f = 0, s = 0; for (const k of keys) { f += MOVE[k][0]; s += MOVE[k][1]; }
   const cy = Math.cos(P.yaw), sy = -Math.sin(P.yaw);           // bakış yönü (x, z)
   let wx = cy * f + (-sy) * s, wz = sy * f + cy * s;              // sağ = (-sy, cy)
@@ -168,6 +184,10 @@ const LINES = ['Günaydın komşu!', 'Çay demlendi, gel otur.', 'Bugün hava g�
   'Fırından taze simit aldım.', 'Trafik de bir dert…', 'Kolay gelsin!', 'Saat kulesi yine beş dakika ileri.', 'Kafede yer var mı acaba?',
   'Bu şehirde hep bir şey oluyor.', 'Akşama maç var, kaçırma.', 'Kirada zam varmış, duydun mu?', 'Marketten ekmek alacaktım, unuttum!'];
 const HELLO = ['Merhaba!', 'Selam!', 'Kolay gelsin!', 'İyi günler!'];
+/* kahramanla konuşanlar */
+const FAN = ['Pijamalı Çocuk! Bir imza verir misin?', 'Vay, gerçekten sen misin?', 'Çatılarda dikkat et evlat!', 'Oğlum senin pijamana bayılıyor!',
+  'Sayende mahalle güvende, sağ ol.', 'O ağları nereden alıyorsun?', 'Annen biliyor mu bu saatte dışarıda olduğunu?', 'Dün otobüsü durdurdun, gördüm!'];
+const HERO_HELLO = ['Selam! Her şey yolunda mı?', 'Merhaba, mahalle sakin mi?', 'Selam komşu!'];
 let talkT = 0, prompt = null;
 /* dışarıda yayalar, içeride mekandakiler (venues.js her karede wx, wz yazar) */
 const px = p => P.indoor ? p.wx : p.x, pz = p => P.indoor ? p.wz : p.z;
@@ -182,7 +202,12 @@ function nearestPerson() {
 function updatePrompt() {
   let text = '';
   prompt = null;
-  if (P.indoor) {
+  if (P.mode === 'hero') {                                         // kahraman: hırsızı ağla sar, yerdeyken konuş
+    const p = P.pos.y < 1 && C.heroPlay.onFoot() ? nearestPerson() : null;
+    if (C.heroPlay.thiefNear()) { prompt = { kind: 'web' }; text = 'E: Hırsızı ağla sar'; }
+    else if (p) { prompt = { kind: 'talk', p }; text = 'E: Konuş'; }
+  }
+  else if (P.indoor) {
     const p = nearestPerson();
     if (C.venues.exitNear()) { prompt = { kind: 'exit' }; text = 'E: Dışarı çık'; }
     else if (p) { prompt = { kind: 'talk', p }; text = 'E: Konuş'; }
@@ -198,12 +223,14 @@ function updatePrompt() {
 function act() {
   if (!prompt) return;
   if (prompt.kind === 'talk') {
-    const p = prompt.p, lines = P.indoor && p.talk ? p.talk : LINES; talkT = 1.4;
+    const p = prompt.p, hero = P.mode === 'hero', lines = P.indoor && p.talk ? p.talk : hero ? FAN : LINES; talkT = 1.4;
     if (P.indoor) p.talk_t = 5; else p.talk = 5.5;
     P.face = Math.atan2(-(pz(p) - P.pos.z), px(p) - P.pos.x);
-    bubble(() => V(P.pos.x, P.pos.y + 2.1, P.pos.z), HELLO[(Math.random() * HELLO.length) | 0], 0, 2.2);
+    const hl = hero ? HERO_HELLO : HELLO;
+    bubble(() => V(P.pos.x, P.pos.y + 2.1, P.pos.z), hl[(Math.random() * hl.length) | 0], 0, 2.2);
     bubble(() => V(px(p), B + 2.1 + (p.y || 0), pz(p)), lines[(Math.random() * lines.length) | 0], 0.8, 4.6);
-  } else if (prompt.kind === 'door') C.venues.enter(prompt.v);
+  } else if (prompt.kind === 'web') C.heroPlay.webThief();
+  else if (prompt.kind === 'door') C.venues.enter(prompt.v);
   else if (prompt.kind === 'exit') C.venues.leave();
 }
 /* konuşma balonları: DOM, her karede ekrana yansıtılır */
@@ -234,17 +261,37 @@ window.addEventListener('keydown', e => {
   if (e.target.closest && e.target.closest('input, textarea, select')) return;
   if (MOVE[e.code]) { keys.add(e.code); e.preventDefault(); }
   else if (e.code === 'KeyE' && !e.repeat) { act(); e.preventDefault(); }
+  else if (P.mode === 'hero') {                                     // kahraman: Space zıplama (basılı tut: yüksek), F ağ, Q ağla çekil
+    if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) C.heroPlay.jump(true); }
+    else if (e.code === 'KeyF') { e.preventDefault(); if (!e.repeat) C.heroPlay.web(true); }
+    else if (e.code === 'KeyQ') { e.preventDefault(); if (!e.repeat) C.heroPlay.zip(); }
+  }
   else if (e.code === 'Space') { e.preventDefault(); if (!P.air && !e.repeat) { P.air = true; P.vy = 4.8; } }
 });
-window.addEventListener('keyup', e => { run = e.shiftKey; keys.delete(e.code); });
+window.addEventListener('keyup', e => {
+  run = e.shiftKey; keys.delete(e.code);
+  if (P.active && P.mode === 'hero') { if (e.code === 'Space') C.heroPlay.jump(false); else if (e.code === 'KeyF') C.heroPlay.web(false); }
+});
 window.addEventListener('blur', () => keys.clear());
 el.addEventListener('click', () => { if (P.active && document.pointerLockElement !== el) el.requestPointerLock(); });
+/* kahraman: sol tık basılı ağla sallan, sağ tık ağla çekil (imleç kilitliyken) */
+el.addEventListener('mousedown', e => {
+  if (!P.active || P.mode !== 'hero' || document.pointerLockElement !== el) return;
+  if (e.button === 0) C.heroPlay.web(true); else if (e.button === 2) C.heroPlay.zip();
+});
+window.addEventListener('mouseup', e => { if (P.active && P.mode === 'hero' && e.button === 0) C.heroPlay.web(false); });
+el.addEventListener('contextmenu', e => { if (P.active) e.preventDefault(); });
 document.addEventListener('pointerlockchange', setHud);
 document.addEventListener('mousemove', e => {
   if (!P.active || document.pointerLockElement !== el) return;
   P.yaw -= e.movementX * 0.0026; P.pitch = C.clamp(P.pitch + e.movementY * 0.0022, -0.45, 1.25);
+  if (e.movementX || e.movementY) P.mouseT = performance.now();
 });
-P.zoom = dy => { P.dist = C.clamp(P.dist * Math.exp(dy * 0.0012), 1.6, 12); };
+P.zoom = dy => { P.dist = C.clamp(P.dist * Math.exp(dy * 0.0012), 1.6, P.mode === 'hero' ? 20 : 12); };
+const KEYS = {
+  citizen: 'WASD: yürü · Shift: koş · Space: zıpla · Fare: bak · Tekerlek: yakınlaş · E: konuş / gir · Esc: imleci bırak',
+  hero: 'WASD: koş · Shift: hızlı koş, duvarda yukarı koş · Space: zıpla (basılı tut: yüksek) · Sol tık / F basılı: ağla sallan · Sağ tık / Q: ağla çekil · Duvara koş: tırman · E: hırsızı ağla sar · Esc: imleci bırak'
+};
 
 let dockWasOpen = null;
 function setHud() {
@@ -253,7 +300,11 @@ function setHud() {
   if (on && dockWasOpen === null) { dockWasOpen = !dock.classList.contains('collapsed'); dock.classList.add('collapsed'); $('dockToggle').setAttribute('aria-expanded', 'false'); }
   if (!on && dockWasOpen !== null) { if (dockWasOpen) { dock.classList.remove('collapsed'); $('dockToggle').setAttribute('aria-expanded', 'true'); } dockWasOpen = null; }
   hud.hidden = !on; document.body.classList.toggle('playing', on);
-  if (btn) { btn.textContent = on ? 'Kuş bakışına dön' : 'Karakteri oyna'; btn.setAttribute('aria-pressed', on); }
+  if (btn) { btn.textContent = on ? 'Kuş bakışına dön' : 'Karakteri oyna'; btn.setAttribute('aria-pressed', on && P.mode === 'citizen'); }
+  const hb = $('btnPlayHero'); if (hb) { hb.textContent = on ? 'Kuş bakışına dön' : 'Pijamalı Çocuk olarak oyna'; hb.setAttribute('aria-pressed', on && P.mode === 'hero'); }
+  $('playKeys').textContent = KEYS[P.mode];
+  $('xhair').hidden = !(P.active && P.mode === 'hero');
+  if (!on) { $('heroTask').hidden = true; $('heroMsg').hidden = true; }
   $('playLock').hidden = !P.active || document.pointerLockElement === el;
   if (!on) $('playPrompt').hidden = true;
 }

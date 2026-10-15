@@ -90,8 +90,9 @@ function aim(arm, target, hand) {
   arm.quaternion.setFromUnitVectors(DOWN, tv);
 }
 const armZ = (arm, z) => { arm.quaternion.identity(); arm.rotation.set(0, 0, z); };
-function pose(name, t) {
+function pose(name, t, ph) {
   const { hip, torso, legs, arms } = M;
+  hip.rotation.set(0, 0, 0); torso.rotation.set(0, 0, 0);
   if (name === 'crouch') {
     hip.position.y = 0.52; torso.rotation.z = -0.55 + Math.sin(t * 1.3) * 0.04; torso.rotation.y = Math.sin(t * 0.7) * 0.35;
     legs[0].rotation.z = 1.3; legs[1].rotation.z = 1.05; armZ(arms[0], 0.75); armZ(arms[1], 0.35);
@@ -101,6 +102,22 @@ function pose(name, t) {
   } else if (name === 'swing') {
     hip.position.y = 0.92; torso.rotation.set(0, 0, -0.25);
     legs[0].rotation.z = -0.3; legs[1].rotation.z = 0.15; armZ(arms[1], -0.5);
+  } else if (name === 'run' || name === 'walk') {                 // koşu: kollar bacaklarla ters salınır
+    const r = name === 'run', a = r ? 1.05 : 0.5, s = Math.sin(ph || 0);
+    hip.position.y = 0.92 + (r ? Math.abs(Math.cos(ph || 0)) * 0.07 : 0); torso.rotation.z = r ? -0.34 : -0.05;
+    legs[0].rotation.z = a * s; legs[1].rotation.z = -a * s; armZ(arms[0], -a * 0.9 * s); armZ(arms[1], a * 0.9 * s);
+  } else if (name === 'climb') {                                 // duvarda: eller yukarıda, sırayla uzanır
+    const s = Math.sin(ph || 0);
+    hip.position.y = 0.92; torso.rotation.z = -0.08;
+    legs[0].rotation.z = 0.55 + 0.45 * s; legs[1].rotation.z = 0.55 - 0.45 * s; armZ(arms[0], 2.75 + 0.35 * s); armZ(arms[1], 2.75 - 0.35 * s);
+  } else if (name === 'fall') {                                  // düşüş: kollar açık
+    hip.position.y = 0.92; torso.rotation.z = 0.12;
+    legs[0].rotation.z = 0.35; legs[1].rotation.z = -0.25; armZ(arms[0], 2.1 + Math.sin(t * 9) * 0.15); armZ(arms[1], 1.8 - Math.sin(t * 9) * 0.15);
+  } else if (name === 'land') {                                  // kahraman inişi: diz çöker, bir el yerde
+    hip.position.y = 0.5; torso.rotation.z = -0.7;
+    legs[0].rotation.z = 1.35; legs[1].rotation.z = -0.9; armZ(arms[0], 0.5); armZ(arms[1], 1.3);
+  } else if (name === 'zip') {
+    hip.position.y = 0.92; legs[0].rotation.z = -0.35; legs[1].rotation.z = -0.1; armZ(arms[1], -0.7);
   } else {          // ayakta
     hip.position.y = 0.92; torso.rotation.set(0, 0, 0);
     legs[0].rotation.z = 0; legs[1].rotation.z = 0; armZ(arms[0], 0.08); armZ(arms[1], -0.08);
@@ -131,7 +148,7 @@ function posOf(s, u, out) {
 }
 
 /* ---------- durum ---------- */
-const S = { pos: V(0, 0, 0), ry: 0, seg: null, t: 0, idle: 2, roof: null, mission: null, node: null, phase: 'patrol', wait: 0, side: 1, look: null };
+const S = { pos: V(0, 0, 0), ry: 0, seg: null, t: 0, idle: 2, roof: null, mission: null, node: null, phase: 'patrol', wait: 0, side: 1, look: null, user: false };
 const live = b => b.type !== 'house' && b.lot.building === b;
 function roofPoint(b, toward) {
   const tt = b.topTier, l = b.lot, mx = Math.max(0.4, tt.w / 2 - 1.2), mz = Math.max(0.4, tt.d / 2 - 1.2);
@@ -202,10 +219,42 @@ function onSegEnd(s) {
   if (s.final) { S.phase = 'catch'; S.wait = 0.8; }
 }
 
+const hand = V(0, 0, 0), look = V(0, 0, 0);
 C.hero = {
-  pos: S.pos, root: M.root,
-  state: () => S.seg ? S.seg.kind : S.mission ? S.phase : 'crouch',     // hop, swing, zip, catch, stand, mission, crouch
+  pos: S.pos, root: M.root, task: null,
+  state: () => S.user ? 'user' : S.seg ? S.seg.kind : S.mission ? S.phase : 'crouch',     // hop, swing, zip, catch, stand, mission, crouch, user
+  get ry() { return S.ry; },
+  /* oyuncu kontrolü (heroplay.js): açılınca yapay zekâ durur, sürmekte olduğu hırsızlık oyuncunun görevi olur; kapanınca kaldığı yerden devam eder */
+  takeover(on) {
+    if (on) {
+      if (!placed) place();
+      const ev = S.mission;
+      this.task = ev && !ev.done && !ev.th.caught ? ev : null;
+      if (S.seg || S.mission) {                                    // havadaysa en yakın çatıya konar
+        const here = S.pos, b = C.buildings.filter(live).sort((p, q) => Math.hypot(p.lot.cx - here.x, p.lot.cz - here.z) - Math.hypot(q.lot.cx - here.x, q.lot.cz - here.z))[0];
+        if (b) { S.pos.copy(roofPoint(b, here)); S.roof = b; }
+      }
+      S.seg = null; S.mission = null; S.node = null; S.phase = 'patrol'; S.user = true;
+      return S.pos.clone();
+    }
+    S.user = false; S.seg = null; S.roof = null; S.idle = 1.2;
+    const ev = this.task; this.task = null;
+    if (ev && !ev.done && !ev.th.caught) { S.mission = ev; S.node = null; S.phase = 'mission'; }
+    return null;
+  },
+  /* oyuncu modunda modeli çiz: o = { pos, ry | quat, pose, t, ph, spin, anchor }; elin dünyadaki yerini döndürür */
+  drive(o) {
+    S.pos.copy(o.pos); M.root.position.copy(o.pos);
+    if (o.quat) M.root.quaternion.copy(o.quat); else M.root.rotation.set(0, o.ry, 0);
+    if (!o.quat) S.ry = o.ry;
+    pose(o.pose, o.t, o.ph);
+    if (o.spin) M.hip.rotation.z -= o.spin;                         // takla: kalça ekseninde öne döner
+    M.root.updateMatrixWorld(true);
+    if (o.anchor) { aim(M.arms[0], o.anchor, hand); stretch(hand, o.anchor); } else strand.visible = false;
+    return hand;
+  },
   alert(ev) {
+    if (S.user) { if (this.task && !this.task.done) return false; this.task = ev; ev.heroComing(); return true; }
     if (S.mission) return false;
     S.mission = ev; S.node = null; S.phase = 'mission'; ev.heroComing();
     return true;
@@ -220,9 +269,9 @@ function place() {
   if (b) { S.pos.copy(roofPoint(b, null)); S.roof = b; placed = true; }
 }
 
-const hand = V(0, 0, 0), look = V(0, 0, 0);
 C.updaters.push((dt, t) => {
   if (!placed) { place(); if (!placed) return; }
+  if (S.user) return;                                             // oyuncu sürüyor (heroplay.js)
   let poseName = 'crouch', anchor = null;
   if (S.seg) {
     S.t += dt; const s = S.seg, u = Math.min(1, S.t / s.dur);

@@ -64,6 +64,24 @@ Bir hırsızlık olunca yolların üstünden binalara ağ atarak kavşaktan kav�
 
 Kontrol panelindeki **Pijamalı Çocuğu izle** düğmesi kamerayı ona kilitler; yön tuşlarına basınca ya da başka bir görünüme geçince takip biter.
 
+### Pijamalı Çocuk olarak oyna
+
+**Pijamalı Çocuk olarak oyna** düğmesiyle kahramanın kontrolü sende: bulunduğu çatıdan başlarsın. Ekranın ortasındaki nişangâh ağın gideceği yeri gösterir, tutunacak bir yer varsa renklenir.
+
+| Ne | Nasıl |
+|---|---|
+| Koş / hızlı koş | WASD veya yön tuşları, Shift ile hızlı |
+| Zıpla | Space; basılı tutup bırakınca daha yükseğe (tam güçte takla atar) |
+| Duvara tırman | Duvara doğru koş, W ile yukarı, A/D ile yana, S ile aşağı; köşeden yan yüze döner, tepede çatıya geçer |
+| Duvarda koş | Duvardayken Shift + W ile dimdik yukarı koşar |
+| Duvardan sıçra | Duvardayken Space |
+| Ağla sallan | Sol tık ya da F basılı tut; W ile salınımı büyüt, bırakınca fırla. Basılı tutarken düşersen yeni ağ atar |
+| Ağla çekil | Sağ tık ya da Q: nişangâhtaki çatıya, duvara ya da yere. Tutunduğun duvara bakarken tepesine çeker |
+| Hırsızı yakala | Hırsızlık olunca üstte yön oku ve mesafe çıkar, şüphelinin üstünde mavi bir ışık sütunu yanar; 30 m içinde E ile ağa sar |
+| Konuş | Yerdeyken yanındaki yayaya E: hayranların var |
+
+Yüksekten düşünce diz çökerek iner. Kamera hızlandıkça biraz geri çekilir ve görüş açısı genişler; fareyi bırakınca gidiş yönüne döner. Kuş bakışına dönünce kahraman kaldığı yerden kendi başına devam eder, yarım kalan hırsızlığı da üstlenir.
+
 > Adı, bir süper kahraman filminde ona "pijamalı çocuk" diye takılan dahi mucide selam olsun. Kostüm tanıdık gelebilir; tamamen hayran işi, eğlencesine bir misafir oyuncu.
 
 ## Ayrıntı kademeleri
@@ -106,7 +124,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - [x] Görsel cila: daha çok ayrıntı, daha keskin görüntü, keskin kenarlar yerine yuvarlatılmış hatlar
 - [x] Ayrıntılı insanlar, karakter modu, girilebilir mekânlar, camın ardında yaşayan daireler
 - [x] İlçelere ayrılmış daha büyük hayali şehir, zıplama, dağlarla çevrili vadi, akarsu, şehre giriş-çıkış yolu
-- [ ] Pijamalı Çocuk olarak oyna: ağ atma, çatıdan çatıya sallanma
+- [x] Pijamalı Çocuk olarak oyna: koşu, yüksek zıplama, duvara tırmanma ve duvarda koşma, ağla sallanma ve çekilme, hırsızı ağla sarma
 
 ## Teknik
 
@@ -128,6 +146,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/life.js` | Otobüs hatları, duraklar, bekleyen yolcular |
 | `js/hero.js` | Pijamalı Çocuk: kostüm, devriye, kovalama, ağ |
 | `js/player.js` | Karakter modu: hareket, kamera, çarpışma, konuşma |
+| `js/heroplay.js` | Pijamalı Çocuk olarak oyna: koşu, tırmanma, ağla sallanma ve çekilme |
 | `js/venues.js` | Girilebilir dükkânlar ve önemli yapıların içi |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |
 

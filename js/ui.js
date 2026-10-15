@@ -204,7 +204,8 @@ $('btnHero').addEventListener('click', () => {
   off.y = Math.max(off.y, 8);
   flyTo(p.clone().add(off), p.clone(), 1600, true); setFollow(true);
 });
-$('btnPlay').addEventListener('click', () => { if (C.player.active || C.player.entering) C.player.exit(); else { select(null); C.player.enter(); } });
+$('btnPlay').addEventListener('click', () => { if (C.player.active || C.player.entering) C.player.exit(); else { select(null); setFollow(false); C.player.enter(); } });
+$('btnPlayHero').addEventListener('click', () => { if (C.player.active || C.player.entering) C.player.exit(); else { select(null); setFollow(false); C.player.enter('hero'); } });
 $('btnNew').addEventListener('click', () => { select(null); C.populate((Math.random() * 1e6) | 0); });
 
 /* ---------- gün, trafik, gölge ---------- */
