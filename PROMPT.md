@@ -1,73 +1,81 @@
-# Mikro Şehir: başlangıç promptu
+# Build your own Mikro Şehir
 
-Aşağıdaki metni Claude'a (masaüstü uygulamasında yeni bir proje açıp) olduğu gibi yapıştır. Kod zaten `js/` altında hazır. Sıfırdan yeniden yazdırmak istersen bu prompt yeterli, devam etmek istersen `CLAUDE.md` dosyasını okutmak yeterli.
+Mikro Şehir was built step by step with an AI coding agent (Claude Code). This file is for anyone who wants to do the same: either **make this repository yours**, or **build a city of your own from scratch** with the prompt below.
 
----
+## Make this repository yours
 
-## Prompt
+The code is MIT licensed. To turn it into your own city and portfolio:
 
-Tarayıcıda çalışan, **yakınlaştıkça yeni ayrıntıların açıldığı**, etkileşimli, 3 boyutlu bir şehir simülasyonu yap. Derleme adımı olmasın: düz `index.html` + klasik `<script>` dosyaları, `file://` ile çift tıklayınca açılsın. Arayüz Türkçe olsun.
+- [ ] **Your portfolio:** `portfolio/content.js` holds every text on the phone (name, about, skills, projects, contacts, joke news). Set `github` to your username; project languages and dates come from the GitHub API. Update the English texts in `portfolio/lang.en.js`.
+- [ ] **Your city:** district names and building mix in `js/world.js` (`C.DISTRICTS`, `C.CITY`), street names in `js/events.js` (`CADDE`, `SOKAK`), team suffixes in `js/stadium.js`, shop signs in `js/details.js` (`SIGNS`).
+- [ ] **Your weather:** latitude and longitude in `js/wxdata.js` (Open-Meteo, no key needed).
+- [ ] **Your clock:** the live clock uses Turkey time (GMT+3) in `js/ui.js` (`C.trHour`).
+- [ ] **Your language:** the source language is Turkish and English comes from dictionaries (`js/lang.js`, `js/lang.en.js`). Language selection is automatic, with a manual switch.
+- [ ] **Your name:** `LICENSE`, the page titles, and the address shown in the phone's URL bar (`site` in `content.js`).
 
-### Teknik çerçeve
-- Three.js **r128**, CDN'den (`cdn.jsdelivr.net/npm/three@0.128.0`), OrbitControls aynı sürümden `examples/js/controls/OrbitControls.js`.
-- Modül yok. Tek global ad alanı: `window.C`. Dosyalar sırayla yüklenir: `world.js`, `details.js`, `buildings.js`, `street.js`, `traffic.js`, `ui.js`.
-- Yazı tipleri Google Fonts: Big Shoulders Display (başlık ve sayılar), IBM Plex Sans (metin), IBM Plex Mono (etiket ve düğmeler).
-- Açık ve koyu tema desteği (CSS değişkenleri, `prefers-color-scheme`). WebGL yoksa anlaşılır bir mesaj göster.
+Read `CLAUDE.md` before changing code: it maps every file and lists the traps (three.js r128 quirks, shader chaining, level of detail).
 
-### Dünya
-- 9 × 9 blok. Blok 44 m, yol 12 m, aralık (pitch) 56 m, toplam 516 m. Kaldırım yüksekliği 0,3 m, kat yüksekliği 3,2 m.
-- Ortadaki blok meydan: saat kulesi (dört yüzünde **simüle edilen saati gösteren** canvas saat), havuz, bankalar, ağaçlar.
-- 5 blok park: çim, iki yol, gölet, 26 ağaç, bankalar. Kalan bloklar 1, 2 veya 4 parsele bölünür.
-- Binalar merkeze yaklaştıkça yükselir: gökdelen (22–48 kat, çoğu 3 kademeli geri çekilmeli, cam cephe), apartman (6–14 kat), alçak bina (3–5), kiremit çatılı müstakil ev (2–3). Her şey tohumlu rastgeleliktir (mulberry32), "Yeni şehir kur" yeni tohum seçer.
-- Cepheler tek paylaşılan canvas dokusundan gelir (16 × 16 hücre, pencere ve emissive harita). Kutu UV'leri hücre sayısına göre ölçeklenir, böylece pencere boyutu her binada aynı kalır.
+## Build one from scratch
 
-### Ayrıntı kademeleri (en önemli özellik)
-Kamera ile hedef arası mesafe D'ye göre: **D > 320 Şehir**, **130–320 Mahalle**, **45–130 Sokak**, **≤ 45 Göz hizası**.
-- Şehir: bina kütleleri düz renk, sokak ızgarası. Ağaç, lamba, trafik, yol çizgisi yok.
-- Mahalle: pencere dokuları, ağaçlar, lambalar, yol çizgileri ve yaya geçitleri, trafik ışıkları, akan araçlar.
-- Sokak: yayalar (yürüme animasyonlu), ve kameraya 140 m'den yakın her binada dükkân tabelaları (12 Türkçe isim: FIRIN, ECZANE, KIRTASİYE, ÇAY OCAĞI…), tente, vitrin, balkonlar, çatı klima ve su deposu, gökdelende yanıp sönen kırmızı anten ışığı.
-- Bina ayrıntıları **tembel** kurulur (kare başına en fazla 3 bina), görünmezken gizlenir. Binalar kameraya 330 m'den uzaksa düz renkli malzemeye geçer.
-
-### Sistemler
-- **Trafik:** 2 eksen × 10 yol × 2 şerit, sağdan akış. Aşırı basit ama inandırıcı: halka şerit, öndeki araca mesafe + trafik ışığında durma çizgisi, hızlanma 3 m/s², frenleme 9 m/s². Işık döngüsü 20 sn (yeşil 7, sarı 1,5, hepsi kırmızı 1,5, sonra diğer eksen). Yoğunluk kaydırıcısı şerit başına 0–12 araç. Araçlar örnekli (instanced) çizilir, parçalar aynı matrisi paylaşır.
-- **Yayalar:** her bloğun kaldırım halkasında dolaşır, bacak ve kol salınımı vardır, örnekli çizim.
-- **Gün/gece:** 0–24 saat kaydırıcısı ve "Günü ilerlet". Güneş yayı, alacakaranlık rengi, yıldızlar, ay, gece yanan pencereler, lamba ışık havuzları (eklemeli karışım), far ve stop lambaları, tabela ve saat parıltısı. Ekim ayı olduğu için bazı ağaçlar sarı.
-- **Gölge:** tek yönlü ışık, gölge kamerası hedefi izler, genişlik `clamp(D*1.1, 70, 330)`. Dokunmatik cihazda varsayılan kapalı.
-
-### Etkileşim
-- Fare: sürükle döndür, sağ tuş kaydır, **tekerlek imlecin altındaki zemine doğru yakınlaştırır** (yakınlaşma noktası zemin düzlemiyle ışın kesişimi). Dokunmatik: tek parmak döndür, iki parmak yakınlaş/kaydır.
-- Bina seçimi: tıklayınca amber çerçeve ve kart (yükseklik, kat, parsel, tahmini sakin/çalışan). Düğmeler: **+ Kat**, **− Kat**, **Yık**. Yıkılan parsel "Boş arsa" olur, oradan **Müstakil ev / Apartman / Ofis kulesi** dikilir.
-- Hazır görünümler (uçuşlu, mesafe logaritmik interpolasyon): Kuş bakışı, Siluet, Sokağa in (rastgele bir dükkân önü), Saat kulesi.
-- Sol üst: 4 kademeli gösterge (aktif olan vurgulu), o kademede ne açıldığını anlatan cümle, hedefe mesafe (m), ölçek çubuğu. Sağ alt: seçim kartı ve katlanabilir kontrol paneli. Telefonda panel alta yayılır ve katlanmış başlar.
-
-### Görsel dil
-Tabela dünyası: soğuk kâğıt grisi zemin (`#dfe3e6`), koyu mürekkep (`#16212b`), vurgu rengi yol levhası kehribarı (`#b85c00`, koyu temada `#ffb53d`). Büyük harfli, sıkıştırılmış başlıklar, mono etiketler. Kartlarda 8 px yarıçap ve bulanık arka plan, başka süs yok.
-
-### Performans ve tuzaklar (r128'e özgü, bunları bil)
-- `InstancedMesh` için **`frustumCulled = false`** şart, yoksa geometri merkezi görünür dışındayken tüm örnekler kaybolur.
-- Renk yönetimi: `outputEncoding = sRGBEncoding`, tüm renkleri `Color.convertSRGBToLinear()` ile ver. **`scene.background` shader'dan geçmez**, bu yüzden arka planı `convertLinearToSRGB()` ile geri çevir, yoksa ufukta sis rengiyle arka plan arasında şerit oluşur.
-- Z-fighting: yol çizgileri asfalttan 2 cm yüksekte. Kameranın `near` değerini `clamp(0.4 + 0.012*D, 0.4, 7)` yap ve `polygonOffset` kullan.
-- OrbitControls kendi tekerlek dinleyicisini çalıştırmasın diye sahne kabında **capture** aşamasında `wheel` yakala ve `stopPropagation()` çağır. `maxPolarAngle = π` ver, kamerayı elle `y ≥ 1,4` ile sınırla (hedef yüksekteyken yukarı bakabilmek için).
-- Kutu geometrisinde yalnızca yan yüzlerin UV'sini ölçekle (yüz 2 ve 3 çatı/taban). Malzeme dizisi `[yan, yan, çatı, çatı, yan, yan]`.
-
-### Kabul ölçütleri
-1. Açılışta kuş bakışında tüm şehir görünür, kademe göstergesi "Şehir" der.
-2. İmleçle yaklaştıkça sırayla pencereler, ağaçlar, trafik, tabelalar, yayalar belirir, kademe göstergesi buna eşlik eder.
-3. Bir binaya tıklayıp kat ekleyip yıkabilir, boş arsaya yeni bina dikebilirim.
-4. Gece 22:00'de pencereler, lambalar ve farlar yanar, yıldızlar görünür.
-5. Telefonda dikey ekranda taşma yok, kontrol paneli katlanır.
-6. Konsolda hata yok.
-
-### Çalışma şekli
-Önce `world.js` ve boş bloklarla sahneyi ayağa kaldır, tarayıcıda aç, ekran görüntüsüyle doğrula; sonra sırayla binalar, ayrıntılar, sokak donanımı, trafik, yayalar, arayüz. Her aşamada tarayıcıda çalıştırıp konsolu kontrol et.
+Paste the prompt below into an AI coding agent in an empty folder. Build it in stages and check each stage in a real browser before moving on.
 
 ---
 
-## Sonraki adım fikirleri
-- Araçların kavşakta dönmesi, sarı taksiler, otobüs hatları.
-- Binaya tıklayınca içine girip kat planı ya da pencerelerde ışık açma/kapama.
-- Parselleri sürükleyerek imar planı çizme, bina türünü fırçayla boyama.
-- Yağmur ve sis, ıslak asfalt yansıması.
-- Kaydet / yükle (şehir tohumu + yapılan değişiklikler `localStorage`'a).
-- Yayaların yol karşısına geçmesi, kalabalık yoğunluğu kaydırıcısı.
-- Gerçek ölçekli harita verisinden (OpenStreetMap) şehir üretimi.
+### Prompt
+
+Build an interactive 3D city that runs in the browser, where **new detail appears as you zoom in**. No build step: a plain `index.html` and classic `<script>` files that also work when opened with `file://`.
+
+**Technical frame**
+- Three.js r128 from a CDN, with OrbitControls from the same version. No modules: one global namespace (`window.C`), files load in a fixed order, and each frame runs a list of `C.updaters`.
+- Seeded randomness everywhere, so the same seed builds the same city. A "New city" button picks a new seed.
+- Light and dark themes through CSS variables. Show a clear message when WebGL is missing.
+- Quality presets (low / medium / high) picked automatically by device and saved when chosen by hand. They scale pixel ratio, shadow map, terrain mesh, forest density, view distance, traffic and crowds. Add adaptive resolution that lowers the pixel ratio when frames get slow.
+
+**World**
+- A grid city (for example 17 × 17 blocks) split into 3 × 3 districts. Each district has its own name, pavement tint and mix of towers, apartment blocks and houses. Some districts can have their own tower cluster.
+- A central square with a clock tower that shows the simulated time, parks with ponds, ducks and benches, and landmarks: hospital, fire station, police station, stadium.
+- The city sits in a valley: fbm mountains, forests, a river, and a road that climbs to a tunnel, with traffic entering and leaving the city.
+
+**Levels of detail** (the core idea), by camera distance D
+- D > 320, city: building masses and the street grid only.
+- 130–320, district: windows, trees, lamps, road markings, traffic lights, moving cars.
+- 45–130, street: pedestrians, shop signs, awnings, rooftop gear.
+- D ≤ 45, eye level: shop windows and every small detail. Build building detail lazily and only near the camera.
+
+**Life in the city**
+- Traffic on a road graph with Bézier turns, traffic lights, indicators and safe following. Bus lines with stops and waiting passengers. Pedestrians who cross on red for cars.
+- Rooms behind windows: interior mapping in the facade shader, plus a few real rooms with people in the nearest buildings, and a cutaway view of a selected building.
+- Random events: fire, traffic accident, theft, pedestrian hit. Emergency vehicles drive there with sirens while other cars pull over, and an event feed lets you jump to the scene.
+- A rooftop hero who swings on webs and catches thieves. Street cats you can pet and pick up, with a nightly cat meeting in the park. A football match at fixed times that runs in real time (45 + 15 + 45 minutes) and gives the same teams and score to everyone.
+- Real local time by default, with a slider and fast-forward. Live weather for your city (Open-Meteo): clouds, fog, rain, snow, thunderstorms, wet asphalt that reflects the sky and dries in the sun, snow that settles and melts. Weather can also be picked by hand.
+
+**Play**
+- Third-person citizen mode: walk, run, jump, talk to people, sit on benches, enter shops (café, bakery, market with basket and till, barber, police station…), buy and consume things.
+- Hero mode: run, climb walls, swing and zip on webs, web up a thief.
+- Touch controls on phones: a joystick, buttons that send the same key events, drag to look, pinch to zoom.
+
+**The portfolio phone**
+- A developer character lives in the city on a daily schedule: café in the morning, park bench in the afternoon, the stadium in the evening, the cat meeting at night, home after midnight. "Find me" flies the camera to wherever they are; they wave, take out a phone, and the phone opens.
+- The phone is a standalone portfolio page in an iframe (projects, about, contact, city news) that also works on its own. The city news follows the live weather, events and match, and changes with the date and time of day.
+
+**Interaction**
+- Mouse: drag to rotate, right button to pan, the wheel zooms towards the point under the cursor. Touch: one finger rotates, two fingers zoom and pan.
+- Click a building: a card with its height, floors and residents, plus add floor, remove floor, demolish, rebuild on the empty lot, cutaway.
+- Preset views with smooth flights: bird's-eye, skyline, street level, clock tower.
+
+**Three.js r128 traps**
+- Set `frustumCulled = false` on every InstancedMesh. Give an InstancedMesh whose count changes a full-capacity `instanceColor`.
+- Use a linear colour workflow with sRGB output, and convert `scene.background` back by hand.
+- Chain `onBeforeCompile` instead of overwriting it, and give each variant its own `customProgramCacheKey`.
+- Avoid z-fighting with small height offsets, `polygonOffset` and a camera `near` value that grows with distance.
+
+**Acceptance criteria**
+1. On load the whole city is visible from above, and the level indicator says "City".
+2. Zooming in brings windows, trees, traffic, signs and pedestrians in order.
+3. You can select a building, add and remove floors, demolish it and build on the empty lot.
+4. At night, windows, street lamps and headlights are on and stars are out.
+5. On a phone in portrait there is no overflow, the controls fit, and play mode has touch controls.
+6. The console is clean.
+
+**Way of working**
+Bring up the scene and empty blocks first and check them in the browser. Then add, one at a time: buildings, detail levels, street furniture, traffic, pedestrians, the interface, then the larger systems. After each step, run it, look at it and check the console. Keep a `CLAUDE.md` with a file map and the rules you learn along the way.
