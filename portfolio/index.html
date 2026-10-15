@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portfolyo</title>
+<meta name="description" content="Kişisel portfolyo: projeler, hakkımda, iletişim. Mikro Şehir'in içindeki telefonda da açılır.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="enter-city" id="enterCity" href="../">🏙 Şehre gir</a>
+<main class="device" id="device">
+  <!-- ana ekran -->
+  <section class="screen home" id="home" aria-label="Ana ekran">
+    <div class="wall" aria-hidden="true"></div>
+    <div class="home-top">
+      <div class="clock" id="clock">12:00</div>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="widget">
+      <div class="who">
+        <div class="avatar" aria-hidden="true" id="avatar">Ü</div>
+        <div><h1 id="name"></h1><p id="role"></p></div>
+      </div>
+      <p class="tag" id="tagline"></p>
+      <span class="pill" id="status"></span>
+    </div>
+    <nav class="apps" aria-label="Uygulamalar">
+      <button class="app" data-open="projects"><span class="ico" style="--c:#ff9f43">📁</span>Projeler</button>
+      <button class="app" data-open="about"><span class="ico" style="--c:#54a0ff">👤</span>Hakkımda</button>
+      <button class="app" data-open="contact"><span class="ico" style="--c:#1dd1a1">💬</span>İletişim</button>
+      <button class="app" data-open="city"><span class="ico" style="--c:#ffb53d">🏙</span>Bu şehir</button>
+    </nav>
+    <div class="dockbar" aria-label="Kısayollar">
+      <a class="app small" id="ghLink" target="_blank" rel="noopener"><span class="ico" style="--c:#2b3036">🐙</span><span class="sr">GitHub</span></a>
+      <button class="app small" data-open="contact"><span class="ico" style="--c:#2f7bff">✉️</span><span class="sr">İletişim</span></button>
+      <button class="app small" data-open="projects"><span class="ico" style="--c:#e2452b">⭐</span><span class="sr">Projeler</span></button>
+    </div>
+  </section>
+
+  <!-- uygulamalar -->
+  <section class="screen app-view" id="projects" aria-label="Projeler" hidden>
+    <header><button class="back" data-home>‹ Ana ekran</button><h2>Projeler</h2></header>
+    <div class="body" id="projectList"></div>
+  </section>
+  <section class="screen app-view" id="about" aria-label="Hakkımda" hidden>
+    <header><button class="back" data-home>‹ Ana ekran</button><h2>Hakkımda</h2></header>
+    <div class="body"><div id="aboutText"></div><h3>Neler kullanıyorum</h3><ul class="chips" id="skills"></ul></div>
+  </section>
+  <section class="screen app-view" id="contact" aria-label="İletişim" hidden>
+    <header><button class="back" data-home>‹ Ana ekran</button><h2>İletişim</h2></header>
+    <div class="body"><ul class="rows" id="contactList"></ul></div>
+  </section>
+  <section class="screen app-view" id="city" aria-label="Bu şehir nasıl yapıldı" hidden>
+    <header><button class="back" data-home>‹ Ana ekran</button><h2>Bu şehir nasıl yapıldı</h2></header>
+    <div class="body"><div class="stats" id="cityStats"></div><div id="cityPoints"></div></div>
+  </section>
+  <div class="home-ind" aria-hidden="true"></div>
+</main>
+<script src="content.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

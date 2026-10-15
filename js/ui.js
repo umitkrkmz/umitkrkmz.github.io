@@ -206,6 +206,7 @@ $('btnHero').addEventListener('click', () => {
 });
 $('btnPlay').addEventListener('click', () => { if (C.player.active || C.player.entering) C.player.exit(); else { select(null); setFollow(false); C.player.enter(); } });
 $('btnPlayHero').addEventListener('click', () => { if (C.player.active || C.player.entering) C.player.exit(); else { select(null); setFollow(false); C.player.enter('hero'); } });
+$('btnFindMe').addEventListener('click', () => { select(null); setFollow(false); C.findDeveloper(); });
 $('btnNew').addEventListener('click', () => { select(null); C.populate((Math.random() * 1e6) | 0); });
 
 /* ---------- gün, trafik, gölge ---------- */

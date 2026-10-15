@@ -31,6 +31,14 @@ Seçtiğin binaya **kat ekleyebilir**, **kat silebilir** ya da binayı **yıkabi
 
 Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, gölgeler, rastgele olaylar, "Olay çıkar" ve hazır kamera görünümleri (Kuş bakışı, Siluet, Sokağa in, Saat kulesi) var. "Yeni şehir kur" her seferinde başka bir şehir üretir.
 
+## Portfolyo telefonu 📱
+
+Şehirde bir geliştirici dolaşıyor: koyu kapüşonlu, sırtında laptop çantası, meydanın doğusundaki kaldırımda. Kontrol panelindeki **Beni bul** kamerayı onun önüne indirir; el sallar, cebinden telefonunu çıkarır ve telefon ekranda açılır. Telefonun içi portfolyodur: projeler, hakkımda, iletişim ve "Bu şehir nasıl yapıldı". Kilit ekranındaki saat şehrin saatidir.
+
+- Sağ üstteki **Portfolyo** düğmesi telefonu her an doğrudan açar; `#telefon` ile biten bağlantı da açar.
+- Sağ üstteki X ya da Esc kapatır. Telefon boyunda ekranda tam ekran açılır.
+- Portfolyo tek başına da açılır: `portfolio/` (WebGL'i olmayan cihazlar ve hızlı bağlantı için). Yazıların hepsi `portfolio/content.js` içinde.
+
 ## Karakteri oyna 🎮
 
 Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından süzülüp bir vatandaşın arkasına iner.
@@ -159,6 +167,8 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/cats.js` | Sokak kedileri, sevme ve kucağa alma, kedi toplantısı |
 | `js/ponds.js` | Park göllerinin taşları, nilüferleri, sazları, ördekleri |
 | `js/stadium.js` | Stadyumda maç: oyuncular, top, taraftarlar, skor tabelası |
+| `js/developer.js` | Şehirdeki geliştirici, Beni bul, portfolyo telefonu |
+| `portfolio/` | Bağımsız portfolyo sayfası (telefonun içi); içerik `content.js` |
 | `js/venues.js` | Girilebilir dükkânlar ve önemli yapıların içi |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |
 

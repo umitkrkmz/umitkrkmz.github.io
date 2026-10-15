@@ -165,7 +165,7 @@ function knock(car) {
 }
 P.update = function (dt, t) {
   if (P.entering && !C.flying()) { P.entering = false; P.active = true; setHud(); }
-  if (!P.active) { if (C.setObstacle) C.setObstacle(1e9, 1e9); return; }
+  if (!P.active) { if (C.setObstacle) C.setObstacle(1e9, 1e9); updateBubbles(dt); return; }   // balonlar kuş bakışında da (geliştirici, kedi toplantısı)
   if (C.setObstacle) { if (!P.indoor && P.pos.y < 1) C.setObstacle(P.pos.x, P.pos.z); else C.setObstacle(1e9, 1e9); }
   if (gridSig !== C.buildings.length + ':' + (C.bver || 0)) buildGrid();
   if (P.mode === 'hero') { C.heroPlay.update(dt, t); if (talkT > 0) talkT -= dt; updatePrompt(); updateBubbles(dt); return; }
