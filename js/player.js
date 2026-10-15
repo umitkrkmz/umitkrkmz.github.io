@@ -38,6 +38,10 @@ function buildGrid() {
   });
   for (const t of C.treeSpots) circ(t[0], t[1], 0.3 * t[2]);
   for (const l of C.lampSpots) circ(l[0], l[1], 0.14);
+  for (const b of C.benchSpots) {                                     // banklar: oturak + sırtlık kadar kutu
+    const along = Math.abs(Math.cos(b[2])) > 0.5, nx = Math.sin(b[2]), nz = Math.cos(b[2]);
+    rect(b[0] - nx * 0.06, b[1] - nz * 0.06, along ? 0.92 : 0.3, along ? 0.3 : 0.92);
+  }
   gridSig = C.buildings.length + ':' + (C.bver || 0);
 }
 const P2 = { x: 0, z: 0 };
@@ -130,6 +134,7 @@ P.exit = function () {
   if (document.pointerLockElement) document.exitPointerLock();
   if (P.mode === 'hero') C.heroPlay.stop();
   if (C.cats && C.cats.held) C.cats.drop();
+  standUp();
   P.crowd.group.visible = false; hideBubbles();
   C.flyTo(V(P.pos.x + 70, 110, P.pos.z + 90), V(P.pos.x, 0, P.pos.z), 2200);
   setHud();
@@ -139,8 +144,8 @@ P.exit = function () {
 const pp = {};
 function draw(t) {
   const sp = Math.hypot(P.vel.x, P.vel.z);
-  const pose = P.down > 0 ? C.pose(P.down > 0.7 ? 'lie' : 'kneel', t, pp) : P.petT > 0 ? C.pose('pet', t, pp) : P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
-  if (C.cats && C.cats.held && !(P.down > 0)) { pose.sh = [1.0, 1.0]; pose.el = [1.35, 1.35]; pose.ab = [0.04, 0.04]; }   // kucakta kedi
+  const pose = P.seat ? C.pose(Math.sin(t * 0.2) > 0.75 ? 'drink' : 'sit', t, pp) : P.down > 0 ? C.pose(P.down > 0.7 ? 'lie' : 'kneel', t, pp) : P.petT > 0 ? C.pose('pet', t, pp) : P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
+  if (C.cats && C.cats.held && !(P.down > 0)) { pose.sh = [0.62, 0.62]; pose.el = [1.05, 1.05]; pose.ab = [0.02, 0.02]; }   // kucakta kedi
   P.crowd.set(0, P.pos.x, P.pos.y, P.pos.z, P.face, pose); P.crowd.commit();
 }
 /* tuşlardan bakış yönüne göre istenen hareket (kahraman modu da kullanır) */
@@ -169,13 +174,15 @@ P.update = function (dt, t) {
   let wx = cy * f + (-sy) * s, wz = sy * f + cy * s;              // sağ = (-sy, cy)
   let wl = Math.hypot(wx, wz), top = run ? 5.6 : 2.0;
   if (wl > 0) { wx /= wl; wz /= wl; }
+  if (P.seat) { if (wl) standUp(); else { wx = wz = 0; wl = 0; top = 0; P.vel.set(0, 0, 0); } }   // bankta: yürümeye kalkınca kalkar
   if (P.down > 0) { P.down -= dt; wx = wz = 0; wl = 0; top = 0; }        // yerde: hareket yok
   if (P.petT > 0) { P.petT -= dt; if (wl) P.petT = 0; else top = 0; }    // kedi severken; yürüyünce bırakır
   const ax = wx * top - P.vel.x, az = wz * top - P.vel.z, k = Math.min(1, dt * (P.air ? 2 : wl ? 10 : 8));   // havada az kontrol
   P.vel.x += ax * k; P.vel.z += az * k;
   const sp = Math.hypot(P.vel.x, P.vel.z);
   const q = { x: P.pos.x + P.vel.x * dt, z: P.pos.z + P.vel.z * dt };
-  if (P.indoor) C.venues.confine(q);
+  if (P.seat) { q.x = P.seat.x; q.z = P.seat.z; }
+  if (P.seat) {} else if (P.indoor) C.venues.confine(q);
   else {
     resolve(q);
     const car = C.carPush && P.pos.y < 1.5 ? C.carPush(q, R) : null;     // araçların içinden geçilmez
@@ -188,7 +195,7 @@ P.update = function (dt, t) {
     P.vy -= 13 * dt; P.pos.y += P.vy * dt;
     if (P.pos.y <= gy && P.vy < 0) { P.pos.y = gy; P.vy = 0; P.air = false; }
   } else P.pos.y += (gy - P.pos.y) * Math.min(1, dt * 14);
-  if (sp > 0.25 && !P.air && !(P.down > 0)) {
+  if (sp > 0.25 && !P.air && !(P.down > 0) && !P.seat) {
     const want = Math.atan2(-P.vel.z, P.vel.x); let d = want - P.face; d = Math.atan2(Math.sin(d), Math.cos(d));
     P.face += d * Math.min(1, dt * 10); P.ph += sp * dt * (sp > 3.2 ? 2.6 : 3.4);
   }
@@ -224,9 +231,10 @@ function updatePrompt() {
     if (C.heroPlay.thiefNear()) { prompt = { kind: 'web' }; text = 'E: Hırsızı ağla sar'; }
     else if (p) { prompt = { kind: 'talk', p }; text = 'E: Konuş'; }
   }
+  else if (P.seat) { prompt = { kind: 'stand' }; text = 'E ya da WASD: Kalk'; }
   else if (!P.indoor && C.cats && (C.cats.held || C.cats.near(P.pos))) {          // kedi: sev, kucağa al, bırak
     prompt = { kind: 'cat', c: C.cats.held || C.cats.near(P.pos) };
-    text = C.cats.held ? 'E: Sev · Q: Yere bırak' : 'E: Kediyi sev (' + prompt.c.name + ') · Q: Kucağına al';
+    text = C.cats.held ? 'E: Sev · Q: Yere bırak' : 'E: Kediyi sev (' + C.cats.describe(prompt.c) + ') · Q: Kucağına al';
   }
   else if (P.indoor) {
     const p = nearestPerson();
@@ -236,10 +244,23 @@ function updatePrompt() {
   else {
     const v = C.venues && C.venues.doorNear(P.pos);
     const p = nearestPerson();
+    const seat = freeSeat();
     if (p && (!v || Math.hypot(p.x - P.pos.x, p.z - P.pos.z) < v.d)) { prompt = { kind: 'talk', p }; text = 'E: Konuş'; }
     else if (v) { prompt = { kind: 'door', v }; text = 'E: Gir · ' + v.name; }
+    else if (seat) { prompt = { kind: 'sit', seat }; text = 'E: Banka otur'; }
   }
   const el = $('playPrompt'); if (el.textContent !== text) { el.textContent = text; el.hidden = !text; }
+}
+/* bank: 1,1 m içinde boş bir oturma yeri; kalkınca bankın önüne adım atar */
+function freeSeat() {
+  if (!C.benchSitters || P.air) return null;
+  let best = null, bd = 1.1;
+  for (const s of C.benchSitters) { if (s.on || s.player) continue; const d = Math.hypot(s.x - P.pos.x, s.z - P.pos.z); if (d < bd) { bd = d; best = s; } }
+  return best;
+}
+function standUp() {
+  const s = P.seat; if (!s) return; P.seat = null; s.player = false;
+  const fx = Math.cos(s.ry), fz = -Math.sin(s.ry); P.pos.x = s.x + fx * 0.75; P.pos.z = s.z + fz * 0.75;
 }
 function act() {
   if (!prompt) return;
@@ -254,7 +275,11 @@ function act() {
     const c = C.cats.pet(prompt.c);
     if (!C.cats.held) { P.petT = 2.6; P.vel.set(0, 0, 0); P.face = Math.atan2(-(c.z - P.pos.z), c.x - P.pos.x); }
     bubble(() => V(c.x, c.y + 0.7, c.z), 'Mırr… ♥', 0.3, 2.6);
-  } else if (prompt.kind === 'web') C.heroPlay.webThief();
+  } else if (prompt.kind === 'sit') {
+    const s = prompt.seat; s.player = true; s.on = false; P.seat = s;
+    P.pos.set(s.x, C.SW, s.z); P.vel.set(0, 0, 0); P.face = s.ry; P.air = false;
+  } else if (prompt.kind === 'stand') standUp();
+  else if (prompt.kind === 'web') C.heroPlay.webThief();
   else if (prompt.kind === 'door') C.venues.enter(prompt.v);
   else if (prompt.kind === 'exit') C.venues.leave();
 }
@@ -297,7 +322,7 @@ window.addEventListener('keydown', e => {
     if (C.cats.held) C.cats.drop();
     else { const c = C.cats.near(P.pos); if (c) { C.cats.pick(c); bubble(() => V(c.x, c.y + 0.5, c.z), C.cats.meow(c), 0.2, 2); } }
   }
-  else if (e.code === 'Space') { e.preventDefault(); if (!P.air && !e.repeat && !(P.down > 0)) { P.air = true; P.vy = 4.8; } }
+  else if (e.code === 'Space') { e.preventDefault(); if (P.seat) standUp(); else if (!P.air && !e.repeat && !(P.down > 0)) { P.air = true; P.vy = 4.8; } }
 });
 window.addEventListener('keyup', e => {
   run = e.shiftKey; keys.delete(e.code);

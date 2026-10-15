@@ -36,6 +36,7 @@ function build() {
   });
   for (const t of C.treeSpots) { const r = 0.3 * t[2]; addBox(t[0] - r, t[1] - r, t[0] + r, t[1] + r, 3, true); }
   for (const l of C.lampSpots) addBox(l[0] - 0.14, l[1] - 0.14, l[0] + 0.14, l[1] + 0.14, 3, true);
+  for (const b of C.benchSpots) { const al = Math.abs(Math.cos(b[2])) > 0.5, hw = al ? 0.92 : 0.3, hd = al ? 0.3 : 0.92; addBox(b[0] - hw, b[1] - hd, b[0] + hw, b[1] + hd, B + 0.5); }   // bank: üstüne basılır
   sig = C.buildings.length + ':' + (C.bver || 0);
 }
 function each(x, z, fn) {

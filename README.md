@@ -42,10 +42,11 @@ Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından s�
 | Kamera uzaklığı | Tekerlek |
 | Konuş / içeri gir / dışarı çık | E |
 | Kediyi sev / kucağına al, bırak | E / Q |
+| Banka otur / kalk | E (kalkmak için WASD da olur) |
 
-Binalardan, ağaçlardan, lambalardan ve araçlardan geçemezsin. Yolda durursan gelen araç fren yapar; ama birden önüne atlarsan çarpabilir: yere düşer, biraz sonra kalkarsın, ambulans ve polis gelir. Yanındaki birine E'ye basarsan sana döner ve cevap verir.
+Binalardan, ağaçlardan, lambalardan, banklardan ve araçlardan geçemezsin. Boş bir bankın yanında E ile oturursun. Yolda durursan gelen araç fren yapar; ama birden önüne atlarsan çarpabilir: yere düşer, biraz sonra kalkarsın, ambulans ve polis gelir. Yanındaki birine E'ye basarsan sana döner ve cevap verir.
 
-Sokaklarda ve parklarda kediler dolaşır, oturur, yalanır, kıvrılıp uyur. Yanına gidip E ile sevebilir (mırlar, kuyruğunu dikip gözlerini kapatır), Q ile kucağına alıp gezdirebilir, Q ile yere bırakabilirsin; bıraktığın yer artık onun mahallesidir.
+Sokaklarda ve parklarda kediler dolaşır, oturur, gerinir, yalanır, kıvrılıp uyur: sarman, smokin, beyaz, tekir, kara, üç renkli, gri, krem; her birinin bir adı var. Yanına gidip E ile sevebilirsin: mırlar, kuyruğunu diker, gözlerini kapatır, sonra bir süre peşine takılır. Q ile kucağına alıp gezdirir, Q ile bırakırsın; bıraktığın yer artık onun mahallesidir. Üstüne koşarak gidersen kaçar.
 
 Dükkânlara ve önemli yapılara girebilirsin: kafe ve çay ocağı, Ankara simidi, fırın, market, kırtasiye, eczane, optik, kuaför, kebapçı, çiçekçi, tamirci; Merkez Karakolu (nezarethanesiyle), hastanenin acil servisi ve itfaiye garajı. İçerideki herkesle konuşulabilir. Space ile zıplarsın.
 
@@ -96,7 +97,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 |---|---|---|
 | Şehir | 320 m'den uzak | Bina kütleleri, sokak ızgarası |
 | Mahalle | 130–320 m | Pencereler, ağaçlar, lambalar, yol çizgileri, trafik |
-| Sokak | 45–130 m | Dükkân tabelaları, tenteler, balkonlar, çatı donanımı, yayalar |
+| Sokak | 45–130 m | Dükkân tabelaları, tenteler, çatı donanımı, yayalar |
 | Göz hizası | 45 m'den yakın | Vitrinler, saat kulesi, her ayrıntı |
 
 ## Şehirde neler var?
@@ -144,7 +145,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/world.js` | Sahne, kamera, ışıklar, gökyüzü, gün/gece, yollar |
 | `js/terrain.js` | Vadi, dağlar, orman, akarsu, giriş-çıkış yolu ve tünel |
 | `js/people.js` | Eklemli insan modeli, pozlar, örnekli kalabalık |
-| `js/details.js` | Tabelalar, balkonlar, çatı donanımı, park, meydan, saat kulesi |
+| `js/details.js` | Tabelalar, çatı donanımı, park, meydan, saat kulesi |
 | `js/landmarks.js` | Hastane, itfaiye, karakol, stadyum |
 | `js/buildings.js` | Cepheler, parseller, binalar, ayrıntı kademesi |
 | `js/interiors.js` | Pencere arkasındaki odalar (shader), camın ardında gerçek odalar, kesit görünümü |

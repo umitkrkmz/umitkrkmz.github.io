@@ -1,4 +1,4 @@
-/* ===== details.js: tabelalar, çatı donanımı, balkonlar, parklar, saat kulesi ===== */
+/* ===== details.js: tabelalar, çatı donanımı, parklar, saat kulesi ===== */
 (function () {
 'use strict';
 if (!window.C || C.failed) return;
@@ -26,7 +26,7 @@ const shopMat = new THREE.MeshStandardMaterial({ color: C.col('#26323d'), roughn
 C.nightListeners.push(n => { signMats.forEach(m => m.emissiveIntensity = 0.1 + 0.9 * n); shopMat.emissiveIntensity = n * 1.1; });
 
 const awnMats = ['#b3402e', '#2f6f8f', '#d29a2d', '#3b7a57', '#6b4e8f'].map(h => std(h, 0.9));
-const acMat = std('#9a9ea3', 0.8), tankMat = std('#7d8b96', 0.7), slabMat = std('#d8d2c4'), railMat = std('#2b3036', 0.6);
+const acMat = std('#9a9ea3', 0.8), tankMat = std('#7d8b96', 0.7);
 const mastMat = std('#8d9298', 0.6), doorMat = std('#4a3a2c');
 C.blinkMat = new THREE.MeshBasicMaterial({ color: 0xff3b30, transparent: true, opacity: 1, fog: false });
 C.updaters.push((dt, t) => { C.blinkMat.opacity = Math.sin(t * 3) > 0 ? 1 : 0.25; });
@@ -127,26 +127,6 @@ C.buildDetail = function (b) {
     const ch = new THREE.Mesh(boxG, std('#7b6a5c')); ch.scale.set(0.7, 1.8, 0.7);
     ch.position.set(lot.cx + bt.w * 0.18, b.top - 1.0, lot.cz); ch.castShadow = true; g.add(ch);
   }
-  /* balkonlar */
-  if (b.type === 'mid' || b.type === 'low') {
-    const pts = [];
-    for (const f of faces) {
-      if (!f.out) continue;
-      const tx = -f.nz, tz = f.nx, n = Math.max(1, Math.floor(f.len / 7.2));
-      for (let fi = 1; fi < b.baseTier.f; fi++) for (let k = 0; k < n; k++) {
-        const off = (k - (n - 1) / 2) * 7.2;
-        pts.push([f.cx + tx * off, C.SW + fi * C.FLOOR_H + 0.05, f.cz + tz * off, f.nx, f.nz, f.ry]);
-      }
-    }
-    if (pts.length) {
-      const sl = C.inst(boxG, slabMat, pts.length), rl = C.inst(boxG, railMat, pts.length);
-      pts.forEach((p, i) => {
-        C.setM(sl, i, p[0] + p[3] * 0.55, p[1], p[2] + p[4] * 0.55, p[5], 2.6, 0.14, 1.1);
-        C.setM(rl, i, p[0] + p[3] * 1.05, p[1] + 0.5, p[2] + p[4] * 1.05, p[5], 2.6, 0.9, 0.06);
-      });
-      sl.instanceMatrix.needsUpdate = rl.instanceMatrix.needsUpdate = true; g.add(sl, rl);
-    }
-  }
   scene.add(g); b.detail = g;
 };
 
@@ -180,7 +160,12 @@ C.makePark = function (blk, rnd) {
     if (((x - px) / 8.5) ** 2 + ((z - pz) / 7) ** 2 < 1) continue;
     C.treeSpots.push([x, z, 1.0 + rnd() * 0.7]); placed++;
   }
-  for (const s of [-1, 1]) { C.benchSpots.push([bx + s * 9, bz + 2.4, 0]); C.benchSpots.push([bx + 2.4, bz + s * 9, Math.PI / 2]); }
+  /* yol kenarı banklar; göle düşen bank yolun öbür yanına geçer */
+  const wet = (x, z) => ((x - px) / 8.4) ** 2 + ((z - pz) / 6.9) ** 2 < 1;
+  for (const s of [-1, 1]) {
+    if (wet(bx + s * 9, bz + 2.4)) C.benchSpots.push([bx + s * 9, bz - 2.4, Math.PI]); else C.benchSpots.push([bx + s * 9, bz + 2.4, 0]);
+    if (wet(bx + 2.4, bz + s * 9)) C.benchSpots.push([bx - 2.4, bz + s * 9, -Math.PI / 2]); else C.benchSpots.push([bx + 2.4, bz + s * 9, Math.PI / 2]);
+  }
 };
 
 /* saat kulesi: dört yüzünde simüle edilen saati gösterir */

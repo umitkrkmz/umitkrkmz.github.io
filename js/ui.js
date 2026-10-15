@@ -256,7 +256,7 @@ function stepKeys(dt, D) {
 const LV = [
   ['Şehir', 'Bina kütleleri ve sokak ızgarası'],
   ['Mahalle', 'Pencereler, ağaçlar, lambalar, trafik'],
-  ['Sokak', 'Tabelalar, balkonlar, çatı donanımı, yayalar'],
+  ['Sokak', 'Tabelalar, tenteler, çatı donanımı, yayalar'],
   ['Göz hizası', 'Vitrinler, saat kulesi, her ayrıntı']
 ];
 const levelOf = D => D > 320 ? 0 : D > 130 ? 1 : D > 45 ? 2 : 3;
