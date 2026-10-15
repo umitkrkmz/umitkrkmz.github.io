@@ -80,15 +80,21 @@ function stats(C) {
   ] : [['17 × 17', 'blok'], ['964 m', 'şehir kenarı'], ['~1.250', 'araç'], ['0', 'derleme adımı']];
   return rows.map(([v, k]) => `<div><b>${esc(v)}</b><small>${esc(k)}</small></div>`).join('');
 }
-/* gündem: her gün aynı sırada karışık (tarihten tohum) */
-const day = Math.floor(Date.now() / 864e5), frac = x => x - Math.floor(x);
-const news = (P.news || []).map((n, i) => [n, frac(Math.sin(i * 12.9898 + day * 78.233) * 43758.5453)]).sort((a, b) => a[1] - b[1]).map(x => x[0]).slice(0, 6);
-$('cityNews').innerHTML = news.map(([h, t]) => `<article class="card"><div class="kicker">Gündem</div><h4>${esc(h)}</h4><p>${esc(t)}</p></article>`).join('');
+/* gündem: news.js güne, saate, havaya, olaylara ve maça göre seçer; değişmediyse sayfaya dokunmaz */
+let newsHtml = '';
+function renderNews(C, h) {
+  if (!window.MSNews) return;
+  const W = C && C.weather;
+  const items = MSNews.build({ kit: P.newsKit, gags: P.news, date: new Date(), hour: h, C, wx: (W && W.data) || wxd, pick: W && !W.live ? W.pick : null });
+  const html = items.map(n => `<article class="card"><div class="kicker">${esc(n.cat)} · ${esc(n.time)}</div><h4>${esc(n.title)}</h4><p>${esc(n.text)}</p></article>`).join('');
+  if (html !== newsHtml) { newsHtml = html; $('cityNews').innerHTML = html; }
+}
 $('cityHow').innerHTML = (P.how || []).map(([h, t]) => `<details class="card"><summary>${esc(h)}</summary><p>${esc(t)}</p></details>`).join('');
 function cityRender() {
   const C = city(), h = hourNow();
   $('cityNow').textContent = (C ? 'Canlı · ' : '') + new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }) + ' · ' + hm(h);
   $('cityWeather').innerHTML = weather(h, C); $('cityMatch').innerHTML = match(C); $('cityBreaking').innerHTML = breaking(C); $('cityStats').innerHTML = stats(C);
+  renderNews(C, h);
 }
 let cityT = null;
 if (window.MSWeather) MSWeather.load(d => { wxd = d; if (cityT) cityRender(); });   // önbellekteyse hemen döner

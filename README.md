@@ -38,7 +38,7 @@ Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", hava seçimi, trafik y
 - **Projeler:** kısa açıklamalar, GitHub'a bağlantı.
 - **Hakkımda:** birkaç cümle.
 - **İletişim:** GitHub, LinkedIn, e-posta.
-- **Ankara Haber:** şehrin canlı hâli: hava durumu, stattaki maçın skoru ya da son sonucu, son dakika olaylar (yangın, kaza, hırsızlık), uydurma gündem haberleri, şehir rakamları ve "Bu şehir nasıl yapıldı".
+- **Ankara Haber:** şehrin canlı hâli: hava durumu, stattaki maçın skoru ya da son sonucu, son dakika olaylar (yangın, kaza, hırsızlık), güne özgü gündem (o anki havaya, şehirde olan yangın ve kazalara, maç sonucuna, saate, haftanın gününe, özel günlere ve mevsime göre yazılan haberler; her gün ve her üç saatte bir başka seçki, araya şaka haberler), şehir rakamları ve "Bu şehir nasıl yapıldı".
 
 
 - Sağ üstteki **Portfolyo** düğmesi telefonu her an doğrudan açar; `#telefon` ile biten bağlantı da açar.
