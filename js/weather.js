@@ -232,9 +232,11 @@ function update(dt, t, D) {
 C.updaters.push(update);
 
 /* ---------- veri: açılışta ve 5 dakikada bir (önbellek 15 dakikadan eskiyse ağa çıkar) ---------- */
+let retries = 0;
 function use(d) {
   const first = !W.data && W.live;
   if (d) { W.data = d; W.status = 'ok'; } else if (!W.data) W.status = 'off';
+  if (!d && !W.data && retries < 3 && window.MSWeather) { retries++; setTimeout(() => MSWeather.load(use), 20e3); }   // ilk istek düştüyse (ör. 503) kısa aralıkla yeniden dene
   if (first && d) W.snap = true;                                       // açılışta geçiş beklemeden
   setWind(); ui();
 }
