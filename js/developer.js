@@ -36,7 +36,7 @@ let open = false;
 function openPhone() {
   if (open || !phone) return;
   open = true;
-  if (!frame.getAttribute('src')) frame.setAttribute('src', 'portfolio/?embed=1');
+  if (!frame.getAttribute('src')) frame.setAttribute('src', 'portfolio/index.html?embed=1');   // dosya adıyla: file:// ile açınca da yüklensin
   if (document.pointerLockElement) document.exitPointerLock();
   phone.hidden = false; btn.hidden = true; document.body.classList.add('phone-open');
   setTimeout(() => phone.classList.add('open'), 20);          // önce görünür olsun, sonra kaysın
@@ -45,17 +45,25 @@ function openPhone() {
 function closePhone() {
   if (!open) return;
   open = false; phone.classList.remove('open'); document.body.classList.remove('phone-open'); btn.hidden = false;
+  if (frame.contentWindow) frame.contentWindow.postMessage({ type: 'phone-home' }, '*');   // bir dahaki açılışta ana ekran
+  setFull(false);
   setTimeout(() => { if (!open) phone.hidden = true; }, 380);
   if (/^#(telefon|portfolyo)$/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search);   // aynı bağlantı yeniden açabilsin
   if (D.st === 'meet') { D.st = 'stand'; D.t = 2.5; }         // telefonu cebine koyup yürümeye döner
 }
-C.phone = { open: openPhone, close: closePhone, get isOpen() { return open; } };
+/* tam ekran: uygulama açılınca telefon büyür (GTA'daki internet sitesi gibi), ana ekranda telefon boyu; düğmeyle elle de */
+function setFull(on) { phone.classList.toggle('full', on); const b = $('phoneFull'); if (b) { b.setAttribute('aria-pressed', on); b.textContent = on ? '⤡' : '⤢'; b.setAttribute('aria-label', on ? 'Telefon boyuna dön' : 'Tam ekran'); } }
+C.phone = { open: openPhone, close: closePhone, full: setFull, get isOpen() { return open; } };
 if (phone) {
   $('phoneClose').addEventListener('click', closePhone);
   btn.addEventListener('click', openPhone);
   /* telefon açıkken tuşlar şehre gitmez; Esc kapatır */
   window.addEventListener('keydown', e => { if (!open) return; if (e.code === 'Escape') closePhone(); e.stopImmediatePropagation(); }, true);
-  window.addEventListener('message', e => { if (e.origin === location.origin && e.data && e.data.type === 'phone-close') closePhone(); });
+  window.addEventListener('message', e => {                      // yalnızca kendi telefonumuzdan
+    if (e.source !== frame.contentWindow || !e.data) return;
+    if (e.data.type === 'phone-close') closePhone(); else if (e.data.type === 'phone-mode') setFull(!!e.data.full);
+  });
+  $('phoneFull').addEventListener('click', () => setFull(!phone.classList.contains('full')));
   const fromHash = () => { if (/^#(telefon|portfolyo)$/.test(location.hash)) openPhone(); };
   window.addEventListener('hashchange', fromHash); setTimeout(fromHash, 400);
 }

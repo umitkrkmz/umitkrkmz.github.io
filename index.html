@@ -168,6 +168,11 @@ body.playing .stack .card, body.playing .feed { display: none; }
 body.playing .phone-btn { top: auto; bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
 .phone { position: fixed; right: 28px; bottom: 24px; z-index: 40; width: 372px; height: min(760px, calc(100vh - 48px)); transform: translateY(calc(100% + 40px)); transition: transform .36s cubic-bezier(.2, .8, .2, 1); }
 .phone.open { transform: none; }
+.phone.full { right: 3vw; bottom: 3vh; width: 94vw; height: 94vh; transition: transform .36s cubic-bezier(.2, .8, .2, 1), width .32s cubic-bezier(.2, .8, .2, 1), height .32s cubic-bezier(.2, .8, .2, 1), right .32s, bottom .32s; }
+.phone.full .phone-frame { border-radius: 18px; padding: 6px; }
+.phone.full .phone-bar { display: none; }
+.phone.full iframe { border-radius: 13px; }
+.phone-full { right: 34px; font-size: 18px; }
 .phone-frame { position: absolute; inset: 0; border-radius: 46px; background: #0b0d10; padding: 12px; box-shadow: 0 0 0 2px #2b3036, 0 24px 60px rgba(0,0,0,.45); display: flex; flex-direction: column; overflow: hidden; }
 .phone-bar { display: flex; align-items: center; justify-content: space-between; height: 30px; padding: 0 22px; color: #f2f2ee; font: 600 13px var(--f-body); flex: none; }
 .phone-notch { width: 96px; height: 24px; border-radius: 14px; background: #000; }
@@ -185,6 +190,10 @@ body.phone-open .phone-btn { display: none; }
   .phone-bar { display: none; }
   .phone iframe { border-radius: 0; }
   .phone-close { top: max(10px, env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); background: rgba(16,22,28,.75); color: #f2f2ee; border-color: rgba(255,255,255,.25); }
+  .phone.full { inset: 0; width: auto; height: auto; }
+  .phone.full .phone-frame { border-radius: 0; padding: 0; }
+  .phone.full iframe { border-radius: 0; }
+  .phone-full { display: none; }   /* telefonda zaten tam ekran */
 }
 @media (prefers-reduced-motion: reduce) { .phone { transition: none; } }
 #xhair { position: fixed; left: 50%; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; pointer-events: none;
@@ -283,6 +292,7 @@ body.phone-open .phone-btn { display: none; }
     <iframe id="phoneFrame" title="Portfolyo"></iframe>
   </div>
   <button id="phoneClose" class="phone-close" aria-label="Telefonu kapat">×</button>
+  <button id="phoneFull" class="phone-close phone-full" aria-label="Tam ekran" aria-pressed="false">⤢</button>
 </div>
 <div id="heroTask" class="hero-task" hidden><span class="arrow" aria-hidden="true">↑</span><span class="txt"></span></div>
 <div id="heroMsg" class="hero-msg" hidden aria-live="polite"></div>

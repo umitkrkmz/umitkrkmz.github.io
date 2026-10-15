@@ -192,11 +192,13 @@ function makeThief() {
 
 /* ---------- olaylar ---------- */
 const active = [], log = [];
-C.activeEvents = active;                                      // sürmekte olan olaylar (deneme ve dış kullanım için)
+C.activeEvents = active; C.eventLog = log;                    // son olaylar (telefondaki haber uygulaması da okur)
+C.cityStats = { fire: 0, accident: 0, crime: 0, pedestrian: 0, hero: 0 };   // bugüne kadar kaç olay oldu                                      // sürmekte olan olaylar (deneme ve dış kullanım için)
 let nextId = 1;
 const near = (x, z) => { const t = C.controls ? C.controls.target : { x: 0, z: 0 }; return Math.hypot(x - t.x, z - t.z); };
 const prefer = list => { const close = list.filter(o => near(o.x, o.z) < 260); return pick(close.length && Math.random() < 0.7 ? close : list); };
 function addEvent(ev) {
+  C.cityStats[ev.type] = (C.cityStats[ev.type] || 0) + 1;
   ev.id = nextId++; ev.time = clock(); ev.done = false; ev.age = 0; active.push(ev); log.unshift(ev);
   if (log.length > 6) log.length = 6;
   renderFeed(ev.id);
@@ -337,7 +339,7 @@ function startCrime() {
     heroComing() { setStatus(this, 'Polis ve Pijamalı Çocuk yolda'); },
     heroCatch() {
       if (this.th.caught) return;
-      this.th.caught = 0.001; this.th.webbed = true; part(this.th.g, cocoonMat, 0.62, 1.55, 0.66, 0, 0.95, 0);
+      this.th.caught = 0.001; this.th.webbed = true; C.cityStats.hero++; part(this.th.g, cocoonMat, 0.62, 1.55, 0.66, 0, 0.95, 0);
       setStatus(this, this.pol && this.pol.state === 'scene' ? 'Polis teslim aldı ✓' : 'Pijamalı Çocuk yakaladı 🕸', this.pol && this.pol.state === 'scene');
     },
     view() {

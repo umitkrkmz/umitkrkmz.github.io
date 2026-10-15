@@ -33,7 +33,13 @@ Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, g�
 
 ## Portfolyo telefonu 📱
 
-Şehirde bir geliştirici dolaşıyor: koyu kapüşonlu, sırtında laptop çantası, meydanın doğusundaki kaldırımda. Kontrol panelindeki **Beni bul** kamerayı onun önüne indirir; el sallar, cebinden telefonunu çıkarır ve telefon ekranda açılır. Telefonun içi portfolyodur: projeler, hakkımda, iletişim ve "Bu şehir nasıl yapıldı". Kilit ekranındaki saat şehrin saatidir.
+Şehirde bir geliştirici dolaşıyor: koyu kapüşonlu, sırtında laptop çantası, meydanın doğusundaki kaldırımda. Kontrol panelindeki **Beni bul** kamerayı onun önüne indirir; el sallar, cebinden telefonunu çıkarır ve telefon ekranda açılır. Telefonun içi portfolyodur; kilit ekranındaki saat şehrin saatidir. Bir uygulama açılınca, GTA'daki internet siteleri gibi telefon tam ekrana büyür, ana ekrana dönünce küçülür (sağ üstteki ⤢ ile elle de).
+
+- **Projeler:** kısa açıklamalar, GitHub'a bağlantı.
+- **Hakkımda:** birkaç cümle.
+- **İletişim:** GitHub, LinkedIn, e-posta.
+- **Şehir Haber:** şehrin canlı hâli: hava durumu, stattaki maçın skoru ya da son sonucu, son dakika olaylar (yangın, kaza, hırsızlık), uydurma gündem haberleri, şehir rakamları ve "Bu şehir nasıl yapıldı".
+
 
 - Sağ üstteki **Portfolyo** düğmesi telefonu her an doğrudan açar; `#telefon` ile biten bağlantı da açar.
 - Sağ üstteki X ya da Esc kapatır. Telefon boyunda ekranda tam ekran açılır.

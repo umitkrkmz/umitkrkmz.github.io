@@ -153,7 +153,7 @@ function stepMatch(dt) {
   if (M.ph === 'play') {
     const m0 = M.min; M.min += dt / MATCH_S * 90;
     if (m0 < 45 && M.min >= 45 && M.half === 1) { M.ph = 'half'; M.wait = 8; holder = null; bv.x = bv.z = 0; }
-    if (M.min >= 90) { M.min = 90; M.ph = 'end'; M.wait = 25; holder = null; bv.x = bv.z = 0; }
+    if (M.min >= 90) { M.min = 90; M.ph = 'end'; M.wait = 25; holder = null; bv.x = bv.z = 0; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice() }; }   // son maç sonucu (telefondaki haberler)
     if (Math.floor(m0) !== Math.floor(M.min)) drawBoard();
   }
   stepPlayers(dt); if (M.ph === 'play' || M.ph === 'kick') stepBall(dt);
