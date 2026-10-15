@@ -110,6 +110,11 @@ h1 { margin: 0; font: 800 30px/1 var(--f-display); letter-spacing: .06em; text-t
 input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
 .check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 .check input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.hour-r { display: flex; align-items: center; gap: 8px; }
+.btn.tiny { min-height: 24px; padding: 3px 8px; font-size: 10.5px; }
+.btn.tiny.on { color: #1f9d55; border-color: currentColor; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.tiny.on { color: #5ee08f; } }
+:root[data-theme="dark"] .btn.tiny.on { color: #5ee08f; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .row2 .wide { grid-column: 1 / -1; }
 .opts { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -248,7 +253,7 @@ body.phone-open .phone-btn { display: none; }
     </button>
     <div class="dock-body" id="dockBody">
       <div class="field">
-        <div class="field-top"><label for="hour">Saat</label><output id="hourOut" for="hour">16:30</output></div>
+        <div class="field-top"><label for="hour">Saat</label><span class="hour-r"><button class="btn tiny on" id="nowBtn" aria-pressed="true" title="Gerçek Türkiye saati (GMT+3)">● Canlı</button><output id="hourOut" for="hour">16:30</output></span></div>
         <input type="range" id="hour" min="0" max="24" step="0.05" value="16.5">
       </div>
       <div class="field">

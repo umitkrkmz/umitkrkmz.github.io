@@ -144,8 +144,14 @@ P.exit = function () {
 const pp = {};
 function draw(t) {
   const sp = Math.hypot(P.vel.x, P.vel.z);
-  const pose = P.seat ? C.pose(Math.sin(t * 0.2) > 0.75 ? 'drink' : 'sit', t, pp) : P.down > 0 ? C.pose(P.down > 0.7 ? 'lie' : 'kneel', t, pp) : P.petT > 0 ? C.pose('pet', t, pp) : P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
+  const eat = P.hold && /^(tea|coffee|ayran|simit|pogaca|cake|durum)$/.test(P.hold.kind);
+  const pose = P.seat ? C.pose(eat || Math.sin(t * 0.2) > 0.75 ? 'drink' : 'sit', t, pp) : P.down > 0 ? C.pose(P.down > 0.7 ? 'lie' : 'kneel', t, pp) : P.petT > 0 ? C.pose('pet', t, pp) : P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
   if (C.cats && C.cats.held && !(P.down > 0)) { pose.sh = [0.62, 0.62]; pose.el = [1.05, 1.05]; pose.ab = [0.02, 0.02]; }   // kucakta kedi
+  else if (P.hold && !P.seat && !(P.down > 0)) {                       // elde: bardak, simit önde; poşet, sepet yanda sarkar
+    if (P.hold.kind === 'bag' || P.hold.kind === 'basket') { pose.sh[1] = 0.04; pose.el[1] = 0.12; pose.ab[1] = 0.16; }
+    else { pose.sh[1] = 0.55; pose.el[1] = 1.35; pose.ab[1] = 0.12; }
+  }
+  P.lastPose = pose;                                                   // venues.js elin yerini bundan bulur
   P.crowd.set(0, P.pos.x, P.pos.y, P.pos.z, P.face, pose); P.crowd.commit();
 }
 /* tuşlardan bakış yönüne göre istenen hareket (kahraman modu da kullanır) */
@@ -237,8 +243,9 @@ function updatePrompt() {
     text = C.cats.held ? 'E: Sev · Q: Yere bırak' : 'E: Kediyi sev (' + C.cats.describe(prompt.c) + ') · Q: Kucağına al';
   }
   else if (P.indoor) {
-    const p = nearestPerson();
+    const p = nearestPerson(), a = C.venues.actionNear();
     if (C.venues.exitNear()) { prompt = { kind: 'exit' }; text = 'E: Dışarı çık'; }
+    else if (a && (!p || a.d < Math.hypot(px(p) - P.pos.x, pz(p) - P.pos.z) + 0.3)) { prompt = { kind: 'venue', a }; text = a.label(); }   // al, öde, otur
     else if (p) { prompt = { kind: 'talk', p }; text = 'E: Konuş'; }
   }
   else {
@@ -265,7 +272,9 @@ function standUp() {
 function act() {
   if (!prompt) return;
   if (prompt.kind === 'talk') {
-    const p = prompt.p, hero = P.mode === 'hero', lines = P.indoor && p.talk ? p.talk : hero ? FAN : LINES; talkT = 1.4;
+    const p = prompt.p, hero = P.mode === 'hero', flowers = P.hold && P.hold.kind === 'flowers';
+    const lines = flowers ? ['Bunlar benim için mi? Çok naziksiniz!', 'Ay ne güzel çiçekler, teşekkür ederim!'] : P.indoor && p.talk ? p.talk : hero ? FAN : LINES; talkT = 1.4;
+    if (flowers) P.hold = null;                                       // buketi verdin
     if (P.indoor) p.talk_t = 5; else p.talk = 5.5;
     P.face = Math.atan2(-(pz(p) - P.pos.z), px(p) - P.pos.x);
     const hl = hero ? HERO_HELLO : HELLO;
@@ -275,7 +284,8 @@ function act() {
     const c = C.cats.pet(prompt.c);
     if (!C.cats.held) { P.petT = 2.6; P.vel.set(0, 0, 0); P.face = Math.atan2(-(c.z - P.pos.z), c.x - P.pos.x); }
     bubble(() => V(c.x, c.y + 0.7, c.z), 'Mırr… ♥', 0.3, 2.6);
-  } else if (prompt.kind === 'sit') {
+  } else if (prompt.kind === 'venue') C.venues.act(prompt.a);
+  else if (prompt.kind === 'sit') {
     const s = prompt.seat; s.player = true; s.on = false; P.seat = s;
     P.pos.set(s.x, C.SW, s.z); P.vel.set(0, 0, 0); P.face = s.ry; P.air = false;
   } else if (prompt.kind === 'stand') standUp();

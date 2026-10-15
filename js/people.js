@@ -165,6 +165,15 @@ C.Crowd.prototype.set = function (i, x, y, z, ry, p, scale) {
   joint(mt, m0, 0, 0.9, -0.095, p.hip[1]); M.thighR.setMatrixAt(i, mt);
   joint(mk, mt, 0, -0.45, 0, p.knee[1]); M.shinR.setMatrixAt(i, mk);
 };
+/* elin dünyadaki yeri (set ile aynı eklem zinciri): side 0 ya da 1 (1: sağ el, -z yanı); elde taşınan şeyler için */
+const hm0 = new M4(), hmp = new M4(), hms = new M4(), hme = new M4(), hv = new THREE.Vector3();
+C.handOf = function (x, y, z, ry, p, side, out) {
+  hm0.makeTranslation(x, y + p.y, z); hm0.multiply(R.makeRotationY(ry)); if (p.roll) hm0.multiply(R.makeRotationZ(p.roll));
+  joint(hmp, hm0, 0, 0.9, 0, p.lean, 0, p.twist);
+  joint(hms, hmp, 0, 0.47, side ? -0.205 : 0.205, p.sh[side], side ? p.ab[side] : -p.ab[side]);
+  joint(hme, hms, 0, -0.31, 0, p.el[side]);
+  return (out || hv).set(0, -0.27, 0).applyMatrix4(hme);
+};
 C.Crowd.prototype.commit = function () { for (const k of PARTS) this.mesh[k].instanceMatrix.needsUpdate = true; };
 /* sıkıştırılmış çizim: begin(); her görünen için put(kişi, ...); end(). Gizli kişiler hiç işlenmez (count küçülür). */
 C.Crowd.prototype.begin = function () { this.n = 0; };

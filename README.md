@@ -52,6 +52,7 @@ Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından s�
 | Ne | Tuş |
 |---|---|
 | Yürü / koş / zıpla | WASD veya yön tuşları, Shift ile koş, Space ile zıpla |
+| Saat | Varsayılan gerçek Türkiye saati (GMT+3); kaydırıcı elle, "Günü ilerlet" hızlı, "● Canlı" gerçeğe döner |
 | Etrafa bak | Sahneye tıkla, imleç kilitlenir; fareyle bak (Esc bırakır) |
 | Kamera uzaklığı | Tekerlek |
 | Konuş / içeri gir / dışarı çık | E |
@@ -61,6 +62,8 @@ Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından s�
 Binalardan, ağaçlardan, lambalardan, banklardan ve araçlardan geçemezsin. Boş bir bankın yanında E ile oturursun. Yolda durursan gelen araç fren yapar; ama birden önüne atlarsan çarpabilir: yere düşer, biraz sonra kalkarsın, ambulans ve polis gelir. Yanındaki birine E'ye basarsan sana döner ve cevap verir.
 
 Sokaklarda ve parklarda kediler dolaşır, oturur, gerinir, yalanır, kıvrılıp uyur: sarman, smokin, beyaz, tekir, kara, üç renkli, gri, krem; her birinin bir adı var. Yanına gidip E ile sevebilirsin: mırlar, kuyruğunu diker, gözlerini kapatır, sonra bir süre peşine takılır. Q ile kucağına alıp gezdirir, Q ile bırakırsın; bıraktığın yer artık onun mahallesidir. Üstüne koşarak gidersen kaçar.
+
+İçeride cüzdanınla (300 ₺) alışveriş yaparsın: çay ocağında çay, simit, Türk kahvesi; kafede kahve, kek; simitçide simit ve poğaça; fırında ekmek; kebapçıda dürüm ve ayran; eczanede vitamin; çiçekçide buket (yoldaki birine E ile verebilirsin). Aldığın şey elinde durur; boş bir sandalyeye oturunca keyifle yer ya da içersin. Markette raflardan sepete ürün ekler, kasada ödersin, poşetle çıkarsın. Kuaförde tıraş olursun, karakolda şikâyet bildirir, "Aranıyor" ve "Kayıp kedi" ilanlarına bakarsın, hastanede sıra numarası alırsın.
 
 Dükkânlara ve önemli yapılara girebilirsin: kafe ve çay ocağı, Ankara simidi, fırın, market, kırtasiye, eczane, optik, kuaför, kebapçı, çiçekçi, tamirci; Merkez Karakolu (nezarethanesiyle), hastanenin acil servisi ve itfaiye garajı. İçerideki herkesle konuşulabilir. Space ile zıplarsın.
 

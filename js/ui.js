@@ -9,6 +9,9 @@ const fmt = new Intl.NumberFormat('tr-TR');
 /* ---------- dünyayı kur ---------- */
 C.genBlocks(); C.buildStreet(); C.populate(2026); C.setDensity(0.5); C.buildPeople(); C.refreshPickables();
 C.playing = false; C.dayRate = 0.25;
+/* saat: varsayılan gerçek Türkiye saati (GMT+3, yaz saati yok); kaydırıcıyla elle, "Günü ilerlet" ile hızlı, "Canlı" ile gerçeğe döner */
+C.trHour = () => ((Date.now() / 3.6e6 + 3) % 24 + 24) % 24;
+C.liveClock = true; C.hour = C.trHour();
 
 /* ---------- kamera ---------- */
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -217,8 +220,16 @@ function setHour(h) {
   $('hour').value = h.toFixed(2);
   $('hourOut').textContent = String(Math.floor(h)).padStart(2, '0') + ':' + String(Math.floor((h % 1) * 60)).padStart(2, '0');
 }
-$('hour').addEventListener('input', e => setHour(parseFloat(e.target.value)));
-$('playBtn').addEventListener('click', e => { C.playing = !C.playing; e.currentTarget.textContent = C.playing ? 'Durdur' : 'Günü ilerlet'; e.currentTarget.setAttribute('aria-pressed', C.playing); });
+function setLive(on) {
+  C.liveClock = on; if (on) { setPlaying(false); setHour(C.trHour()); }
+  const b = $('nowBtn'); b.setAttribute('aria-pressed', on); b.classList.toggle('on', on); b.textContent = on ? '● Canlı' : 'Şimdi';
+  b.title = on ? 'Gerçek Türkiye saati (GMT+3)' : 'Gerçek saate dön';
+}
+function setPlaying(on) { C.playing = on; const b = $('playBtn'); b.textContent = on ? 'Durdur' : 'Günü ilerlet'; b.setAttribute('aria-pressed', on); }
+C.setLiveClock = setLive;
+$('hour').addEventListener('input', e => { setLive(false); setHour(parseFloat(e.target.value)); });
+$('playBtn').addEventListener('click', () => { const on = !C.playing; if (on) setLive(false); setPlaying(on); });
+$('nowBtn').addEventListener('click', () => setLive(true));
 $('traffic').addEventListener('input', e => { C.setDensity(parseInt(e.target.value, 10) / 100); $('trafficOut').textContent = e.target.value + '%'; });
 const coarse = window.matchMedia('(pointer:coarse)').matches || window.innerWidth < 720;
 $('shadowChk').checked = !coarse; sun.castShadow = !coarse;
@@ -300,6 +311,7 @@ function loop(now) {
   const near = C.clamp(0.4 + 0.012 * D, C.player && C.player.active ? 0.08 : 0.4, 7);   // oyunda yakın çekimde baş kesilmesin
   if (Math.abs(near - camera.near) > 0.05) { camera.near = near; camera.updateProjectionMatrix(); }
   if (C.playing) setHour((C.hour + dt * C.dayRate) % 24);
+  else if (C.liveClock && frameN % 30 === 0) setHour(C.trHour());   // gerçek saat: yarım saniyede bir
   const on1 = level >= 1, on2 = level >= 2;
   C.markings.visible = on1;
   for (const m of C.streetLayers) m.visible = on1;
