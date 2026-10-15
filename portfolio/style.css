@@ -30,7 +30,11 @@ body.embed { background: var(--bg); }
 body.embed .device { max-width: none; }
 .enter-city { position: fixed; top: max(12px, env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 5; padding: 7px 14px; border-radius: 999px;
   background: var(--accent); color: var(--accent-fg); font: 800 15px var(--f-display); letter-spacing: .06em; text-transform: uppercase; text-decoration: none; }
-body.embed .enter-city, body.full .enter-city { display: none; }
+body.embed .enter-city { display: none; }
+/* tek başınayken tam ekran düğmesi (şehirde telefonun kendi düğmesi var) */
+.full-btn { position: fixed; top: max(12px, env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); z-index: 6; width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--line); background: rgba(16, 22, 28, .8); color: var(--fg); font-size: 18px; cursor: pointer; display: none; place-items: center; }
+@media (min-width: 720px) and (min-height: 700px) { body:not(.embed) .full-btn { display: grid; } }
 
 .screen { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 1; }
 

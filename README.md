@@ -33,7 +33,7 @@ Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, g�
 
 ## Portfolyo telefonu 📱
 
-Şehirde bir geliştirici dolaşıyor: koyu kapüşonlu, sırtında laptop çantası, meydanın doğusundaki kaldırımda. Kontrol panelindeki **Beni bul** kamerayı onun önüne indirir; el sallar, cebinden telefonunu çıkarır ve telefon ekranda açılır. Telefonun içi portfolyodur; kilit ekranındaki saat şehrin saatidir. Bir uygulama açılınca, GTA'daki internet siteleri gibi telefon tam ekrana büyür, ana ekrana dönünce küçülür (sağ üstteki ⤢ ile elle de).
+Şehirde bir geliştirici dolaşıyor: koyu kapüşonlu, sırtında laptop çantası, meydanın doğusundaki kaldırımda. Kontrol panelindeki **Beni bul** kamerayı onun önüne indirir; el sallar, cebinden telefonunu çıkarır ve telefon ekranda açılır. Telefonun içi portfolyodur; kilit ekranındaki saat şehrin saatidir. Sağ üstteki ⤢ düğmesi telefonu GTA'daki internet siteleri gibi tam ekrana büyütür, ⤡ geri küçültür.
 
 - **Projeler:** kısa açıklamalar, GitHub'a bağlantı.
 - **Hakkımda:** birkaç cümle.

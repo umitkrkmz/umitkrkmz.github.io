@@ -84,20 +84,21 @@ function cityRender() {
 }
 let cityT = null;
 
-/* ---------- gezinme: uygulama açılınca tam ekran, geri ya da Esc ana ekrana ve telefon boyuna döner ---------- */
+/* ---------- gezinme: uygulama açılır, geri ya da Esc ana ekrana döner. Tam ekran yalnızca elle (şehirde telefonun ⤢ düğmesi, tek başınayken sayfadaki düğme) ---------- */
 let current = null, opener = null;
-function setFull(on) { document.body.classList.toggle('full', on); tell({ type: 'phone-mode', full: on }); }
+function setFull(on) { document.body.classList.toggle('full', on); const b = $('fullBtn'); if (b) { b.textContent = on ? '⤡' : '⤢'; b.setAttribute('aria-pressed', on); b.setAttribute('aria-label', on ? 'Telefon boyuna dön' : 'Tam ekran'); } }
+if ($('fullBtn')) $('fullBtn').addEventListener('click', () => setFull(!document.body.classList.contains('full')));
 function show(id) {
   const v = $(id); if (!v) return;
   if (current) current.hidden = true;
-  opener = opener || document.activeElement; current = v; v.hidden = false; setFull(true);
+  opener = opener || document.activeElement; current = v; v.hidden = false;
   v.querySelector('.back').focus({ preventScroll: true });          // kayarken odaklanınca kap kaydırılmasın
   history.replaceState(null, '', '#' + id);
   clearInterval(cityT); if (id === 'city') { cityRender(); cityT = setInterval(cityRender, 2000); }
 }
 function home() {
   if (!current) return false;
-  current.hidden = true; current = null; setFull(false); clearInterval(cityT);
+  current.hidden = true; current = null; clearInterval(cityT);
   history.replaceState(null, '', location.pathname + location.search);
   if (opener && opener.focus) opener.focus({ preventScroll: true }); opener = null;
   return true;

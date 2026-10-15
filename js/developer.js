@@ -51,7 +51,7 @@ function closePhone() {
   if (/^#(telefon|portfolyo)$/.test(location.hash)) history.replaceState(null, '', location.pathname + location.search);   // aynı bağlantı yeniden açabilsin
   if (D.st === 'meet') { D.st = 'stand'; D.t = 2.5; }         // telefonu cebine koyup yürümeye döner
 }
-/* tam ekran: uygulama açılınca telefon büyür (GTA'daki internet sitesi gibi), ana ekranda telefon boyu; düğmeyle elle de */
+/* tam ekran: yalnızca elle, X'in yanındaki ⤢ düğmesiyle (GTA'daki internet sitesi gibi); kapanınca telefon boyuna döner */
 function setFull(on) { phone.classList.toggle('full', on); const b = $('phoneFull'); if (b) { b.setAttribute('aria-pressed', on); b.textContent = on ? '⤡' : '⤢'; b.setAttribute('aria-label', on ? 'Telefon boyuna dön' : 'Tam ekran'); } }
 C.phone = { open: openPhone, close: closePhone, full: setFull, get isOpen() { return open; } };
 if (phone) {
@@ -61,7 +61,7 @@ if (phone) {
   window.addEventListener('keydown', e => { if (!open) return; if (e.code === 'Escape') closePhone(); e.stopImmediatePropagation(); }, true);
   window.addEventListener('message', e => {                      // yalnızca kendi telefonumuzdan
     if (e.source !== frame.contentWindow || !e.data) return;
-    if (e.data.type === 'phone-close') closePhone(); else if (e.data.type === 'phone-mode') setFull(!!e.data.full);
+    if (e.data.type === 'phone-close') closePhone();
   });
   $('phoneFull').addEventListener('click', () => setFull(!phone.classList.contains('full')));
   const fromHash = () => { if (/^#(telefon|portfolyo)$/.test(location.hash)) openPhone(); };
