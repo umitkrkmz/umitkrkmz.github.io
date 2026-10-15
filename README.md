@@ -4,6 +4,13 @@
 
 **Live:** https://umitkrkmz.github.io
 
+[![Mikro Şehir: the developer waves with the portfolio phone open, in a park in Ankara](media/cover.jpg)](https://umitkrkmz.github.io)
+
+| | |
+|---|---|
+| ![Towers of Söğütözü and Kızılay at dusk](media/dusk.jpg) | ![The same skyline at night with lit windows](media/night.jpg) |
+| ![A rainy night street with wet asphalt and headlights](media/rain.jpg) | ![The city under snow](media/snow.jpg) |
+
 Zoom from a bird's-eye view down to the street. The city runs on real Turkey time and Ankara's live weather. There is traffic, emergencies, street cats, a football match in real time, shops you can walk into, and a kid in pajamas swinging between rooftops. Press **Find me** to meet the developer and open the phone.
 
 ## What it is

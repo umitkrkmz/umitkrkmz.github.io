@@ -14,7 +14,7 @@ L.add({
   'Bugün': 'Today', 'Yarın': 'Tomorrow', 'Maç günü': 'Match day', "Maçlar her gün 13:30 ve 19:00'da. Şehrin içinden açınca skor canlı görünür.": 'Matches every day at 13:30 and 19:00. Open the phone inside the city to see the live score.',
   'Devre arası': 'Half-time', 'Maç sonu': 'Full time', 'Sıradaki maç': 'Next match', 'Son maç': 'Last match', 'Semt takımları karşı karşıya. Tribünler şimdiden doluyor.': 'District teams go head to head. The stands are already filling up.',
   'Son dakika haberleri şehrin içinden açınca görünür.': 'Breaking news appears when you open the phone inside the city.', 'Şimdilik sakin. Şehirde bir şey olunca ilk burada.': "Quiet for now. When something happens in the city, you'll see it here first.",
-  'yoldaki araç': 'cars on the road', 'kaldırımdaki yaya': 'people on the pavement', 'sokak kedisi': 'street cats', 'Pijamalı Çocuğun yakaladığı': 'thieves caught by Pajama Kid',
+  'yoldaki araç': 'cars on the road', 'kaldırımdaki yaya': 'people on the pavement', 'sokak kedisi': 'street cats', 'Pijamalı Çocuğun yakaladığı': 'thieves caught by Underoos',
   'blok': 'blocks', 'şehir kenarı': 'city width', 'araç': 'cars', 'derleme adımı': 'build steps', '3B Ankara': '3D Ankara', 'şimdi': 'now', 'Ankara Stadı': 'Ankara Stadium',
   'Asayiş': 'Police', 'Trafik': 'Traffic', 'Spor': 'Sports', 'Kent': 'City', 'Kediler': 'Cats',
   /* kişi */
@@ -62,7 +62,7 @@ L.add({
   /* şaka haberler */
   'Kedi meclisi toplandı': 'The cat council has met', 'Gündem mama kabı krizi. Reis "Bu böyle gitmez" dedi, oylama ertelendi.': 'On the agenda: the food bowl crisis. Reis said "this can\'t go on"; the vote was postponed.',
   'Saat kulesi yine beş dakika ileri': 'The clock tower is five minutes fast again', 'Belediye "kule kendi kafasına göre" açıklaması yaptı.': 'The council issued a statement: "the tower does as it pleases."',
-  'Pijamalı Çocuk kimdir?': 'Who is Pajama Kid?', 'Çatılarda görülen maskeli gencin kimliği hâlâ belirsiz. Komşular pijamasından tanıdığını söylüyor.': 'The masked youth seen on the rooftops is still unidentified. Neighbours say they recognise the pajamas.',
+  'Pijamalı Çocuk kimdir?': 'Who is Underoos?', 'Çatılarda görülen maskeli gencin kimliği hâlâ belirsiz. Komşular pijamasından tanıdığını söylüyor.': 'The masked youth seen on the rooftops is still unidentified. Neighbours say they recognise the pajamas.',
   'Tünel yolunda bayram havası': 'Holiday rush on the tunnel road', 'Şehre giren araç sayısı rekor kırdı; dağdaki tünel çıkışında kuyruk oluştu.': 'A record number of cars entered the city; traffic backed up at the mountain tunnel exit.',
   'Ördekler gölü paylaşamıyor': "The ducks can't share the pond", 'Parktaki üç ördek arasında nilüfer anlaşmazlığı büyüyor.': 'A water lily dispute is growing between the three ducks in the park.',
   'Ankara simidi fiyatı sabit': 'Ankara simit prices hold steady', 'Fırıncı esnafı "simit ekmek kadar önemli" diyerek zammı reddetti.': 'Bakers rejected a price rise, saying "simit matters as much as bread."',
@@ -72,7 +72,7 @@ L.add({
   'Kuaförde sıra numarası sistemi': 'Queue numbers at the barber', 'Berber "Sıra numarası aldım, yine de önce beni al diyen var" diye dert yandı.': 'The barber complained: "people take a number and still ask me to take them first."',
   'Çay ocağında yeni rekor': 'New record at the tea house', 'Bir çaycı sabahtan beri 412 bardak çay taşıdığını açıkladı. Tepsi dinlenmeye çekildi.': 'A tea server said he had carried 412 glasses of tea since morning. The tray has been retired for a rest.',
   'Market kasasında poşet tartışması': 'Bag debate at the till', 'Kasiyer "Poşet ister misiniz?" diye sordu, müşteri on dakika düşündü.': 'The cashier asked "Would you like a bag?" and the customer thought about it for ten minutes.',
-  'Pijamalı Çocuk pijamasını yıkatacak mı?': 'Will Pajama Kid get his pajamas washed?', 'Çamaşırhaneler bu konuda yorum yapmadı. Komşular "en azından deseni güzel" diyor.': 'The laundromats declined to comment. Neighbours say "at least the pattern is nice."',
+  'Pijamalı Çocuk pijamasını yıkatacak mı?': 'Will Underoos get his pajamas washed?', 'Çamaşırhaneler bu konuda yorum yapmadı. Komşular "en azından deseni güzel" diyor.': 'The laundromats declined to comment. Neighbours say "at least the pattern is nice."',
   'Saat kulesi kendini savundu': 'The clock tower defends itself', 'Kule adına yapılan açıklamada "Ben doğru gösteriyorum, siz geç kalıyorsunuz" denildi.': 'A statement on behalf of the tower said: "I tell the right time; you are the ones running late."',
   "Reis'in yeni gözdesi": "Reis's new favourite", 'Kedi meclisi başkanı bu hafta en çok kucak sevilen bankı ilan etti. Kesin yeri açıklanmadı.': "The cat council's chair has named this week's most cuddle-friendly bench. Its exact location was not disclosed.",
   /* haber şablonları: hava */
@@ -112,7 +112,7 @@ L.add({
   "Hırsız {sk} Sokağı'ndan kaçtı": 'Thief flees down {sk} Lane', 'Görgü tanıkları şüphelinin kavşaktan kavşağa koştuğunu anlattı. Son durum: {status}.': 'Witnesses say the suspect ran from junction to junction. Latest: {status}.',
   "{cad} Caddesi'nde yaya kazası": 'Pedestrian hit on {cad} Street', 'Saat {time} sularında karşıdan karşıya geçen bir yayaya araç çarptı. Son durum: {status}.': 'A car hit a pedestrian crossing the road around {time}. Latest: {status}.',
   'Sürücülere yaya uyarısı': 'Drivers warned about pedestrians', '{esemt} semtindeki kazanın ardından yetkililer yaya geçitlerinde yavaşlanması çağrısı yaptı. Son durum: {status}.': 'After the accident in {esemt}, officials urged drivers to slow down at crossings. Latest: {status}.',
-  'Pijamalı Çocuk bugün {hero} hırsız yakaladı': 'Pajama Kid caught {hero} thieves today', 'Çatılarda dolaşan maskeli genç, polis gelmeden şüphelileri ağla sarıp kaldırıma bıraktı. Kimliği hâlâ sır.': 'The masked rooftop youth wrapped the suspects in webs and left them on the pavement before the police arrived. His identity is still a secret.',
+  'Pijamalı Çocuk bugün {hero} hırsız yakaladı': 'Underoos caught {hero} thieves today', 'Çatılarda dolaşan maskeli genç, polis gelmeden şüphelileri ağla sarıp kaldırıma bıraktı. Kimliği hâlâ sır.': 'The masked rooftop youth wrapped the suspects in webs and left them on the pavement before the police arrived. His identity is still a secret.',
   'Şehirde sakin bir gün': 'A quiet day in the city', 'Bugün şimdiye kadar ciddi bir olay yaşanmadı. Ekipler istasyonlarında çay demledi.': 'No serious incidents so far today. The crews brewed tea at their stations.',
   /* maç */
   "Ankara Stadı'nda {w} sevinci": 'Joy for {w} at Ankara Stadium', "{w}, {l} karşısında {ws}-{ls} kazandı. Taraftarlar maçtan sonra korna çalarak Kızılay'a yürüdü.": '{w} beat {l} {ws}-{ls}. Fans honked their way to Kızılay after the match.',
