@@ -38,7 +38,7 @@ Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", hava seçimi, trafik y
 - **Projeler:** kısa açıklamalar, GitHub'a bağlantı.
 - **Hakkımda:** birkaç cümle.
 - **İletişim:** GitHub, LinkedIn, e-posta.
-- **Şehir Haber:** şehrin canlı hâli: hava durumu, stattaki maçın skoru ya da son sonucu, son dakika olaylar (yangın, kaza, hırsızlık), uydurma gündem haberleri, şehir rakamları ve "Bu şehir nasıl yapıldı".
+- **Ankara Haber:** şehrin canlı hâli: hava durumu, stattaki maçın skoru ya da son sonucu, son dakika olaylar (yangın, kaza, hırsızlık), uydurma gündem haberleri, şehir rakamları ve "Bu şehir nasıl yapıldı".
 
 
 - Sağ üstteki **Portfolyo** düğmesi telefonu her an doğrudan açar; `#telefon` ile biten bağlantı da açar.
@@ -125,15 +125,15 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 
 ## Şehirde neler var?
 
-- Hayali bir şehir: 17 × 17 blok, kenarı yaklaşık 964 m, dokuz ilçe. Ortada gökdelenleriyle Saatçi; çevresinde Yeşiltepe, Çınaraltı, Akpınar, Gülbahçe, Değirmendere, Taşbayır, Kuyubaşı ve Limanköy. Kenar ilçelerde müstakil evler ve alçak binalar çoğunlukta, her ilçenin kaldırım tonu ayrı; sol üstte bulunduğun ilçe yazar.
+- Prosedürel bir Ankara: 17 × 17 blok, kenarı yaklaşık 964 m, dokuz semt. Ortada gökdelenleriyle Kızılay; kuzeyde eski Ulus, kuzeybatıda alçak evleriyle Yenimahalle, batıda Bahçelievler, doğuda Kavaklıdere ve Çankaya, güneyde Ayrancı; güneybatıda kendi kule kümeleriyle Söğütözü ve Çukurambar. Her semtin bina dokusu ve kaldırım tonu ayrı; sol üstte bulunduğun semt yazar. Caddeler Ankara'dan: Ziya Gökalp, Tunalı Hilmi, Kennedy, Bestekar, Kumrular…
 - Ortada saat kulesi olan bir meydan, on park, merkeze yaklaştıkça yükselen binalar.
 - Parklarda göller: kıyı taşları, nilüferler ve pembe çiçekleri, sazlar, yüzen ördekler, suda açılan halkalar. Banklarda oturup çay içenler; gündüz kalabalık, gece seyrek.
 - Sokak kedileri. Gece 21.30'dan sonra merkeze en yakın parkta kedi toplantısı olur: sekiz kedi çember olup oturur, ortada Reis; yakındaysan konuşmalarını duyarsın.
-- Şehir Stadı'nda 13.30–17.00 ve 19.00–22.30 arası maç: ilçe takımları, kaleciler, hakem, tribünde takım renklerinde taraftar, gol sevinci ve skor tabelası. Stada tıklayınca kartta skor ve dakika görünür.
+- Ankara Stadı'nda 13.30–17.00 ve 19.00–22.30 arası maç: semt takımları (Kızılay Gücü, Söğütözü İdmanyurdu gibi), kaleciler, hakem, tribünde takım renklerinde taraftar, gol sevinci ve skor tabelası. Stada tıklayınca kartta skor ve dakika görünür.
 - Şehir dağların eteğinde bir vadide: çevresinde çayırlar, tepelerde çam ormanları, yamaçlarda kaya, zirvelerde kar; güneyinden doğudaki dağlardan inip batıdaki boğazdan çıkan bir akarsu geçer.
 - Doğu kavşağından vadi boyunca tırmanan, dağdaki bir tünele giren dört şeritli bir yol: tünelden gelen araçlar şehrin trafiğine katılır, şehirden ayrılanlar yola çıkıp tünelde kaybolur.
 - Dört yüzünde şehrin saatini gösteren bir saat kulesi.
-- Önemli yapılar: helikopter pistli Şehir Hastanesi, İtfaiye Merkezi, bayraklı Merkez Karakolu ve ışık kuleli Şehir Stadı. Tıklayınca bilgi kartı açılır, "Yakından bak" kamerayı oraya götürür.
+- Önemli yapılar: helikopter pistli Ankara Şehir Hastanesi, İtfaiye Merkezi, bayraklı Merkez Karakolu ve ışık kuleli Ankara Stadı. Tıklayınca bilgi kartı açılır, "Yakından bak" kamerayı oraya götürür.
 - Sağdan akan, kavşaklarda düz giden, sağa ve sola dönen trafik; dönecek araç sinyal verir, sola dönen araç karşıdan geleni bekler. Işıklar 20 saniyelik döngüyle çalışır.
 - Eli, kolu, dizi, ayakkabısı ve yüzü olan insanlar; yürür, koşar, oturur, konuşur, çay içer, yemek yapar, ders çalışır, uyur.
 - Kaldırımlarda yürüyen, köşelerde araçlara kırmızı yanınca karşıdan karşıya geçen yayalar.
@@ -142,7 +142,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - Kafe ve çay ocaklarının önünde masalar, fincanlar ve oturan insanlar.
 - Üç otobüs hattı (12, 34 ve şehri çevreleyen 56): duraklarda bekleyen yolcular, durağa yanaşıp yolcu alan otobüsler.
 - Gün doğumu, alacakaranlık, gece; geceleri yanan pencereler, sokak lambaları, farlar ve yıldızlar.
-- Canlı hava: varsayılan olarak Ankara'nın şu anki havası ([Open-Meteo](https://open-meteo.com/), anahtar gerekmez, 15 dakikada bir tazelenir). Rüzgârla kayan bulutlar, kapalı havada silikleşen gölgeler; yağmurda ıslanıp koyulaşan, su birikintilerinde gökyüzünü ve gece sokak lambalarını yansıtan asfalt; karda beyazlayan çatılar, kaldırımlar, ağaç tepeleri ve dağlar; siste kaybolan sokaklar; fırtınada şimşek. Paneldeki simgelerle hava elle de seçilir (açık, parçalı bulutlu, kapalı, sisli, çisenti, yağmurlu, fırtına, karlı), "● Canlı" gerçek havaya döner. Telefondaki Şehir Haber'de sıcaklık, hissedilen, nem, rüzgâr ve üç günlük tahmin.
+- Canlı hava: varsayılan olarak Ankara'nın şu anki havası ([Open-Meteo](https://open-meteo.com/), anahtar gerekmez, 15 dakikada bir tazelenir). Rüzgârla kayan bulutlar, kapalı havada silikleşen gölgeler; yağmurda ıslanıp koyulaşan, su birikintilerinde gökyüzünü ve gece sokak lambalarını yansıtan asfalt; karda beyazlayan çatılar, kaldırımlar, ağaç tepeleri ve dağlar; siste kaybolan sokaklar; fırtınada şimşek. Paneldeki simgelerle hava elle de seçilir (açık, parçalı bulutlu, kapalı, sisli, çisenti, yağmurlu, fırtına, karlı), "● Canlı" gerçek havaya döner. Telefondaki Ankara Haber'de sıcaklık, hissedilen, nem, rüzgâr ve üç günlük tahmin.
 - Ekim ayında olduğumuz için sararmış birkaç ağaç. 🍂
 - Yuvarlak köşeli, kornişli ve parapetli binalar; denizlikli pencereler; yuvarlak hatlı, tekerlekli araçlar; taş döşeli kaldırımlar, çöp kutuları; ufka doğru açılan gökyüzü.
 
@@ -159,6 +159,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - [x] Pijamalı Çocuk olarak oyna: koşu, yüksek zıplama, duvara tırmanma ve duvarda koşma, ağla sallanma ve çekilme, hırsızı ağla sarma
 - [x] Kediler ve kedi toplantısı, araç çarpışması ve yaya kazası, dönüş sinyalleri, banklarda oturanlar, park gölleri, stadyumda maç
 - [x] Gerçek Türkiye saati, canlı Ankara havası (yağmur, kar, sis, fırtına)
+- [x] Şehir artık Ankara: gerçek semt adları, Söğütözü ve Çukurambar'ın kule kümeleri, Ankara caddeleri
 
 ## Teknik
 

@@ -103,7 +103,7 @@ function renderSel() {
     $('selTitle').textContent = C.typeName(b);
     rows.innerHTML = `<div><dt>Yükseklik</dt><dd>${fmt.format(Math.round(b.height))} m</dd></div><div><dt>Kat</dt><dd>${b.floors}</dd></div>` +
       `<div><dt>Parsel</dt><dd>${Math.round(sel.lot.w)} × ${Math.round(sel.lot.d)} m</dd></div><div><dt>${b.type === 'tower' ? 'Çalışan' : 'Sakin'}</dt><dd>~${fmt.format(pop)}</dd></div>` +
-      `<div><dt>İlçe</dt><dd>${C.districtAt(sel.lot.cx, sel.lot.cz).name}</dd></div>`;
+      `<div><dt>Semt</dt><dd>${C.districtAt(sel.lot.cx, sel.lot.cz).name}</dd></div>`;
     act.innerHTML = `<button class="btn" data-act="up"${b.floors >= LIM[b.type] ? ' disabled' : ''}>+ Kat</button><button class="btn" data-act="down"${b.floors <= 1 ? ' disabled' : ''}>− Kat</button><button class="btn danger" data-act="demolish">Yık</button>` +
       `<button class="btn" data-act="cut" aria-pressed="${!!b.cut}">${b.cut ? 'Kesiti kapat' : 'Kesit'}</button>`;
   } else {
@@ -287,7 +287,7 @@ function hud(D, level) {
     $('lodDesc').textContent = LV[level][1];
   }
   $('zoomM').textContent = fmt.format(Math.round(D));
-  const dn = C.districtAt(controls.target.x, controls.target.z).name + ' ilçesi';
+  const dn = C.districtAt(controls.target.x, controls.target.z).name + ' · ' + C.CITY;
   if ($('district').textContent !== dn) $('district').textContent = dn;
   const mpp = 2 * D * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) / (stage.clientHeight || 600);
   let len = NICE[0]; for (const n of NICE) if (n / mpp <= 110) len = n;

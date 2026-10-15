@@ -16,7 +16,7 @@ window.PORTFOLIO = {
   projects: [
     {
       title: 'Mikro Şehir',
-      desc: 'Tarayıcıda çalışan prosedürel 3B şehir: dağlarla çevrili vadi, trafik ve yayalar, camın ardında yaşayan odalar, olaylar, kediler, stadyumda maç ve ağla sallanan bir kahraman.',
+      desc: 'Tarayıcıda çalışan prosedürel 3B Ankara: Kızılay\'dan Söğütözü\'ne semtler, canlı Ankara havası, dağlarla çevrili vadi, trafik ve yayalar, camın ardında yaşayan odalar, olaylar, kediler, stadyumda maç ve ağla sallanan bir kahraman.',
       tags: ['Three.js', 'GLSL', 'Prosedürel üretim', 'Simülasyon'],
       code: '', live: '../index.html'
     }

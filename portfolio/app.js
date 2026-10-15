@@ -1,4 +1,4 @@
-/* ===== app.js: telefon arayüzü: ana ekran, uygulamalar (Projeler, Hakkımda, İletişim, Şehir Haber), saat.
+/* ===== app.js: telefon arayüzü: ana ekran, uygulamalar (Projeler, Hakkımda, İletişim, Ankara Haber), saat.
    Uygulama açılınca sayfa tam ekrana geçer (şehirdeysek telefon büyür); içerik content.js'ten, canlı şehir bilgisi şehrin kendisinden (window.parent.C). ===== */
 (function () {
 'use strict';
@@ -22,7 +22,7 @@ $('dockbar').innerHTML = (P.contact || []).filter(c => c.href).map(c => `<a clas
 function tick() {
   const C = city();
   $('clock').textContent = hm(hourNow());
-  $('date').textContent = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' }) + (C ? ' · Mikro Şehir' : '');
+  $('date').textContent = new Date().toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' }) + (C ? ' · Ankara' : '');
 }
 tick(); setInterval(tick, 1000);
 document.querySelectorAll('.url').forEach(u => { u.innerHTML = `${esc(P.site || '')}/<b>${esc(u.dataset.path)}</b>`; });
@@ -40,7 +40,7 @@ $('skills').innerHTML = (P.skills || []).map(t => `<li>${esc(t)}</li>`).join('')
 $('contactList').innerHTML = (P.contact || []).filter(c => c.href).map(c =>
   `<li><a href="${esc(c.href)}" target="_blank" rel="noopener"><span class="ri" aria-hidden="true">${(ICON[c.kind] || ICON.web)[0]}</span><span><b>${esc(c.label)}</b><small>${esc(c.value)}</small></span></a></li>`).join('');
 
-/* ---------- Şehir Haber: hava, maç, son dakika olaylar, gündem, rakamlar ---------- */
+/* ---------- Ankara Haber: hava, maç, son dakika olaylar, gündem, rakamlar ---------- */
 const DOT = { fire: '#e2452b', accident: '#f2a516', crime: '#2f7bff', pedestrian: '#d6336c' };
 /* hava: Ankara'nın canlı verisi (wxdata.js). Şehrin içindeyken şehrin aldığı, tek başınayken kendi isteği; ikisi aynı önbelleği paylaşır */
 let wxd = null;
@@ -58,13 +58,13 @@ function weather(h, C) {
 function match(C) {
   const M = C && C.match;
   const next = h => h < 13.5 ? '13:30' : h < 19 ? '19:00' : 'yarın 13:30';
-  if (!M) return `<div class="kicker">Şehir Stadı</div><h4>Maç günü</h4><p>Maçlar her gün 13:30 ve 19:00'da. Şehrin içinden açınca skor canlı görünür.</p>`;
+  if (!M) return `<div class="kicker">Ankara Stadı</div><h4>Maç günü</h4><p>Maçlar her gün 13:30 ve 19:00'da. Şehrin içinden açınca skor canlı görünür.</p>`;
   if (M.on && M.teams) {
     const st = M.ph === 'half' ? 'Devre arası' : M.ph === 'end' ? 'Maç sonu' : Math.floor(M.min) + "'";
-    return `<div class="kicker"><span class="live">Canlı</span> · Şehir Stadı · ${st}</div><div class="score"><span class="t">${esc(M.teams[0].name)}</span><span class="s">${M.score[0]} - ${M.score[1]}</span><span class="t">${esc(M.teams[1].name)}</span></div>`;
+    return `<div class="kicker"><span class="live">Canlı</span> · Ankara Stadı · ${st}</div><div class="score"><span class="t">${esc(M.teams[0].name)}</span><span class="s">${M.score[0]} - ${M.score[1]}</span><span class="t">${esc(M.teams[1].name)}</span></div>`;
   }
   if (M.last) return `<div class="kicker">Son maç · Sıradaki ${next(C.hour)}</div><div class="score"><span class="t">${esc(M.last.teams[0])}</span><span class="s">${M.last.score[0]} - ${M.last.score[1]}</span><span class="t">${esc(M.last.teams[1])}</span></div>`;
-  return `<div class="kicker">Şehir Stadı</div><h4>Sıradaki maç ${next(C.hour)}</h4><p>İlçe takımları karşı karşıya. Tribünler şimdiden doluyor.</p>`;
+  return `<div class="kicker">Ankara Stadı</div><h4>Sıradaki maç ${next(C.hour)}</h4><p>Semt takımları karşı karşıya. Tribünler şimdiden doluyor.</p>`;
 }
 function breaking(C) {
   const log = C && C.eventLog;

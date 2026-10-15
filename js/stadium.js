@@ -1,4 +1,4 @@
-/* ===== stadium.js: Şehir Stadı'nda maç: öğleden sonra ve akşam; iki takım, hakem, top, tribünde taraftar, skor tabelası ===== */
+/* ===== stadium.js: Ankara Stadı'nda maç: öğleden sonra ve akşam; iki takım, hakem, top, tribünde taraftar, skor tabelası ===== */
 (function () {
 'use strict';
 if (!window.C || C.failed) return;

@@ -178,10 +178,10 @@ function stadium(g) {
 }
 
 const BUILD = {
-  hospital: [hospital, 'Şehir Hastanesi', [['Kat', '7'], ['Yatak', '~240'], ['Acil', '7/24'], ['Helikopter pisti', 'Var']]],
+  hospital: [hospital, 'Ankara Şehir Hastanesi', [['Kat', '7'], ['Yatak', '~240'], ['Acil', '7/24'], ['Helikopter pisti', 'Var']]],
   fire: [fireStation, 'İtfaiye Merkezi', [['Araç', '3 itfaiye'], ['Ekip', '24 kişi'], ['Hortum kulesi', '20 m'], ['Çıkış', '~60 sn']]],
   police: [policeStation, 'Merkez Karakolu', [['Kat', '3'], ['Ekip', '~40'], ['Devriye', '4 araç'], ['Nöbet', '7/24']]],
-  stadium: [stadium, 'Şehir Stadı', [['Kapasite', '~4.500'], ['Saha', '28 × 18 m'], ['Işık kulesi', '4'], ['Çatı', 'Ana tribün']]]
+  stadium: [stadium, 'Ankara Stadı', [['Kapasite', '~4.500'], ['Saha', '28 × 18 m'], ['Işık kulesi', '4'], ['Çatı', 'Ana tribün']]]
 };
 C.makeLandmark = function (blk, type, rnd) {
   const [build, name, rows] = BUILD[type];

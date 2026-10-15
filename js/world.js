@@ -11,14 +11,19 @@ C.roadX = i => -C.TOTAL / 2 + C.ROAD / 2 + i * C.PITCH;
 C.blockC = i => -C.TOTAL / 2 + C.ROAD + C.BLOCK / 2 + i * C.PITCH;
 C.districtAt = (x, z) => C.districtOf(C.clamp(Math.round((x - C.blockC(0)) / C.PITCH), 0, C.N - 1), C.clamp(Math.round((z - C.blockC(0)) / C.PITCH), 0, C.N - 1));
 C.clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-/* ilçeler: şehir 3x3 bölgeye ayrılır; her ilçenin bina dokusu (gökdelen, apartman, müstakil ev eğilimi) ve kaldırım tonu farklı */
+/* semtler: şehir Ankara; 3x3 bölgeye ayrılır (kuzey -z, doğu +x). Her semtin bina dokusu (gökdelen, apartman, müstakil ev eğilimi) ve kaldırım tonu farklı.
+   Ortada Kızılay; güneybatıda Söğütözü ve Çukurambar'ın kuleleri; kuzeyde eski Ulus, kuzeybatıda Yenimahalle'nin alçak evleri */
+C.CITY = 'Ankara';
 C.DISTRICTS = [
-  { name: 'Yeşiltepe', tint: '#9ccf86', tower: 0.15, mid: 0.7, house: 2.2 }, { name: 'Çınaraltı', tint: '#d9c28a', tower: 0.6, mid: 1.25, house: 0.8 }, { name: 'Akpınar', tint: '#8fc4d9', tower: 0.25, mid: 0.85, house: 1.8 },
-  { name: 'Gülbahçe', tint: '#e2a3a3', tower: 0.5, mid: 1.15, house: 1.2 }, { name: 'Saatçi', tint: '#e8e2d0', tower: 1.35, mid: 1.0, house: 0.3 }, { name: 'Değirmendere', tint: '#c7b0dd', tower: 0.55, mid: 1.2, house: 1.0 },
-  { name: 'Taşbayır', tint: '#c9b79a', tower: 0.15, mid: 0.75, house: 2.0 }, { name: 'Kuyubaşı', tint: '#a9d1b8', tower: 0.45, mid: 1.25, house: 1.1 }, { name: 'Limanköy', tint: '#9fb6e0', tower: 0.2, mid: 0.8, house: 2.1 }
+  { name: 'Yenimahalle', tint: '#9ccf86', tower: 0.15, mid: 0.8, house: 2.1 }, { name: 'Ulus', tint: '#d9c28a', tower: 0.15, mid: 1.3, house: 1.1 }, { name: 'Çankaya', tint: '#8fc4d9', tower: 0.3, mid: 1.2, house: 1.2 },
+  { name: 'Bahçelievler', tint: '#e2a3a3', tower: 0.3, mid: 1.3, house: 1.0 }, { name: 'Kızılay', tint: '#e8e2d0', tower: 1.35, mid: 1.0, house: 0.3 }, { name: 'Kavaklıdere', tint: '#c7b0dd', tower: 0.5, mid: 1.25, house: 0.8 },
+  { name: 'Söğütözü', tint: '#c9b79a', tower: 1.1, mid: 0.9, house: 0.5, hub: 0.85 }, { name: 'Çukurambar', tint: '#a9d1b8', tower: 0.9, mid: 1.2, house: 0.6, hub: 0.6 }, { name: 'Ayrancı', tint: '#9fb6e0', tower: 0.2, mid: 1.0, house: 1.6 }
 ];
 const DS = [Math.floor(C.N / 3), Math.ceil(C.N * 2 / 3)], dpart = v => v < DS[0] ? 0 : v < DS[1] ? 1 : 2;
 C.districtOf = (i, j) => C.DISTRICTS[dpart(j) * 3 + dpart(i)];
+/* semt merkezi (cx, cz); hub: kendi kule kümesi olan semtte merkezin gücü (buildings.js specFor) */
+{ const mid = p => (C.blockC(p === 0 ? 0 : DS[p - 1]) + C.blockC((p === 2 ? C.N : DS[p]) - 1)) / 2;
+  C.DISTRICTS.forEach((d, k) => { d.cx = mid(k % 3); d.cz = mid(Math.floor(k / 3)); }); }
 C.rng = function (seed) {
   return function () {
     seed |= 0; seed = seed + 0x6D2B79F5 | 0;

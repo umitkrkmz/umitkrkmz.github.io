@@ -234,7 +234,7 @@ C.genBlocks = function () {
   }
   const slabs = C.inst(slabGeo, slabMat, cityBlocks.length), tc = new THREE.Color(), white = new THREE.Color(1, 1, 1);
   slabs.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cityBlocks.length * 3), 3);
-  cityBlocks.forEach((b, k) => { C.setM(slabs, k, b.bx, C.SW / 2, b.bz); slabs.setColorAt(k, tc.copy(white).lerp(C.col(C.districtOf(b.i, b.j).tint), 0.4)); });   // ilçe tonu
+  cityBlocks.forEach((b, k) => { C.setM(slabs, k, b.bx, C.SW / 2, b.bz); slabs.setColorAt(k, tc.copy(white).lerp(C.col(C.districtOf(b.i, b.j).tint), 0.4)); });   // semt tonu
   slabs.instanceMatrix.needsUpdate = slabs.instanceColor.needsUpdate = true; slabs.receiveShadow = true; scene.add(slabs);
 };
 
@@ -244,11 +244,13 @@ C.typeName = b => TYPE_NAME[b.type];
 
 C.specFor = function (lot, rnd, force) {
   const d = Math.hypot(lot.cx, lot.cz) / (C.TOTAL * 0.5);
-  const z = Math.max(0, 1 - d * 1.1), r = rnd(), small = Math.min(lot.w, lot.d) < 15;
+  const D = C.districtAt(lot.cx, lot.cz);                            // semtin dokusu
+  let z = Math.max(0, 1 - d * 1.1);
+  if (D.hub) z = Math.max(z, D.hub * Math.max(0, 1 - Math.hypot(lot.cx - D.cx, lot.cz - D.cz) / (C.TOTAL * 0.2)));   // Söğütözü gibi kendi kule kümesi
+  const r = rnd(), small = Math.min(lot.w, lot.d) < 15;
   let type;
   if (force) type = force;
   else {
-    const D = C.districtAt(lot.cx, lot.cz);                          // ilçenin dokusu
     if (!small && r < Math.pow(z, 1.3) * 0.95 * D.tower) type = 'tower';
     else if (r < (0.5 + z * 0.35) * D.mid) type = 'mid';
     else if ((small || D.house > 1.5) && z < 0.5 && rnd() < 0.45 * D.house) type = 'house';

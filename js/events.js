@@ -10,7 +10,7 @@ const pad = n => String(n).padStart(2, '0');
 const clock = () => pad(Math.floor(C.hour)) + ':' + pad(Math.floor((C.hour % 1) * 60));
 
 /* ---------- sokak adları: x yönündeki yollar cadde, z yönündekiler sokak ---------- */
-const CADDE = ['Kordon', 'Çınar', 'Ihlamur', 'Meşe', 'Kestane', 'Zeytin', 'İstasyon', 'Cumhuriyet', 'Bağlar', 'Değirmen', 'Sahil', 'Pazar', 'Çarşı', 'Okul', 'Bahar', 'Fener', 'Kervan', 'Yıldız'];
+const CADDE = ['Çankırı', 'Anafartalar', 'Talatpaşa', 'Necatibey', 'Mithatpaşa', 'Sakarya', 'Meşrutiyet', 'İzmir', 'Ziya Gökalp', 'Kumrular', 'Konur', 'Bestekar', 'Tunalı Hilmi', 'Kennedy', 'Cinnah', 'Hoşdere', 'Turan Güneş', 'Eskişehir'];   // Ankara caddeleri; ortadaki Ziya Gökalp
 const SOKAK = ['Lale', 'Gül', 'Menekşe', 'Papatya', 'Nergis', 'Sümbül', 'Karanfil', 'Leylak', 'Yasemin', 'Zambak', 'Erguvan', 'Manolya', 'Begonya', 'Mimoza', 'Kardelen', 'Ortanca', 'Gelincik', 'Akasya'];
 const roadIdx = v => C.clamp(Math.round((v - C.roadX(0)) / C.PITCH), 0, C.N);
 C.placeName = (x, z) => `${CADDE[roadIdx(z)]} Cd. × ${SOKAK[roadIdx(x)]} Sk., ${C.districtAt(x, z).name}`;
