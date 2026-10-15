@@ -28,6 +28,9 @@ C.rng = function (seed) {
   };
 };
 C.night = 0; C.hour = 16.5; C.nightListeners = []; C.updaters = [];
+/* hava durumunun ıslatıp karla örttüğü yüzeyler: [malzeme, tür] (road, mark, pave, grass, roof, terrain, tree); weather.js shader'a ekler */
+C.surfaces = []; C.surface = (m, kind) => { C.surfaces.push([m, kind]); return m; };
+C.wx = { cloud: 0, dark: 0, fog: 0 };                              // weather.js doldurur: bulut, kararma (yağış), sis
 
 let renderer;
 try {
@@ -140,15 +143,37 @@ scene.add(stars);
 const SKY = { night: C.col('#070c18'), twi: C.col('#e0895c'), day: C.col('#86bdf0') };
 /* gökyüzü kubbesi: tepeden ufka açılan renk; ufuk sis rengiyle aynı, böylece uzak binalar ufka karışır.
    ShaderMaterial çıktıyı çevirmez, renkler sRGB olarak verilir. */
-const skyU = { top: { value: new THREE.Color() }, hor: { value: new THREE.Color() } };
+const skyU = C.sky = { top: { value: new THREE.Color() }, hor: { value: new THREE.Color() }, uCloud: { value: 0 }, uCT: { value: 0 }, uCW: { value: new THREE.Vector2(0.002, 0.001) },
+  uCL: { value: new THREE.Color() }, uCD: { value: new THREE.Color() }, uFlash: { value: 0 } };
 const skyDome = new THREE.Mesh(new THREE.SphereGeometry(3500, 32, 16), new THREE.ShaderMaterial({
   uniforms: skyU, side: THREE.BackSide, depthWrite: false, fog: false,
   vertexShader: 'varying vec3 vP; void main() { vP = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-  fragmentShader: 'uniform vec3 top; uniform vec3 hor; varying vec3 vP; void main() { float h = normalize(vP).y; gl_FragColor = vec4(mix(hor, top, smoothstep(0.0, 0.5, max(h, 0.0))), 1.0); }'   // ufkun altı da ufuk rengi
+  /* ufkun altı da ufuk rengi. Bulutlar: yöne göre düzleme izdüşen fbm, rüzgârla kayar; uCloud örtü, uCL aydınlık, uCD gölgeli yüz; uFlash şimşek */
+  fragmentShader: [
+    'uniform vec3 top; uniform vec3 hor; uniform float uCloud; uniform float uCT; uniform vec2 uCW; uniform vec3 uCL; uniform vec3 uCD; uniform float uFlash; varying vec3 vP;',
+    'float h1(vec2 p) { vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }',
+    'float n2(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(h1(i), h1(i + vec2(1.0, 0.0)), f.x), mix(h1(i + vec2(0.0, 1.0)), h1(i + vec2(1.0, 1.0)), f.x), f.y); }',
+    'void main() {',
+    '  vec3 d = normalize(vP); float h = d.y;',
+    '  vec3 c = mix(hor, top, smoothstep(0.0, 0.5, max(h, 0.0)));',
+    '  if (uCloud > 0.003 && h > 0.0) {',
+    '    vec2 q = d.xz / (h + 0.08) * 1.3 + uCW * uCT; float n = 0.0, a = 0.5;',
+    '    for (int i = 0; i < 5; i++) { n += a * n2(q); q = q * 2.07 + vec2(13.7, 5.3); a *= 0.5; }',
+    '    float th = mix(0.8, 0.14, uCloud);',
+    '    float den = smoothstep(th, th + 0.2, n);',
+    '    den = max(den, smoothstep(0.7, 1.0, uCloud) * 0.9) * smoothstep(0.0, 0.22, h);',
+    '    c = mix(c, mix(uCD, uCL, smoothstep(th, th + 0.5, n)), den);',
+    '  }',
+    '  c += vec3(0.55, 0.6, 0.75) * uFlash;',
+    '  gl_FragColor = vec4(c, 1.0);',
+    '}'
+  ].join('\n')
 }));
 skyDome.renderOrder = -10; skyDome.frustumCulled = false; scene.add(skyDome);
-C.updaters.push(() => skyDome.position.copy(camera.position));
+C.updaters.push((dt, t) => { skyDome.position.copy(camera.position); skyU.uCT.value = t; });
 const WHITE = C.col('#ffffff'), DEEP = C.col('#3d7fd0'), GLOW = C.col('#1c2a48');
+const GREY_D = C.col('#a3acb5'), GREY_N = C.col('#181b22'), CLOUD_N = C.col('#3a3741'), FOG_D = C.col('#c9ced2');   // bulutlu gök: gündüz, gece; gece bulut altı (şehir ışığı)
+C.lightBase = { hemi: 0.6, sun: 1.5 };
 const tmpDir = new THREE.Vector3();
 C.applyTime = function (h) {
   C.hour = h;
@@ -165,19 +190,27 @@ C.applyTime = function (h) {
   const dayK = C.clamp(e * 3, 0, 1), nightK = C.clamp(-e * 4, 0, 1);
   const hor = sky.clone().lerp(WHITE, 0.3 * dayK).lerp(GLOW, 0.6 * nightK);         // gece ufukta şehir ışığı
   const top = sky.clone().lerp(DEEP, 0.45 * dayK);
+  /* hava: bulut gökyüzünü griye çeker, yağış karartır, sis ufku açar */
+  const W = C.wx, oc = W.cloud * W.cloud, dk = W.dark;
+  const grey = GREY_N.clone().lerp(GREY_D, C.clamp(e * 4 + 0.35, 0, 1)).lerp(sky, 0.2).multiplyScalar(1 - 0.45 * dk);
+  hor.lerp(grey, 0.85 * oc); top.lerp(grey.clone().multiplyScalar(0.86), 0.9 * oc);
+  if (W.fog > 0.001) { const fc = GREY_N.clone().lerp(FOG_D, C.clamp(e * 4 + 0.35, 0, 1)); hor.lerp(fc, 0.85 * W.fog); top.lerp(fc, 0.75 * W.fog); }   // siste gök de puslu
+  const lit = hor.clone().lerp(WHITE, 0.5 * dayK * (1 - 0.6 * dk) * (1 - 0.9 * W.fog)).lerp(CLOUD_N, 0.55 * nightK * (1 - W.fog));   // siste bulut seçilmez
+  skyU.uCloud.value = W.cloud; skyU.uCL.value.copy(lit).convertLinearToSRGB(); skyU.uCD.value.copy(lit.multiplyScalar(0.66 - 0.22 * dk + 0.3 * W.fog)).convertLinearToSRGB();
   skyU.top.value.copy(top).convertLinearToSRGB(); skyU.hor.value.copy(hor).convertLinearToSRGB();
   scene.background = hor.clone().convertLinearToSRGB(); scene.fog.color.copy(hor);
   C.night = C.clamp((0.12 - e) / 0.3, 0, 1);
   const day = C.clamp(e * 3, 0, 1);
-  sun.intensity = day * 1.7;
+  sun.intensity = day * 1.7 * (1 - 0.82 * oc) * (1 - 0.5 * dk);                                      // kapalıda gölge silikleşir
   sun.color.copy(C.col('#ffb27a')).lerp(C.col('#fff4e2'), C.clamp(e * 2.5, 0, 1));
   moon.intensity = (1 - day) * 0.32;
   moon.position.set(-dir.x * 500, Math.max(120, -dir.y * 500), -dir.z * 500);
-  hemi.intensity = 0.2 + 0.6 * day;
+  hemi.intensity = (0.2 + 0.6 * day) * (1 + 0.3 * oc) * (1 - 0.42 * dk);
+  C.lightBase.hemi = hemi.intensity; C.lightBase.sun = sun.intensity;
   hemi.color.copy(sky).lerp(C.col('#ffffff'), 0.45);
-  stars.material.opacity = C.clamp(-e * 3.5, 0, 1); stars.visible = stars.material.opacity > 0.01;
-  sunOrb.position.copy(dir).multiplyScalar(2600); sunOrb.visible = e > -0.06;
-  moonOrb.position.copy(dir).multiplyScalar(-2600); moonOrb.visible = e < 0.1;
+  stars.material.opacity = C.clamp(-e * 3.5, 0, 1) * (1 - W.cloud); stars.visible = stars.material.opacity > 0.01;
+  sunOrb.position.copy(dir).multiplyScalar(2600); sunOrb.visible = e > -0.06 && oc < 0.55;
+  moonOrb.position.copy(dir).multiplyScalar(-2600); moonOrb.visible = e < 0.1 && oc < 0.55;
   for (const f of C.nightListeners) f(C.night);
 };
 
@@ -192,7 +225,7 @@ C.noiseTex = function (size, base, spread, dots, seed) {
   const t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = C.maxAniso; t.encoding = THREE.sRGBEncoding; return t;
 };
 const asphaltTex = C.noiseTex(256, 225, 90, 5000, 3); asphaltTex.repeat.set(C.TOTAL / 8, C.TOTAL / 8);
-const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(C.TOTAL, C.TOTAL), new THREE.MeshStandardMaterial({ color: C.col('#33373e'), map: asphaltTex, roughness: 0.95 }));
+const asphalt = new THREE.Mesh(new THREE.PlaneGeometry(C.TOTAL, C.TOTAL), C.surface(new THREE.MeshStandardMaterial({ color: C.col('#33373e'), map: asphaltTex, roughness: 0.95 }), 'road'));
 asphalt.rotation.x = -Math.PI / 2; asphalt.receiveShadow = true; scene.add(asphalt);
 
 /* ---------- yol çizgileri ve yaya geçitleri ---------- */
@@ -216,7 +249,7 @@ asphalt.rotation.x = -Math.PI / 2; asphalt.receiveShadow = true; scene.add(aspha
       if (Math.abs(pz) < half - 1) for (let k = -4; k <= 4; k++) bars.push([X + k * 1.25, pz, 0.55, 2.4]);
     }
   }
-  const mat = new THREE.MeshStandardMaterial({ color: C.col('#e9e7de'), roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  const mat = C.surface(new THREE.MeshStandardMaterial({ color: C.col('#e9e7de'), roughness: 0.9, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), 'mark');
   const geo = new THREE.BoxGeometry(1, 0.02, 1);
   const all = dashes.concat(bars);
   const mk = C.inst(geo, mat, all.length);

@@ -29,7 +29,7 @@ python -m http.server 8123
 
 Seçtiğin binaya **kat ekleyebilir**, **kat silebilir** ya da binayı **yıkabilirsin**. Boş kalan arsaya yeniden müstakil ev, apartman veya ofis kulesi dikebilirsin. **Kesit** düğmesi binanın katlarını birbirinden ayırır: dairelerde kanepeler, yataklar, mutfaklar; zemin katta dükkânlar; gökdelenlerde lobi, masa sıraları ve toplantı odaları, hepsinde küçük insanlar.
 
-Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", trafik yoğunluğu, gölgeler, rastgele olaylar, "Olay çıkar" ve hazır kamera görünümleri (Kuş bakışı, Siluet, Sokağa in, Saat kulesi) var. "Yeni şehir kur" her seferinde başka bir şehir üretir.
+Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", hava seçimi, trafik yoğunluğu, gölgeler, rastgele olaylar, "Olay çıkar" ve hazır kamera görünümleri (Kuş bakışı, Siluet, Sokağa in, Saat kulesi) var. "Yeni şehir kur" her seferinde başka bir şehir üretir.
 
 ## Portfolyo telefonu 📱
 
@@ -58,6 +58,7 @@ Kontrol panelindeki **Karakteri oyna** düğmesiyle kamera kuş bakışından s�
 | Yürü / koş / zıpla | WASD veya yön tuşları, Shift ile koş, Space ile zıpla |
 | Telefonda | Sol altta çubukla yürü, ekranı sürükleyerek bak, iki parmakla yakınlaş; sağ alttaki düğmeler: Zıpla, E, Koş, Kucak (kahramanda Ağ ve Çekil); sol üstte Çık |
 | Saat | Varsayılan gerçek Türkiye saati (GMT+3); kaydırıcı elle, "Günü ilerlet" hızlı, "● Canlı" gerçeğe döner |
+| Hava | Varsayılan Ankara'nın şu anki havası; simgeler elle seçer, "● Canlı" gerçeğe döner |
 | Etrafa bak | Sahneye tıkla, imleç kilitlenir; fareyle bak (Esc bırakır) |
 | Kamera uzaklığı | Tekerlek |
 | Konuş / içeri gir / dışarı çık | E |
@@ -141,6 +142,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - Kafe ve çay ocaklarının önünde masalar, fincanlar ve oturan insanlar.
 - Üç otobüs hattı (12, 34 ve şehri çevreleyen 56): duraklarda bekleyen yolcular, durağa yanaşıp yolcu alan otobüsler.
 - Gün doğumu, alacakaranlık, gece; geceleri yanan pencereler, sokak lambaları, farlar ve yıldızlar.
+- Canlı hava: varsayılan olarak Ankara'nın şu anki havası ([Open-Meteo](https://open-meteo.com/), anahtar gerekmez, 15 dakikada bir tazelenir). Rüzgârla kayan bulutlar, kapalı havada silikleşen gölgeler; yağmurda ıslanıp koyulaşan, su birikintilerinde gökyüzünü ve gece sokak lambalarını yansıtan asfalt; karda beyazlayan çatılar, kaldırımlar, ağaç tepeleri ve dağlar; siste kaybolan sokaklar; fırtınada şimşek. Paneldeki simgelerle hava elle de seçilir (açık, parçalı bulutlu, kapalı, sisli, çisenti, yağmurlu, fırtına, karlı), "● Canlı" gerçek havaya döner. Telefondaki Şehir Haber'de sıcaklık, hissedilen, nem, rüzgâr ve üç günlük tahmin.
 - Ekim ayında olduğumuz için sararmış birkaç ağaç. 🍂
 - Yuvarlak köşeli, kornişli ve parapetli binalar; denizlikli pencereler; yuvarlak hatlı, tekerlekli araçlar; taş döşeli kaldırımlar, çöp kutuları; ufka doğru açılan gökyüzü.
 
@@ -156,6 +158,7 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 - [x] İlçelere ayrılmış daha büyük hayali şehir, zıplama, dağlarla çevrili vadi, akarsu, şehre giriş-çıkış yolu
 - [x] Pijamalı Çocuk olarak oyna: koşu, yüksek zıplama, duvara tırmanma ve duvarda koşma, ağla sallanma ve çekilme, hırsızı ağla sarma
 - [x] Kediler ve kedi toplantısı, araç çarpışması ve yaya kazası, dönüş sinyalleri, banklarda oturanlar, park gölleri, stadyumda maç
+- [x] Gerçek Türkiye saati, canlı Ankara havası (yağmur, kar, sis, fırtına)
 
 ## Teknik
 
@@ -184,6 +187,8 @@ Kameranın baktığı noktaya uzaklığına göre şehir dört kademede açılı
 | `js/developer.js` | Şehirdeki geliştirici, Beni bul, portfolyo telefonu |
 | `portfolio/` | Bağımsız portfolyo sayfası (telefonun içi); içerik `content.js` |
 | `js/venues.js` | Girilebilir dükkânlar ve önemli yapıların içi |
+| `js/wxdata.js` | Ankara'nın canlı havası (Open-Meteo), önbellek; şehir ve telefon ortak kullanır |
+| `js/weather.js` | Bulut, sis, ıslak ve karlı zemin, yağmur, kar, şimşek; hava seçimi |
 | `js/ui.js` | Kamera kontrolü, bina seçimi, panel, ana döngü |
 
 ## Lisans

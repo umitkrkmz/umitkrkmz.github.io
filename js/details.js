@@ -134,7 +134,7 @@ C.buildDetail = function (b) {
 const slabGeo = new THREE.BoxGeometry(C.BLOCK, C.SW, C.BLOCK);
 const circG = new THREE.CircleGeometry(1, 28); circG.rotateX(-Math.PI / 2);
 const waterMat = new THREE.MeshStandardMaterial({ color: C.col('#4f86a6'), roughness: 0.15, metalness: 0.2 });
-const pathMat = std('#c8bfa8', 1), stoneMat = std('#a9a49a', 0.9);
+const pathMat = C.surface(std('#c8bfa8', 1), 'pave'), stoneMat = C.surface(std('#a9a49a', 0.9), 'pave');
 /* park gölü: ortası derin (koyu), kıyısı sığ (açık); altında çamurlu kıyı halkası */
 const pondG = new THREE.CircleGeometry(1, 48); pondG.rotateX(-Math.PI / 2);
 { const deep = C.col('#2c5f7c'), shallow = C.col('#79aeb8'), n = pondG.attributes.position.count, col = new Float32Array(n * 3), cc = new THREE.Color();
@@ -145,7 +145,7 @@ C.ponds = [];
 
 C.makePark = function (blk, rnd) {
   const bx = blk.bx, bz = blk.bz;
-  const slab = new THREE.Mesh(slabGeo, std('#5f8f4a', 1)); slab.position.set(bx, C.SW / 2, bz); slab.receiveShadow = true; scene.add(slab);
+  const slab = new THREE.Mesh(slabGeo, C.surface(std('#5f8f4a', 1), 'grass')); slab.position.set(bx, C.SW / 2, bz); slab.receiveShadow = true; scene.add(slab);
   const p1 = new THREE.Mesh(boxG, pathMat); p1.scale.set(40, 0.03, 3); p1.position.set(bx, C.SW + 0.015, bz); p1.receiveShadow = true;
   const p2 = new THREE.Mesh(boxG, pathMat); p2.scale.set(3, 0.03, 40); p2.position.set(bx, C.SW + 0.015, bz); p2.receiveShadow = true;
   const px = bx + (rnd() < 0.5 ? -9 : 9), pz = bz + (rnd() < 0.5 ? -9 : 9);
@@ -190,7 +190,7 @@ C.nightListeners.push(n => { clockMat.emissiveIntensity = n * 0.55; });
 C.makePlaza = function (blk, rnd) {
   const grp = new THREE.Group(); scene.add(grp);
   const bx = blk.bx, bz = blk.bz;
-  const slab = new THREE.Mesh(slabGeo, std('#cdc7b8', 0.95)); slab.position.set(bx, C.SW / 2, bz); slab.receiveShadow = true; grp.add(slab);
+  const slab = new THREE.Mesh(slabGeo, C.surface(std('#cdc7b8', 0.95), 'pave')); slab.position.set(bx, C.SW / 2, bz); slab.receiveShadow = true; grp.add(slab);
   const brick = std('#b9a283', 0.9), trim = std('#d8cfbb', 0.85), roofM = std('#3f4f5f', 0.8);
   const part = (mat, sx, sy, sz, y) => { const m = new THREE.Mesh(boxG, mat); m.scale.set(sx, sy, sz); m.position.set(bx, y, bz); m.castShadow = m.receiveShadow = true; grp.add(m); };
   part(trim, 8.4, 0.6, 8.4, C.SW + 0.3);

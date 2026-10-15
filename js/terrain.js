@@ -112,7 +112,7 @@ for (let i = 0; i < tp.count; i++) {
   tcol[i * 3] = cA.r; tcol[i * 3 + 1] = cA.g; tcol[i * 3 + 2] = cA.b;
 }
 tg.setAttribute('color', new THREE.BufferAttribute(tcol, 3));
-const terrain = new THREE.Mesh(tg, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }));
+const terrain = new THREE.Mesh(tg, C.surface(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }), 'terrain'));
 terrain.receiveShadow = true; terrain.renderOrder = 2; scene.add(terrain);
 if (C.grass) C.grass.visible = false;
 
@@ -132,7 +132,7 @@ for (let n = 0; n < 60000 * C.Q.forest && spots.length < 15000 * C.Q.forest; n++
 const pineG = C.mergeGeos([new THREE.CylinderGeometry(0.2, 0.3, 2.2, 5).translate(0, 1.1, 0), new THREE.ConeGeometry(2.1, 4.2, 7).translate(0, 3.6, 0), new THREE.ConeGeometry(1.5, 3.4, 7).translate(0, 5.9, 0)]);
 const leafG = C.mergeGeos([new THREE.CylinderGeometry(0.15, 0.24, 2.4, 5).translate(0, 1.2, 0), new THREE.IcosahedronGeometry(1.8, 1).translate(0, 3.8, 0), new THREE.IcosahedronGeometry(1.2, 1).translate(0.8, 3.3, 0.4)]);
 function forest(geo, list, pal) {
-  const m = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95 }), Math.max(1, list.length));
+  const m = new THREE.InstancedMesh(geo, C.surface(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95 }), 'tree'), Math.max(1, list.length));
   m.frustumCulled = false; m.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(Math.max(1, list.length) * 3), 3);
   list.forEach((p, k) => { d.position.set(p[0], p[1] - 0.2, p[2]); d.rotation.set(0, rnd() * 6.28, 0); d.scale.set(p[3], p[3] * (0.85 + rnd() * 0.4), p[3]); d.updateMatrix(); m.setMatrixAt(k, d.matrix); m.setColorAt(k, pal[(rnd() * pal.length) | 0]); });
   m.instanceMatrix.needsUpdate = m.instanceColor.needsUpdate = true; m.renderOrder = 2; scene.add(m); return m;
@@ -169,7 +169,7 @@ const rcv = document.createElement('canvas'); rcv.width = 128; rcv.height = 256;
   x.fillStyle = '#e9e7de'; for (let y = 0; y < 256; y += 64) { x.fillRect(35, y, 3, 32); x.fillRect(90, y, 3, 32); } }
 const rtex = new THREE.CanvasTexture(rcv); rtex.wrapS = rtex.wrapT = THREE.RepeatWrapping; rtex.encoding = THREE.sRGBEncoding; rtex.anisotropy = C.maxAniso;
 const ROAD_W = 15;
-const asphalt = new THREE.Mesh(ribbon(road, ROAD_W, p => roadY(p.s) + 0.04, 24, 1), new THREE.MeshStandardMaterial({ map: rtex, roughness: 0.92, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
+const asphalt = new THREE.Mesh(ribbon(road, ROAD_W, p => roadY(p.s) + 0.04, 24, 1), C.surface(new THREE.MeshStandardMaterial({ map: rtex, roughness: 0.92, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }), 'road'));
 asphalt.receiveShadow = true; scene.add(asphalt);
 /* bariyerler: iki yanda metal şerit; direkler örnekli */
 for (const side of [-1, 1]) {
@@ -211,5 +211,6 @@ C.highway = { pts: road, L: roadL, y: roadY, lane: C.LANE + 0.9, startNode: [C.N
 
 /* ---------- sis ve uzak düzlem: dağlar puslu bir silüet olsun ---------- */
 scene.fog.near = 1100 * C.Q.far / 8500; scene.fog.far = C.Q.far - 700;
+C.fogBase = { near: scene.fog.near, far: scene.fog.far };          // weather.js sisi, yağışı buna göre daraltır
 C.camera.far = C.Q.far; C.camera.updateProjectionMatrix();
 })();

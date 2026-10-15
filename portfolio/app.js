@@ -42,10 +42,18 @@ $('contactList').innerHTML = (P.contact || []).filter(c => c.href).map(c =>
 
 /* ---------- Şehir Haber: hava, maç, son dakika olaylar, gündem, rakamlar ---------- */
 const DOT = { fire: '#e2452b', accident: '#f2a516', crime: '#2f7bff', pedestrian: '#d6336c' };
-function weather(h) {
-  const t = Math.round(13 + 8 * Math.sin((h - 9) / 24 * Math.PI * 2));          // ekim: öğleden sonra ılık, gece serin
-  const [ico, txt] = h >= 5 && h < 7.5 ? ['🌫', 'Vadide sabah sisi'] : h < 18.5 && h >= 7.5 ? ['☀️', 'Açık ve güneşli'] : h >= 18.5 && h < 20 ? ['🌇', 'Gün batımı, açık'] : ['🌙', 'Açık, yıldızlı'];
-  return `<div class="kicker">Hava durumu · ${hm(h)}</div><div class="big">${ico} ${t}°<span>C</span></div><p>${txt}. Dağlardan tünele doğru hafif esinti, nem %${55 + Math.round(10 * Math.sin(h))}.</p>`;
+/* hava: Ankara'nın canlı verisi (wxdata.js). Şehrin içindeyken şehrin aldığı, tek başınayken kendi isteği; ikisi aynı önbelleği paylaşır */
+let wxd = null;
+function weather(h, C) {
+  const W = C && C.weather, d = (W && W.data) || wxd;
+  if (!d) return `<div class="kicker">Ankara · Hava durumu · ${hm(h)}</div><h4>Hava bilgisi alınamadı</h4><p>Bağlantı gelince Ankara'nın anlık havası burada görünür.</p>`;
+  const man = W && !W.live && W.KINDS ? W.KINDS[W.pick] : null;
+  const days = (d.daily || []).slice(0, 3).map((x, i) => `<div><small>${i === 0 ? 'Bugün' : i === 1 ? 'Yarın' : esc(new Date(x.date + 'T12:00').toLocaleDateString('tr-TR', { weekday: 'long' }))}</small><span>${x.ico}</span><b>${Math.round(x.max)}° <i>${Math.round(x.min)}°</i></b></div>`).join('');
+  const age = Math.round((Date.now() - d.t) / 60000);
+  return `<div class="kicker">Ankara · Hava durumu · ${hm(h)}</div><div class="big">${d.ico} ${Math.round(d.temp)}°<span>C</span></div>` +
+    `<p>${esc(d.label)}. Hissedilen ${Math.round(d.feels)}°, nem %${Math.round(d.hum)}, ${esc(d.windFrom)} ${Math.round(d.wind)} km/sa rüzgâr.</p>` +
+    (man ? `<p class="wx-man">Şehirde şu an elle seçilmiş hava: ${man.ico} ${esc(man.label)}</p>` : '') +
+    `<div class="wx-days">${days}</div><small class="src">Open-Meteo · ${age < 1 ? 'az önce' : age + ' dk önce'} güncellendi</small>`;
 }
 function match(C) {
   const M = C && C.match;
@@ -80,9 +88,10 @@ $('cityHow').innerHTML = (P.how || []).map(([h, t]) => `<details class="card"><s
 function cityRender() {
   const C = city(), h = hourNow();
   $('cityNow').textContent = (C ? 'Canlı · ' : '') + new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }) + ' · ' + hm(h);
-  $('cityWeather').innerHTML = weather(h); $('cityMatch').innerHTML = match(C); $('cityBreaking').innerHTML = breaking(C); $('cityStats').innerHTML = stats(C);
+  $('cityWeather').innerHTML = weather(h, C); $('cityMatch').innerHTML = match(C); $('cityBreaking').innerHTML = breaking(C); $('cityStats').innerHTML = stats(C);
 }
 let cityT = null;
+if (window.MSWeather) MSWeather.load(d => { wxd = d; if (cityT) cityRender(); });   // önbellekteyse hemen döner
 
 /* ---------- gezinme: uygulama açılır, geri ya da Esc ana ekrana döner. Tam ekran yalnızca elle (şehirde telefonun ⤢ düğmesi, tek başınayken sayfadaki düğme) ---------- */
 let current = null, opener = null;

@@ -55,16 +55,16 @@ function facade(style) {
 const fa = facade('apt'), fc = facade('cw');
 const AP = ['#f4ecda', '#e6cba6', '#dcb9a1', '#d0d8dc', '#eadcb6', '#cbc1ae'];
 const CW = ['#ffffff', '#d3e5f3', '#c3d9cc', '#e4e9ed'];
-const roofMat = new THREE.MeshStandardMaterial({ color: C.col('#5b5c60'), roughness: 1 });
+const roofMat = C.surface(new THREE.MeshStandardMaterial({ color: C.col('#5b5c60'), roughness: 1 }), 'roof');
 const trimMat = { apt: new THREE.MeshStandardMaterial({ color: C.col('#ddd6c6'), roughness: 0.8 }), cw: new THREE.MeshStandardMaterial({ color: C.col('#8f9ba4'), roughness: 0.4, metalness: 0.5 }) };
-C.roofTile = new THREE.MeshStandardMaterial({ color: C.col('#a8503a'), roughness: 0.9 });
+C.roofTile = C.surface(new THREE.MeshStandardMaterial({ color: C.col('#a8503a'), roughness: 0.9 }), 'roof');
 const glassMats = [], farMats = [];
 C.mats = { near: { apt: [], cw: [] }, far: { apt: [], cw: [] } };
 function pair(tex, hex, rough, metal, farMul, key) {
   const m = new THREE.MeshStandardMaterial({ color: C.col(hex), map: tex.map, roughness: rough, metalness: metal, emissive: 0xffffff, emissiveMap: tex.emissive, emissiveIntensity: 0 });
   glassMats.push(m);
   const f = new THREE.MeshStandardMaterial({ color: C.col(hex).multiply(farMul), roughness: 1, emissive: C.col('#ffcf8a'), emissiveIntensity: 0 });
-  farMats.push(f);
+  farMats.push(f); C.surface(f, 'roof');                              // yalnızca üste bakan yüz (çatı) ıslanır, karlanır
   C.mats.near[key].push([m, trimMat[key], roofMat, roofMat, m, m]);
   C.mats.far[key].push(f);                                     // uzakta tek malzeme: grup başına ayrı çizim yok
 }
@@ -200,7 +200,7 @@ const paveTex = (function () {
 })();
 const slabGeo = new THREE.BoxGeometry(C.BLOCK, C.SW, C.BLOCK);
 { const uv = slabGeo.attributes.uv; for (let i = 0; i < uv.count; i++) if (i < 8 || i >= 12) uv.setXY(i, 0.1 / (C.BLOCK / 4) * 4, 0.1 / (C.BLOCK / 4) * 4); }
-const slabMat = new THREE.MeshStandardMaterial({ color: C.col('#cfccc4'), map: paveTex, roughness: 0.95 });
+const slabMat = C.surface(new THREE.MeshStandardMaterial({ color: C.col('#cfccc4'), map: paveTex, roughness: 0.95 }), 'pave');
 const dirtMat = new THREE.MeshStandardMaterial({ color: C.col('#8b7d68'), roughness: 1 });
 const planeG = new THREE.PlaneGeometry(1, 1);
 

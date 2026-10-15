@@ -23,7 +23,7 @@ C.buildStreet = function () {
   };
   const crownG = C.mergeGeos([blob(0, 4.05, 0, 1.55), blob(0.8, 3.6, 0.35, 1.1), blob(-0.6, 3.75, -0.55, 1.1)]);
   const trunk = C.inst(trunkG, std('#6b4f3a'), nT);
-  const crown = C.inst(crownG, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95 }), nT);
+  const crown = C.inst(crownG, C.surface(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.95 }), 'tree'), nT);
   const greens = ['#4f8a3c', '#5c9a45', '#3f7a36', '#6aa04a'].map(C.col), autumn = ['#c9922f', '#b8742a'].map(C.col);
   T.forEach((t, i) => {
     C.setM(trunk, i, t[0], C.SW, t[1], 0, t[2], t[2], t[2]);
