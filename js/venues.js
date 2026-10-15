@@ -113,6 +113,7 @@ K.spot = function (x, z, label, act, r) { this.spots.push({ x, z, r: r || 1.15, 
 K.man = function (x, z, ry, pose, talk, look, y) { const p = { x, z, ry, pose, talk, look: look || C.randomLook(this.r), y: y || 0, ph: this.r() * 10, t: 0 }; this.people.push(p); return p; };
 K.staff = function (x, z, ry, pose, talk, kind) { const s = STAFF[kind] || {}; return this.man(x, z, ry, pose, talk, Object.assign(C.randomLook(this.r), s)); };
 const dirX = a => Math.cos(a), dirZ = a => -Math.sin(a);
+const TO_DOOR = Math.PI / 2, TO_BACK = -Math.PI / 2;               // yön: kapıya doğru (-z), içeri doğru (+z)
 /* sandalye: oturan face yönüne bakar; sırtlık arkada; sitter: 'npc' | 'free' */
 K.chair = function (x, z, face, col, sitter, talk) {
   col = col || '#7a5a3a'; const fx = dirX(face), fz = dirZ(face);
@@ -141,9 +142,9 @@ K.shelf = function (x, z, w, d, h, items, facing) {                 // raf: dikm
   for (const s of [-1, 1]) this.box(alongX ? x + s * (w / 2 - 0.02) : x, 0, alongX ? z : z + s * (d / 2 - 0.02), alongX ? 0.04 : d, h, alongX ? d : 0.04, '#6b4a30');
   this.box(x, 0, z, w, 0.08, d, '#5a3e28');
   this.cols.push([x, z, w / 2, d / 2]);
-  const f = facing || 0;                                                 // arka pano: duvar rafında arkada, ada rafında ortada
-  if (alongX) this.box(x, 0, z + f * (d / 2 - 0.01), w, h, 0.02, '#e9e2d4');
-  else this.box(x + f * (w / 2 - 0.01), 0, z, 0.02, h, d, '#e9e2d4');
+  const f = facing || 0;                                                 // arka pano yalnızca duvar rafında (ada rafı iki yandan açık)
+  if (f && alongX) this.box(x, 0, z + f * (d / 2 - 0.01), w, h, 0.02, '#7a5a3a');
+  else if (f) this.box(x + f * (w / 2 - 0.01), 0, z, 0.02, h, d, '#7a5a3a');
   for (let y = 0.42; y < h - 0.05; y += 0.42) {
     this.box(x, y, z, w, 0.03, d, '#8b6340');
     if (!items) continue;
@@ -229,13 +230,13 @@ const LAYOUT = {
     shell(k, W, D, 3.1, kafe ? 'wood' : 'tile', kafe ? '#e9dcc6' : '#efe4d2', { wains: kafe ? '#7a5a3a' : '#b5653a' });
     const cz = D - 1.15;
     k.counter(0, cz, W - 2.4, 0.7, kafe ? '#4a3527' : '#6b4a30', '#2a2e33');
-    k.samovar(-W / 2 + 1.7, 1.01, cz); k.register(W / 2 - 1.6, 1.01, cz, Math.PI / 2 * 3);
+    k.samovar(-W / 2 + 1.7, 1.01, cz); k.register(W / 2 - 1.6, 1.01, cz, TO_BACK);
     if (simitci || !kafe) for (let i = 0; i < 6; i++) k.tor(-0.4 + (i % 3) * 0.22, 1.03 + Math.floor(i / 3) * 0.06, cz - 0.1 + Math.floor(i / 3) * 0.12, 0.08, '#b9742f');   // tezgâhta simitler
     if (kafe) { k.box(0.6, 1.01, cz, 0.36, 0.42, 0.3, '#2b2f33', false, true); k.cyl(0.95, 1.01, cz, 0.05, 0.1, '#f2f2ee'); }
     for (let i = 0; i < 6; i++) k.tea(-W / 2 + 1.3 + i * 0.12, 1.01, cz + 0.22);
     k.shelf(0, D - 0.2, W - 2.6, 0.28, 2.3, kafe ? ['#7a5a3a', '#f2f2ee', '#c9853f'] : ['#d4a73c', '#f2f2ee', '#3b9a57', '#b5541c'], 1);
     backSign(k, W, D, 2.4, 0.9, 2.15, signTex([name, ...menu.map(m => `${m[1]} ${tl(m[2])}`)], '#16212b', '#f2efe1', '#ffb53d', 512, 200));
-    const barista = k.staff(0.3, D - 0.55, -Math.PI / 2, 'stand', TALK.cafe, 'cafe');
+    const barista = k.staff(0.3, D - 0.55, TO_DOOR, 'stand', TALK.cafe, 'cafe');
     menu.forEach((m, i) => k.spot(-1.4 + i * 1.4, cz - 0.75, () => `E: ${m[1]} al · ${tl(m[2])}`, () => buy(barista, m[0], m[1], m[2], m[3]), 0.9));
     /* masalar: biri boş kalır, oyuncu oturabilsin */
     const n = W > 6 ? 3 : 2;
@@ -257,24 +258,24 @@ const LAYOUT = {
     k.shelf(0, D - 0.3, W - 1.2, 0.5, 2.2, ['#c9853f', '#b5702f', '#d9a35c', '#a8622a'], 1);
     k.box(W / 2 - 1.0, 0, D - 0.9, 1.2, 1.6, 0.9, '#5b4a3a', true); k.box(W / 2 - 1.0, 0.5, D - 1.36, 0.8, 0.5, 0.02, '#e86a1c');   // fırın, ağzında ateş
     backSign(k, W, D, 2.2, 0.8, 2.25, signTex(['FIRIN', 'Ekmek 10 ₺', 'Poğaça 15 ₺', 'Simit 15 ₺'], '#5b3a22', '#f7ecd8', '#ffb53d', 512, 190));
-    const baker = k.staff(0.4, cz + 0.85, -Math.PI / 2, 'stand', TALK.bakery, 'bakery');
+    const baker = k.staff(0.4, cz + 0.85, TO_DOOR, 'stand', TALK.bakery, 'bakery');
     k.spot(-1.2, cz - 0.8, () => 'E: Ekmek al · 10 ₺', () => buy(baker, 'bread', 'Ekmek', 10, 'Sıcak sıcak, buyurun.'), 0.9);
     k.spot(0.2, cz - 0.8, () => 'E: Poğaça al · 15 ₺', () => buy(baker, 'pogaca', 'Poğaça', 15, 'Peynirli, afiyet olsun.'), 0.9);
     k.spot(1.5, cz - 0.8, () => 'E: Simit al · 15 ₺', () => buy(baker, 'simit', 'Simit', 15, 'Susamlı, taze!'), 0.9);
-    k.man(-W / 2 + 1.4, 1.5, -Math.PI / 2 + 0.4, 'stand', TALK.customer);
+    k.man(-W / 2 + 1.0, cz - 1.0, TO_BACK + 0.4, 'stand', TALK.customer);        // kapıdan uzakta, tezgâha bakar
   },
   pharmacy(k, W, D, name) {
     shell(k, W, D, 3.1, 'terrazzo', '#f4f6f6', { wains: '#3b9a57' });
     const cz = D * 0.52;
     k.counter(0, cz, W - 2.4, 0.6, '#f2f2ee', '#3b9a57');
-    k.register(-0.8, 1.01, cz, -Math.PI / 2);
+    k.register(-0.8, 1.01, cz, TO_BACK);
     k.shelf(0, D - 0.3, W - 1.0, 0.42, 2.4, ['#f2f2ee', '#e2452b', '#2f7bff', '#3b9a57', '#d8e6f2'], 1);
     for (const s of [-1, 1]) k.shelf(s * (W / 2 - 0.3), D * 0.32, 0.42, D * 0.42, 1.8, ['#f2f2ee', '#e2452b', '#2f7bff', '#d8e6f2'], s);
     backSign(k, W, D, 1.6, 0.5, 2.55, signTex([name === 'OPTİK' ? 'OPTİK' : 'ECZANE'], '#3b9a57', '#ffffff', null, 400, 120));
-    const ph = k.staff(-0.3, cz + 0.75, -Math.PI / 2, 'stand', TALK.pharmacy, 'pharmacy');
+    const ph = k.staff(-0.3, cz + 0.75, TO_DOOR, 'stand', TALK.pharmacy, 'pharmacy');
     if (name === 'OPTİK') k.spot(0.4, cz - 0.7, () => 'E: Güneş gözlüğü al · 150 ₺', () => buy(ph, 'glasses', 'Güneş gözlüğü', 150, 'Size çok yakıştı!'), 0.9);
     else k.spot(0.4, cz - 0.7, () => 'E: Vitamin al · 80 ₺', () => buy(ph, 'medicine', 'Vitamin', 80, 'Günde bir tane, tok karnına.'), 0.9);
-    k.man(0.9, 1.4, -Math.PI / 2 + 0.3, 'stand', TALK.patient);
+    k.man(W / 2 - 1.1, cz - 0.9, TO_BACK + 0.3, 'stand', TALK.patient);
   },
   market(k, W, D, name) {
     shell(k, W, D, 3.2, 'tile', '#eef0ee', { wains: '#e2452b' });
@@ -294,7 +295,7 @@ const LAYOUT = {
     if (name !== 'KIRTASİYE') { k.box(-W / 2 + 0.45, 0, D - 1.3, 0.7, 1.9, 1.6, '#d8e6f2', true, true); for (let y = 0.3; y < 1.8; y += 0.32) for (let z = D - 1.95; z < D - 0.7; z += 0.18) k.cyl(-W / 2 + 0.75, y, z, 0.04, 0.22, pick(k.r, ['#e2452b', '#2f7bff', '#3b9a57', '#f2c230'])); }   // içecek dolabı
     /* kasa */
     const kx = W / 2 - 1.2, kz = 1.6;
-    k.counter(kx, kz, 0.7, 1.7, '#3b4046', '#2a2e33'); k.register(kx, 1.01, kz - 0.4, Math.PI); k.box(kx, 1.01, kz + 0.35, 0.5, 0.02, 0.6, '#1f2328');
+    k.counter(kx, kz, 0.7, 1.7, '#3b4046', '#2a2e33'); k.register(kx, 1.01, kz - 0.4, 0); k.box(kx, 1.01, kz + 0.35, 0.5, 0.02, 0.6, '#1f2328');
     k.box(kx - 0.75, 0, kz + 0.4, 0.4, 0.5, 0.3, '#c62828'); for (let j = 0; j < 3; j++) k.box(kx - 0.75, 0.5 + j * 0.06, kz + 0.4, 0.4, 0.05, 0.3, '#c62828');   // sepet yığını
     backSign(k, W, D, 2.4, 0.6, 2.5, signTex([name === 'KIRTASİYE' ? 'KIRTASİYE' : 'MARKET · TAZE ÜRÜN'], '#c62828', '#ffffff', null, 512, 120));
     const cashier = k.staff(kx + 0.55, kz, Math.PI, 'stand', TALK.market, 'market');
@@ -318,20 +319,20 @@ const LAYOUT = {
       k.box(x, 1.0, D - 0.06, 1.1, 1.3, 0.03, '#cfd8de', false, true);                 // ayna
       k.box(x, 0.8, D - 0.25, 1.2, 0.05, 0.35, '#2a2e33');
       k.cyl(x, 0, z, 0.22, 0.12, '#2b2f33', false, true); k.cyl(x, 0.12, z, 0.05, 0.3, '#c9ccd0', false, true);   // berber koltuğu
-      k.box(x, 0.42, z, 0.62, 0.12, 0.6, '#8a2d2d'); k.box(x, 0.54, z + 0.28, 0.62, 0.65, 0.1, '#8a2d2d');
+      k.box(x, 0.42, z, 0.62, 0.12, 0.6, '#8a2d2d'); k.box(x, 0.54, z - 0.28, 0.62, 0.65, 0.1, '#8a2d2d');   // sırtlık kapı tarafında, müşteri aynaya bakar
       k.cols.push([x, z, 0.33, 0.33]);
-      const seat = { x, z, face: -Math.PI / 2, npc: null }; k.seats.push(seat);
-      k.staff(x - 0.25, z - 0.75, -Math.PI / 2 + 0.3, 'cook', TALK.barber, 'barber');
-      if (i === 0) seat.npc = k.man(x, z, -Math.PI / 2, 'sit', TALK.customer);
+      const seat = { x, z, face: TO_BACK, npc: null }; k.seats.push(seat);
+      k.staff(x + 0.55, z - 0.35, Math.PI, 'cook', TALK.barber, 'barber');            // berber yanda, müşteriye döner
+      if (i === 0) seat.npc = k.man(x, z + 0.05, TO_BACK, 'sit', TALK.customer);
       else seat.npc = true, k.spot(x, z - 0.8, () => 'E: Tıraş ol · 150 ₺', () => {
         const pl = P(), w = C.venues.toWorld(x, z, { x: 0, z: 0 });
         if (pl.money >= 150) pl.money -= 150;
-        pl.seat = { x: w.x, z: w.z, ry: -Math.PI / 2 + cur.g.rotation.y, player: true }; pl.pos.set(w.x, cur.floor, w.z); pl.face = pl.seat.ry;
+        pl.seat = { x: w.x, z: w.z, ry: TO_BACK + cur.g.rotation.y, player: true }; pl.pos.set(w.x, cur.floor, w.z); pl.face = pl.seat.ry;
         cur.cut = 9; sayMe('Yanlardan biraz alalım…');
       }, 0.9);
     }
     k.cyl(W / 2 - 0.25, 1.2, 0.5, 0.08, 0.9, '#e2452b');                                   // berber direği
-    for (let x = -W / 2 + 0.8; x < W / 2 - 1.5; x += 0.6) k.chair(x, 0.9, -Math.PI / 2, '#3d5a80', k.r() < 0.35 ? 'npc' : 'free', TALK.customer);
+    for (let z = 1.3; z < D - 2.6; z += 0.6) k.chair(-W / 2 + 0.45, z, 0, '#3d5a80', k.r() < 0.4 ? 'npc' : 'free', TALK.customer);   // bekleme: sol duvar boyunca
     seatSpots(k);
   },
   kebab(k, W, D) {
@@ -341,7 +342,7 @@ const LAYOUT = {
     k.cyl(-1.2, 1.01, cz + 0.05, 0.04, 0.9, '#8d939a'); k.cyl(-1.2, 1.15, cz + 0.05, 0.16, 0.6, '#8a5a2b');   // döner
     k.box(-1.2, 1.0, cz + 0.32, 0.6, 1.0, 0.05, '#c9372c');
     backSign(k, W, D, 2.2, 0.8, 2.2, signTex(['KEBAP', 'Dürüm 120 ₺', 'İskender 220 ₺', 'Ayran 20 ₺'], '#8a3b3b', '#f7ecd8', '#ffd23f', 512, 190));
-    const usta = k.staff(-0.4, D - 0.4, -Math.PI / 2, 'cook', TALK.kebab, 'kebab');
+    const usta = k.staff(-0.4, D - 0.4, TO_DOOR, 'cook', TALK.kebab, 'kebab');
     k.spot(-0.6, cz - 0.75, () => 'E: Dürüm al · 120 ₺', () => buy(usta, 'durum', 'Dürüm', 120, 'Acılı, bol soğanlı!'), 0.9);
     k.spot(0.9, cz - 0.75, () => 'E: Ayran al · 20 ₺', () => buy(usta, 'ayran', 'Ayran', 20, 'Köpüklü, buz gibi.'), 0.9);
     for (let i = 0; i < 2; i++) { const x = -W / 4 + i * W / 2; k.table(x, 2.2, 1.1, 0.75); for (const s of [-1, 1]) k.chair(x, 2.2 + s * 0.68, s > 0 ? Math.PI / 2 : -Math.PI / 2, '#5a3e28', i === 1 ? 'free' : null); }
@@ -350,21 +351,19 @@ const LAYOUT = {
   florist(k, W, D) {
     shell(k, W, D, 3.1, 'wood', '#eef3ea', { wains: '#5b6e4a' });
     const F = ['#e2452b', '#f2c230', '#ffffff', '#c96bb0', '#ff8a3d', '#8a5ac9'];
-    for (let x = -W / 2 + 0.8; x < W / 2 - 0.6; x += 0.7) for (const z of [D - 0.6, 1.5]) {
-      k.cyl(x, 0, z, 0.2, 0.36, '#5b6e4a'); for (let j = 0; j < 5; j++) k.sph(x + (k.r() - 0.5) * 0.25, 0.5 + k.r() * 0.2, z + (k.r() - 0.5) * 0.25, 0.08, pick(k.r, F));
-      k.cols.push([x, z, 0.22, 0.22]);
-    }
+    const pot = (x, z) => { k.cyl(x, 0, z, 0.2, 0.36, '#5b6e4a'); for (let j = 0; j < 5; j++) k.sph(x + (k.r() - 0.5) * 0.25, 0.5 + k.r() * 0.2, z + (k.r() - 0.5) * 0.25, 0.08, pick(k.r, F)); k.cols.push([x, z, 0.22, 0.22]); };
+    for (let x = -W / 2 + 0.6; x < W / 2 - 0.5; x += 0.7) pot(x, D - 0.5);           // arka duvar
+    for (const s of [-1, 1]) for (let z = 1.6; z < D - 1.3; z += 0.75) pot(s * (W / 2 - 0.45), z);   // yan duvarlar
     k.counter(0, D * 0.55, 2.2, 0.7, '#8b6340', '#e8e2d0');
-    const fl = k.staff(0, D * 0.55 + 0.8, -Math.PI / 2, 'stand', TALK.florist, 'cafe');
+    const fl = k.staff(0, D * 0.55 + 0.8, TO_DOOR, 'stand', TALK.florist, 'cafe');
     k.spot(-0.5, D * 0.55 - 0.75, () => 'E: Buket al · 120 ₺', () => buy(fl, 'flowers', 'Buket', 120, 'Kime gidiyor bu güzel buket?'), 0.9);
-    k.plant(W / 2 - 0.5, D * 0.55, true);
   },
   repair(k, W, D) {
     shell(k, W, D, 3.1, 'concrete', '#d8d4c8', { wains: '#5b4a3a' });
     k.counter(0, D - 0.85, W - 1.6, 0.85, '#5b4a3a', '#3b3f44');
     for (let x = -W / 2 + 1.2; x < W / 2 - 1; x += 0.8) k.box(x, 1.01, D - 0.85, 0.5, 0.25 + k.r() * 0.3, 0.38, pick(k.r, ['#2a2e33', '#8d939a', '#3b4046', '#c9a227']));
-    k.chair(0.6, D - 1.8, Math.PI / 2, '#3b4046', 'free');
-    const usta = k.man(0.6, D - 1.8, Math.PI / 2, 'study', TALK.repair, Object.assign(C.randomLook(k.r), { shirt: '#2f6f8f', hair: '#a8a29a' }));
+    k.chair(0.6, D - 1.55, TO_BACK, '#3b4046', 'free');
+    const usta = k.man(0.6, D - 1.59, TO_BACK, 'study', TALK.repair, Object.assign(C.randomLook(k.r), { shirt: '#2f6f8f', hair: '#a8a29a' }));
     k.seats[k.seats.length - 1].npc = usta;
     k.shelf(-W / 2 + 0.3, D * 0.4, 0.42, D * 0.6, 2.2, ['#2a2e33', '#8d939a', '#c9a227'], -1);
     k.spot(0.6, D - 2.6, () => 'E: Telefonu tamire bırak', () => { usta.talk_t = 3; sayAt(usta, 'Ekranı değişecek. Yarın gelin, hazır olur.'); }, 1.0);
@@ -374,8 +373,8 @@ const LAYOUT = {
     /* danışma */
     k.counter(0, 2.7, 3.4, 0.8, '#24364d', '#d8dde2');
     k.monitor(-0.8, 1.01, 2.85, -Math.PI / 2); k.monitor(0.8, 1.01, 2.85, -Math.PI / 2);
-    k.sign(0, 1.3, 2.28, 1.4, 0.32, 0, signTex(['DANIŞMA'], '#1f4e8c', '#ffffff', null, 400, 90));
-    const off = k.staff(0, 3.5, -Math.PI / 2, 'stand', TALK.police, 'police');
+    k.sign(0, 0.62, 2.28, 1.4, 0.32, Math.PI, signTex(['DANIŞMA'], '#1f4e8c', '#ffffff', null, 400, 90));   // tezgâhın önünde, kapıya bakar
+    const off = k.staff(0, 3.45, TO_DOOR, 'stand', TALK.police, 'police');
     k.spot(0, 1.85, () => 'E: Şikâyet bildir', () => { off.talk_t = 3.5; sayAt(off, pick(Math.random, ['Tutanağı aldım, inceleyeceğiz.', 'Bir kedinin pencerenize bakması suç değil efendim.', 'Komşunun müziği mi? Bir uyarıda bulunuruz.', 'Pijamalı Çocuk mu? O bizden değil ama yardımı çok.'])); }, 1.0);
     /* bayrak, ilanlar */
     k.cyl(-W / 2 + 0.5, 0, D - 0.5, 0.025, 2.6, '#c9ccd0', false, true); k.sign(-W / 2 + 0.92, 2.1, D - 0.5, 0.8, 0.54, Math.PI / 2, flagTex());
@@ -388,10 +387,10 @@ const LAYOUT = {
     k.cyl(-W / 2 + 0.4, 0, 2.2, 0.15, 1.0, '#d8e6f2'); k.cyl(-W / 2 + 0.4, 1.0, 2.2, 0.13, 0.35, '#8fd3ff');      // su sebili
     /* masalar */
     for (const x of [-W / 4 - 0.4, W / 4 - 1.2]) {
-      k.table(x, D * 0.62, 1.5, 0.8, '#e8e2d0'); k.monitor(x - 0.3, 0.77, D * 0.62 + 0.1, -Math.PI / 2);
+      k.table(x, D * 0.62, 1.5, 0.8, '#e8e2d0'); k.monitor(x - 0.3, 0.77, D * 0.62 - 0.12, TO_BACK);
       k.box(x + 0.4, 0.77, D * 0.62, 0.3, 0.04, 0.22, '#f4f1ea'); k.box(x + 0.42, 0.81, D * 0.62, 0.3, 0.04, 0.22, '#f4f1ea');   // evrak
-      const s = k.chair(x, D * 0.62 + 0.65, -Math.PI / 2, '#2a2e33', 'free');
-      s.npc = k.staff(x, D * 0.62 + 0.62, -Math.PI / 2, 'study', TALK.police, 'police');
+      const s = k.chair(x, D * 0.62 + 0.65, TO_DOOR, '#2a2e33', 'free');
+      s.npc = k.staff(x, D * 0.62 + 0.69, TO_DOOR, 'study', TALK.police, 'police');
     }
     for (let j = 0; j < 3; j++) { k.box(-W / 2 + 0.35, 0, D * 0.45 + j * 0.55, 0.5, 1.3, 0.5, '#8d939a', true); for (let y = 0.25; y < 1.3; y += 0.32) k.box(-W / 2 + 0.6, y, D * 0.45 + j * 0.55, 0.02, 0.04, 0.2, '#3b3f44'); }   // dosya dolapları
     k.plant(W / 2 - 0.5, 1.0, true);
@@ -401,16 +400,16 @@ const LAYOUT = {
     k.box(cx, 1.0, cz - 1.4, 3.1, 0.06, 0.06, '#3b4046'); k.box(cx, 2.0, cz - 1.4, 3.1, 0.06, 0.06, '#3b4046');
     k.cols.push([cx, cz - 1.4, 1.6, 0.1]);
     k.box(cx, 0, cz + 0.6, 2.6, 0.45, 0.7, '#8d939a', true);
-    k.man(cx + 0.4, cz - 0.3, -Math.PI / 2, 'stand', TALK.inmate, Object.assign(C.randomLook(k.r), { shirt: '#22262b', pants: '#22262b' }));
+    k.man(cx + 0.4, cz - 0.6, TO_DOOR, 'stand', TALK.inmate, Object.assign(C.randomLook(k.r), { shirt: '#22262b', pants: '#22262b' }));
   },
   hospital(k, W, D) {
     shell(k, W, D, 3.2, 'terrazzo', '#f4f7f8', { wains: '#8fc1d8' });
     k.counter(-W / 4, 2.4, 3.0, 0.8, '#f2f2ee', '#c62828'); k.monitor(-W / 4 - 0.6, 1.01, 2.55, -Math.PI / 2);
-    k.sign(-W / 4, 1.3, 1.98, 1.2, 0.3, 0, signTex(['ACİL · KAYIT'], '#c62828', '#ffffff', null, 400, 90));
-    const nurse = k.staff(-W / 4, 3.2, -Math.PI / 2, 'stand', TALK.hospital, 'doctor');
+    k.sign(-W / 4, 0.62, 1.98, 1.2, 0.3, Math.PI, signTex(['ACİL · KAYIT'], '#c62828', '#ffffff', null, 400, 90));
+    const nurse = k.staff(-W / 4, 3.15, TO_DOOR, 'stand', TALK.hospital, 'doctor');
     let no = 40 + ((Math.random() * 20) | 0);
     k.spot(-W / 4, 1.55, () => 'E: Sıra numarası al', () => { no++; nurse.talk_t = 3; sayAt(nurse, `Sıra numaranız A-${no}. Bekleme salonunda oturabilirsiniz.`); }, 1.0);
-    for (let x = 1; x < W / 2 - 0.8; x += 0.55) k.chair(x, 1.2, -Math.PI / 2, '#2f7bff', k.r() < 0.5 ? 'npc' : 'free', TALK.patient);
+    for (let x = 1.6; x < W / 2 - 0.6; x += 0.55) k.chair(x, 1.2, TO_BACK, '#2f7bff', k.r() < 0.5 ? 'npc' : 'free', TALK.patient);   // kapı koridorunun yanında
     const bx = W / 4, bz = D - 1.6;
     k.box(bx, 0, bz, 1.0, 0.65, 2.0, '#d8e6f2', true); k.box(bx, 0.65, bz + 0.7, 0.9, 0.12, 0.4, '#ffffff');
     k.box(bx - 0.9, 0, bz, 0.04, 2.2, 2.4, '#8fc1d8');
