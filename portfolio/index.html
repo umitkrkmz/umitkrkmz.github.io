@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<a class="enter-city" id="enterCity" href="../index.html">🏙 Şehre gir</a>
+<a class="enter-city" id="enterCity" href="../index.html">Şehre gir</a>
 <button class="full-btn" id="fullBtn" aria-label="Tam ekran" aria-pressed="false">⤢</button>
 <main class="device" id="device">
   <div class="wall" aria-hidden="true"></div>
@@ -30,11 +30,12 @@
       <p class="tag" id="tagline"></p>
       <span class="pill" id="status"></span>
     </div>
+    <div class="minis" id="minis" aria-label="Araçlar"></div>
     <nav class="apps" aria-label="Uygulamalar">
-      <button class="app" data-open="projects"><span class="ico" style="--c:#ff9f43">📁</span>Projeler</button>
-      <button class="app" data-open="about"><span class="ico" style="--c:#54a0ff">👤</span>Hakkımda</button>
-      <button class="app" data-open="contact"><span class="ico" style="--c:#1dd1a1">💬</span>İletişim</button>
-      <button class="app" data-open="city"><span class="ico" style="--c:#ffb53d">🗞</span>Ankara Haber</button>
+      <button class="app" data-open="projects"><span class="ico" style="--c:#ff9f43" data-icon="folder"></span>Projeler</button>
+      <button class="app" data-open="about"><span class="ico" style="--c:#54a0ff" data-icon="user"></span>Hakkımda</button>
+      <button class="app" data-open="contact"><span class="ico" style="--c:#1dd1a1" data-icon="chat"></span>İletişim</button>
+      <button class="app" data-open="city"><span class="ico" style="--c:#ffb53d" data-icon="news"></span>Ankara Haber</button>
     </nav>
     <div class="dockbar" aria-label="Kısayollar" id="dockbar"></div>
   </section>
@@ -65,9 +66,11 @@
       <h3>Bu şehir nasıl yapıldı</h3><div id="cityHow"></div>
     </div>
   </section>
+  <div class="toast" id="toast" role="status" hidden></div>
   <div class="home-ind" aria-hidden="true"></div>
 </main>
 <script src="../js/wxdata.js"></script>
+<script src="icons.js"></script>
 <script src="content.js"></script>
 <script src="news.js"></script>
 <script src="app.js"></script>

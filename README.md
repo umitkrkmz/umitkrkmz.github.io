@@ -35,9 +35,10 @@ Kontrol panelinde saat kaydırıcısı, "Günü ilerlet", hava seçimi, trafik y
 
 Şehirde bir geliştirici dolaşıyor: koyu kapüşonlu, sırtında laptop çantası, meydanın doğusundaki kaldırımda. Kontrol panelindeki **Beni bul** kamerayı onun önüne indirir; el sallar, cebinden telefonunu çıkarır ve telefon ekranda açılır. Telefonun içi portfolyodur; kilit ekranındaki saat şehrin saatidir. Sağ üstteki ⤢ düğmesi telefonu GTA'daki internet siteleri gibi tam ekrana büyütür, ⤡ geri küçültür.
 
-- **Projeler:** kısa açıklamalar, GitHub'a bağlantı.
-- **Hakkımda:** birkaç cümle.
-- **İletişim:** GitHub, LinkedIn, e-posta.
+- **Ana ekran:** duvar kâğıdı canlı: gökyüzü saate ve Ankara'nın havasına göre değişir (güneş ya da ay, yıldızlar, bulutlar, yağmur, kar, sis, şimşek), önde gece pencereleri yanan, Atakule'li bir Ankara silueti. Hava ve maç araçları; şehirde bir olay olunca üstten bildirim düşer. Uygulamalar simgeden büyüyerek açılır.
+- **Projeler:** iki grup (öne çıkanlar, Windows araçları); dil ve son güncelleme GitHub'dan canlı, makale ve kod bağlantıları.
+- **Hakkımda:** kısa tanıtım, eğitim, genel başlıklarla beceriler.
+- **İletişim:** GitHub, LinkedIn, e-posta, ORCID, Sponsor.
 - **Ankara Haber:** şehrin canlı hâli: hava durumu, stattaki maçın skoru ya da son sonucu, son dakika olaylar (yangın, kaza, hırsızlık), güne özgü gündem (o anki havaya, şehirde olan yangın ve kazalara, maç sonucuna, saate, haftanın gününe, özel günlere ve mevsime göre yazılan haberler; her gün ve her üç saatte bir başka seçki, araya şaka haberler), şehir rakamları ve "Bu şehir nasıl yapıldı".
 
 
