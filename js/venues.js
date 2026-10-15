@@ -127,7 +127,7 @@ K.chair = function (x, z, face, col, sitter, talk) {
 };
 K.stool = function (x, z, col) { this.cyl(x, 0, z, 0.03, 0.62, '#2b2f33'); this.cyl(x, 0.62, z, 0.18, 0.05, col || '#b3402e'); };
 K.table = function (x, z, w, d, col, round) {
-  col = col || '#8b6340';
+  col = col || '#8b6340'; (this.tables = this.tables || []).push({ x, z, w, d: round ? w : d });
   if (round) { this.cyl(x, 0.72, z, w / 2, 0.04, col); this.cyl(x, 0, z, 0.04, 0.72, '#2b2f33'); this.cyl(x, 0, z, 0.22, 0.03, '#2b2f33'); this.cols.push([x, z, w / 2, w / 2]); return; }
   this.box(x, 0.72, z, w, 0.05, d, col);
   for (const [a, b] of [[-1, -1], [-1, 1], [1, -1], [1, 1]]) this.box(x + a * (w / 2 - 0.06), 0, z + b * (d / 2 - 0.06), 0.05, 0.72, 0.05, '#2b2f33');
@@ -139,7 +139,7 @@ K.counter = function (x, z, w, d, col, top) {
 };
 K.shelf = function (x, z, w, d, h, items, facing) {                 // raf: dikmeler, rafta ürün (kutu, şişe, kavanoz)
   const alongX = w >= d;
-  for (const s of [-1, 1]) this.box(alongX ? x + s * (w / 2 - 0.02) : x, 0, alongX ? z : z + s * (d / 2 - 0.02), alongX ? 0.04 : d, h, alongX ? d : 0.04, '#6b4a30');
+  for (const s of [-1, 1]) this.box(alongX ? x + s * (w / 2 - 0.02) : x, 0, alongX ? z : z + s * (d / 2 - 0.02), alongX ? 0.04 : w, h, alongX ? d : 0.04, '#6b4a30');   // uç dikmeleri: rafın kısa kenarı kadar
   this.box(x, 0, z, w, 0.08, d, '#5a3e28');
   this.cols.push([x, z, w / 2, d / 2]);
   const f = facing || 0;                                                 // arka pano yalnızca duvar rafında (ada rafı iki yandan açık)
@@ -454,12 +454,17 @@ function doors() {
 const std = (hex, r, m) => new THREE.MeshStandardMaterial({ color: C.col(hex), roughness: r === undefined ? 0.7 : r, metalness: m || 0 });
 function holdMesh(kind) {
   const g = new THREE.Group(), add = (geo, mat, x, y, z, sx, sy, sz) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.scale.set(sx, sy, sz); m.castShadow = true; g.add(m); return m; };
-  if (kind === 'tea') { add(cylU, std('#b5541c', 0.2), 0, -0.04, 0, 0.024, 0.08, 0.024); add(cylU, std('#f2f2ee'), 0, -0.05, 0, 0.045, 0.008, 0.045); }
-  else if (kind === 'coffee' || kind === 'ayran') add(cylU, std('#f4f1ea', 0.4), 0, -0.05, 0, 0.035, 0.09, 0.035);
-  else if (kind === 'simit') add(torU, std('#b9742f'), 0, 0, 0, 0.085, 0.085, 0.085);
-  else if (kind === 'pogaca' || kind === 'cake') add(sphU, std(kind === 'cake' ? '#7a4a2a' : '#d9a35c'), 0, 0, 0, 0.07, 0.045, 0.07);
+  const eat = (m, how) => { m.userData.eat = how; m.userData.s0 = m.scale.clone(); return m; };
+  if (kind === 'tea') {                                                  // ince belli bardak: cam, içinde çay
+    eat(add(cylU, std('#a5400f', 0.2), 0, -0.042, 0, 0.021, 0.068, 0.021), 'y');
+    add(cylU, new THREE.MeshStandardMaterial({ color: C.col('#dfe9ee'), roughness: 0.05, transparent: true, opacity: 0.35, depthWrite: false }), 0, -0.045, 0, 0.026, 0.082, 0.026);
+    add(cylU, std('#f2f2ee'), 0, -0.05, 0, 0.045, 0.008, 0.045);
+  }
+  else if (kind === 'coffee' || kind === 'ayran') { add(cylU, std('#f4f1ea', 0.4), 0, -0.05, 0, 0.035, 0.09, 0.035); eat(add(cylU, std(kind === 'ayran' ? '#fbfaf5' : '#3b2416'), 0, -0.045, 0, 0.031, 0.083, 0.031), 'y'); }
+  else if (kind === 'simit') eat(add(torU, std('#b9742f'), 0, 0, 0, 0.085, 0.085, 0.085), 'all');
+  else if (kind === 'pogaca' || kind === 'cake') eat(add(sphU, std(kind === 'cake' ? '#7a4a2a' : '#d9a35c'), 0, 0, 0, 0.07, 0.045, 0.07), 'all');
   else if (kind === 'bread') add(sphU, std('#c9853f'), 0, 0, 0, 0.16, 0.06, 0.06);
-  else if (kind === 'durum') add(cylU, std('#e8d2a6'), 0, -0.08, 0, 0.04, 0.17, 0.04);
+  else if (kind === 'durum') eat(add(cylU, std('#e8d2a6'), 0, -0.08, 0, 0.04, 0.17, 0.04), 'all');
   else if (kind === 'medicine' || kind === 'glasses') add(unit, std(kind === 'glasses' ? '#2a2e33' : '#f2f2ee'), 0, -0.03, 0, 0.12, 0.06, 0.06);
   else if (kind === 'flowers') { add(cylU, std('#3b7a3a'), 0, -0.2, 0, 0.03, 0.32, 0.03); for (let i = 0; i < 6; i++) add(sphU, std(['#e2452b', '#f2c230', '#ffffff', '#c96bb0'][i % 4]), Math.cos(i) * 0.05, 0.13 + (i % 2) * 0.03, Math.sin(i) * 0.05, 0.045, 0.045, 0.045); }
   else if (kind === 'basket') { add(unit, std('#c62828', 0.5), 0, -0.3, 0, 0.36, 0.2, 0.24); add(unit, std('#c62828', 0.5), 0, -0.12, 0, 0.02, 0.18, 0.2); }
@@ -542,6 +547,19 @@ C.venues = {
     return best;
   },
   act(s) { s.act(); },
+  /* kalkarken bitmiş bardak ya da tabak en yakın masada kalır (mekândan çıkınca kaybolur) */
+  dropOnTable(seat) {
+    const pl = C.player; if (!cur || !pl.hold) return false;
+    const [sx, sz] = this.toLocal(seat.x, seat.z), T = cur.k.tables || [];
+    let tb = null, bd = 1.6; for (const t of T) { const d = Math.hypot(t.x - sx, t.z - sz); if (d < bd) { bd = d; tb = t; } }
+    const kind = pl.hold.kind, g = new THREE.Group();
+    const tx = tb ? C.clamp(sx, tb.x - tb.w / 2 + 0.1, tb.x + tb.w / 2 - 0.1) : sx, tz = tb ? C.clamp(sz, tb.z - tb.d / 2 + 0.1, tb.z + tb.d / 2 - 0.1) : sz;
+    const y = tb ? 0.77 : 0.02, add = (geo, mat, x, yy, z, a, b, c) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, yy, z); m.scale.set(a, b, c); m.userData.own = true; g.add(m); };
+    if (DRINKABLE[kind]) { add(cylU, std('#f2f2ee'), 0, 0, 0, 0.045, 0.008, 0.045); add(cylU, kind === 'tea' ? new THREE.MeshStandardMaterial({ color: C.col('#dfe9ee'), roughness: 0.05, transparent: true, opacity: 0.4, depthWrite: false }) : std('#f4f1ea', 0.4), 0, 0.008, 0, kind === 'tea' ? 0.026 : 0.035, kind === 'tea' ? 0.082 : 0.09, kind === 'tea' ? 0.026 : 0.035); if (kind === 'tea') add(cylU, std('#a5400f'), 0, 0.01, 0, 0.021, 0.006, 0.021); }
+    else { add(cylU, std('#f4f1ea', 0.4), 0, 0, 0, 0.11, 0.01, 0.11); for (let i = 0; i < 4; i++) add(sphU, std('#b9742f'), (Math.random() - 0.5) * 0.12, 0.014, (Math.random() - 0.5) * 0.12, 0.012, 0.008, 0.012); }   // kırıntılı tabak
+    g.position.set(tx, y, tz); cur.g.add(g); pl.hold = null;
+    return true;
+  },
   toWorld(lx, lz, out) { out.x = cur.v.ax + lx * cur.t.x + lz * cur.n.x; out.z = cur.v.az + lx * cur.t.z + lz * cur.n.z; return out; },
   toLocal(x, z) { const dx = x - cur.v.ax, dz = z - cur.v.az; return [dx * cur.t.x + dz * cur.t.z, dx * cur.n.x + dz * cur.n.z]; },
   /* içeride yürüme: duvarlar ve mobilyalar */
@@ -584,10 +602,12 @@ C.updaters.push((dt, t) => {
     const big = /^(bag|basket|flowers|bread)$/.test(kind);                // küçükler elin içinde kaybolmasın: biraz büyük, avucun önünde
     held.position.set(hp.x + Math.cos(pl.face) * (big ? 0 : 0.07), hp.y + (big ? 0 : 0.03), hp.z - Math.sin(pl.face) * (big ? 0 : 0.07));
     held.rotation.set(0, pl.face, 0); held.scale.setScalar(big ? 1 : 1.6);
-    if (EDIBLE[kind] && pl.seat) {                                          // oturunca keyifle yer, içer
+    if (EDIBLE[kind] && pl.seat && !pl.hold.done && pl.sip > 0.85) {          // oturunca: el ağzındayken bir yudum, bir ısırık
       pl.hold.t += dt;
-      if (pl.hold.t > 22) { sayMe(DRINKABLE[kind] ? 'Oh be, ilaç gibi geldi!' : 'Afiyet oldu!'); pl.hold = null; }
+      if (pl.hold.t > 2.6) { pl.hold.done = true; sayMe(DRINKABLE[kind] ? 'Oh be, ilaç gibi geldi!' : 'Afiyet oldu!'); }
     }
+    const left = pl.hold ? (pl.hold.done ? 0 : 1 - C.clamp(pl.hold.t / 2.6, 0, 1) * 0.85) : 1;   // kalan
+    held.traverse(o => { const e = o.userData.eat; if (!e) return; o.visible = left > 0.02; if (e === 'y') o.scale.set(o.userData.s0.x, o.userData.s0.y * left, o.userData.s0.z); else o.scale.copy(o.userData.s0).multiplyScalar(0.35 + 0.65 * left); });
   }
   if (!cur) return;
   if (cur.cut > 0 && (cur.cut -= dt) <= 0 && pl.seat) { sayMe('Sıhhatler olsun! Yeni saç çok yakıştı.'); if (pl.look) { pl.look.hair = pick(Math.random, ['#1d1612', '#3b2a1e', '#5c4030']); pl.look.long = false; pl.crowd.look(0, pl.look); } }

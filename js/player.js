@@ -144,8 +144,9 @@ P.exit = function () {
 const pp = {};
 function draw(t) {
   const sp = Math.hypot(P.vel.x, P.vel.z);
-  const eat = P.hold && /^(tea|coffee|ayran|simit|pogaca|cake|durum)$/.test(P.hold.kind);
-  const pose = P.seat ? C.pose(eat || Math.sin(t * 0.2) > 0.75 ? 'drink' : 'sit', t, pp) : P.down > 0 ? C.pose(P.down > 0.7 ? 'lie' : 'kneel', t, pp) : P.petT > 0 ? C.pose('pet', t, pp) : P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
+  const eat = P.hold && !P.hold.done && /^(tea|coffee|ayran|simit|pogaca|cake|durum)$/.test(P.hold.kind);
+  P.sip = eat && P.seat ? Math.max(0, Math.sin(t * 1.4)) : 0;          // el ağızda mı (venues.js yudumları sayar)
+  const pose = P.seat ? (eat ? C.pose('drink', t * 2, pp) : C.pose(!P.hold && Math.sin(t * 0.2) > 0.75 ? 'drink' : 'sit', t, pp)) : P.down > 0 ? C.pose(P.down > 0.7 ? 'lie' : 'kneel', t, pp) : P.petT > 0 ? C.pose('pet', t, pp) : P.air ? C.pose('jump', t, pp) : sp > 3.2 ? C.pose('run', P.ph, pp) : sp > 0.25 ? C.pose('walk', P.ph, pp) : C.pose(talkT > 0 ? 'talk' : 'stand', t, pp);
   if (C.cats && C.cats.held && !(P.down > 0)) { pose.sh = [0.62, 0.62]; pose.el = [1.05, 1.05]; pose.ab = [0.02, 0.02]; }   // kucakta kedi
   else if (P.hold && !P.seat && !(P.down > 0)) {                       // elde: bardak, simit önde; poşet, sepet yanda sarkar
     if (P.hold.kind === 'bag' || P.hold.kind === 'basket') { pose.sh[1] = 0.04; pose.el[1] = 0.12; pose.ab[1] = 0.16; }
@@ -266,7 +267,9 @@ function freeSeat() {
   return best;
 }
 function standUp() {
-  const s = P.seat; if (!s) return; P.seat = null; s.player = false;
+  const s = P.seat; if (!s) return;
+  if (P.indoor && P.hold && P.hold.done && C.venues.dropOnTable) C.venues.dropOnTable(s);   // boş bardak, tabak masada kalır
+  P.seat = null; s.player = false;
   const fx = Math.cos(s.ry), fz = -Math.sin(s.ry); P.pos.x = s.x + fx * 0.75; P.pos.z = s.z + fz * 0.75;
 }
 function act() {
