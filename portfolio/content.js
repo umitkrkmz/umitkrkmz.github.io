@@ -85,7 +85,7 @@ window.PORTFOLIO = {
 
   /* "Bu şehir" uygulamasının gündem haberleri: canlı olayların yanında karışık gösterilir */
   news: [
-    ['Kedi meclisi toplandı', 'Gündem mama kabı krizi. Reis "Bu böyle gitmez" dedi, oylama ertelendi.'],
+    ['Kedi meclisi toplandı', 'Toplantı tutanağı kayıp. Reis "Patiyle yazılmış, kimse okuyamıyor" dedi, oylama ertelendi.'],
     ['Saat kulesi yine beş dakika ileri', 'Belediye "kule kendi kafasına göre" açıklaması yaptı.'],
     ['Pijamalı Çocuk kimdir?', 'Çatılarda görülen maskeli gencin kimliği hâlâ belirsiz. Komşular pijamasından tanıdığını söylüyor.'],
     ['Tünel yolunda bayram havası', 'Şehre giren araç sayısı rekor kırdı; dağdaki tünel çıkışında kuyruk oluştu.'],
@@ -205,8 +205,8 @@ window.PORTFOLIO = {
         ['Akşam trafiği', 'İş çıkışı saatlerinde {cadde} ve {cadde2} caddelerinde yoğunluk var.'],
         ['Tunalı\'da akşam kalabalığı', 'Gün batarken kafeler ve kitapçılar doldu. Sokak müzisyenleri bugünkü listesini açıkladı.']
       ],
-      catsSoon: [['Kedi meclisi bu gece toplanıyor', 'Merkezdeki parkta saat 21.30\'da başlayacak toplantının gündemi yine mama kabı.']],
-      catsNow: [['Kedi meclisi şu an toplantıda', 'Reis kürsüde. Sekiz üye çember olmuş, kimse kimseyi dinlemiyor.']],
+      catsSoon: [['Kedi meclisi bu gece toplanıyor', 'Merkezdeki parkta saat 21.30\'da başlayacak toplantının gündemi: {agenda}.']],
+      catsNow: [['Kedi meclisi şu an toplantıda', 'Gündem: {agenda}. Reis kürsüde, sekiz üye çember olmuş, kimse kimseyi dinlemiyor.']],
       night: [['Gece Ankara\'sı', 'Kafeler kapanmaya yakın, son otobüsler duraklardan kalktı. Şehir uykuya hazırlanıyor.']]
     },
     weekday: {
@@ -249,3 +249,235 @@ window.PORTFOLIO = {
     ['Vadi', 'fbm gürültüsüyle dağlar; yol ve akarsu boyunca açılan vadiler, ormanlar, tünele giren dört şeritli yol ve şehre girip çıkan trafik.']
   ]
 };
+
+/* ---------- haber havuzlarının ikinci partisi: yukarıdaki newsKit'e eklenir (dizi ise uca eklenir, nesne ise iç içe birleşir).
+   Yeni türler: olay sonrası (fireDone…), adlı maç önizlemesi (upcomingTeams), günün kedisi (catDay), geliştirici (dev), ulaşım (transit),
+   semt (semt[ad]), esnaf, kültür, kahraman (heroAny), nem (humid), hissedilen (chilly), ısınma (tomorrow.warmer) ---------- */
+(function (P) {
+  const more = {
+    weather: {
+      clear: [
+        ['Mavi gök, uzun gölgeler', 'Güneş {semt} semtinin kaldırımlarını ısıttı. Hava {temp} derece, gün boyu açık bekleniyor.'],
+        ['Güneş gözlüğü satışları arttı', '{cadde} Caddesi\'ndeki optikçiler "bugün herkes gözlük soruyor" diyor. Hava {temp} derece.']
+      ],
+      partly: [
+        ['Gökte bulut trafiği', 'Bulutlar Kızılay üzerinden Çankaya\'ya doğru ilerliyor. Arada güneş de görünüyor.'],
+        ['Güneşle bulut arasında', 'Hava {temp} derece. Uzmanlar ceketi yanınızda taşımanızı öneriyor, giymek size kalmış.'],
+        ['Parçalı bulut, tam yürüyüş havası', '{semt} semtinde parklar doldu. Ne çok sıcak ne çok soğuk.']
+      ],
+      overcast: [
+        ['Bulutlar alçaldı', 'Söğütözü\'nün kuleleri bulutlara değecek gibi. Hava {temp} derece, yağış beklenmiyor.'],
+        ['Kapalı havada çay mesaisi', '{semt} semtinde çay ocakları "bugün herkes ikinci bardağı istiyor" diyor.'],
+        ['Gri bir Ankara günü', 'Güneş bulutların arkasında saklanıyor. Fotoğrafçılar "ışık yumuşak, tam çekimlik" diyor.']
+      ],
+      fog: [
+        ['Sis, saat kulesini yuttu', 'Meydandaki saat kulesi sabah saatlerinde görünmez oldu. Saati soranlar telefonlarına baktı.'],
+        ['Görüş mesafesi düştü', 'Tünel yolunda sürücülerin sis farlarını yakması isteniyor.'],
+        ['Sisli şehirde kayıp kedi yok', 'Kediler sisi fırsat bilip parkta saklambaç oynadı. Hepsi akşam yerinde bulundu.']
+      ],
+      drizzle: [
+        ['Şemsiye mi, değil mi?', 'Çisenti şehri ikiye böldü: şemsiye açanlar ve "bu yağmur sayılmaz" diyenler.'],
+        ['Kaldırımlar ıslak', '{cadde} Caddesi\'nde yürüyenler dikkatli: hafif yağış zemini kayganlaştırdı.'],
+        ['Çisentiye rağmen simit kuyruğu', 'Fırınların önündeki kuyruk çisentiye aldırmadı. Hava {temp} derece.']
+      ],
+      rain: [
+        ['Sağanak birikinti bıraktı', '{semt} semtinde kaldırım kenarlarında su birikintileri oluştu. Sürücülerin yayaları ıslatmaması rica edildi.'],
+        ['Yağmurda otobüs kalabalığı', 'Yağmurla birlikte otobüsler doldu. 34 numaralı hatta ayakta yolculuk yapanlar var.']
+      ],
+      storm: [
+        ['Rüzgâr tabelaları salladı', 'Fırtına {semt} semtinde dükkân tabelalarını salladı. Yetkililer balkonlardaki eşyaların içeri alınmasını istedi.'],
+        ['Elektrik kesintisi yok', 'Fırtınaya rağmen şebekede sorun yaşanmadı. Şimşekler ise gösteriye devam ediyor.'],
+        ['Fırtınada kediler saçak altında', 'Kedi meclisi bu akşam olağanüstü toplanabilir. Reis açıklama yapmadı.']
+      ],
+      snow: [
+        ['Kardan adam yarışması', '{semt} semtindeki parkta çocuklar kardan adam yaptı. En uzunu bir metreyi geçti.'],
+        ['Karda trafik yavaş', '{cadde} Caddesi\'nde araçlar ağır ilerliyor. Belediye ekipleri tuzlama yapıyor.']
+      ],
+      humid: [['Hava nemli', 'Nem oranı yüzde {hum} oldu. Saçlar kabardı, çamaşırlar kurumuyor.']],
+      chilly: [['Hissedilen daha soğuk', 'Termometre {temp} derece gösteriyor ama hissedilen {feels}. Rüzgâr yüzünden mont şart.']]
+    },
+    tomorrow: {
+      rain: [['Yarın yağış var', 'Tahminlere göre yarın şehirde yağmur bekleniyor. En düşük sıcaklık {tmin} derece.']],
+      snow: [['Kar kapıda', 'Yarın kar bekleniyor. Okulların durumu henüz belli değil.']],
+      storm: [['Yarın şimşekler çakacak', 'Meteoroloji yarın için kuvvetli sağanak ve gök gürültüsü bekliyor.']],
+      clear: [['Yarın açık hava', 'Yarın güneşli bir gün bekleniyor; en yüksek sıcaklık {tmax} derece.']],
+      colder: [['Montları hazırlayın', 'Yarın sıcaklık {drop} derece düşüyor; en yüksek {tmax} derece.']],
+      warmer: [['Hava ısınıyor', 'Yarın sıcaklık {rise} derece artıyor; en yüksek {tmax} dereceyi görecek.']]
+    },
+    event: {
+      fire: [
+        ['{esemt} semtinde yangın alarmı', 'Saat {time} sularında yükselen duman mahalleliyi sokağa döktü. Son durum: {status}.'],
+        ['İtfaiye {cad} Caddesi\'nde', 'Sirenler {esemt} semtinde yankılandı; trafik kısa süreliğine durdu. Son durum: {status}.']
+      ],
+      fireDone: [
+        ['{cad} Caddesi\'ndeki yangın söndürüldü', 'İtfaiye ekipleri saat {time} sularında çıkan yangını kısa sürede kontrol altına aldı. Yaralı yok.'],
+        ['Yangın kontrol altında', '{esemt} semtindeki binada çıkan yangın söndürüldü. Ekipler soğutma çalışması yapıyor.']
+      ],
+      accident: [
+        ['{cad} Caddesi\'nde maddi hasarlı kaza', 'İki araç saat {time} sularında çarpıştı; sürücüler araçtan inip tartıştı. Son durum: {status}.'],
+        ['Kavşakta kaza', '{esemt} semtindeki kavşakta yaşanan kaza trafiği aksattı. Son durum: {status}.']
+      ],
+      accidentDone: [
+        ['{cad} Caddesi trafiğe açıldı', 'Saat {time} sularında yaşanan kazanın ardından yol temizlendi, trafik normale döndü.'],
+        ['Kaza sonrası yol açıldı', '{esemt} semtindeki kazada yaralanan olmadı; araçlar çekildi.']
+      ],
+      crime: [
+        ['{esemt} semtinde kovalamaca', 'Şüpheli kaldırımlar boyunca kaçtı, vatandaşlar polise yol gösterdi. Son durum: {status}.'],
+        ['Dükkândan hırsızlık', '{cad} Caddesi\'ndeki bir dükkândan çıkan şüpheli aranıyor. Son durum: {status}.']
+      ],
+      crimeDone: [
+        ['{esemt} semtindeki hırsız yakalandı', 'Saat {time} sularında kaçan şüpheli kısa sürede yakalandı. Son durum: {status}.'],
+        ['Kovalamaca bitti', '{cad} Caddesi\'nde başlayan kovalamaca, şüphelinin yakalanmasıyla sona erdi. Son durum: {status}.']
+      ],
+      pedestrian: [['Yaya geçidinde dikkat', '{esemt} semtinde bir yayaya araç çarptı; ambulans olay yerine yönlendirildi. Son durum: {status}.']],
+      pedestrianDone: [
+        ['Yaralı yaya hastaneye kaldırıldı', '{cad} Caddesi\'nde aracın çarptığı yaya ambulansla hastaneye götürüldü; durumu iyi.'],
+        ['Yaya kazasının ardından trafik normale döndü', '{esemt} semtindeki kazanın ardından yol yeniden açıldı.']
+      ]
+    },
+    hero: [['Polisin işi kolaylaştı', 'Pijamalı Çocuk bugün {hero} şüpheliyi ağla sardı. Polis "teşekkürler ama izinsiz" dedi.']],
+    heroAny: [
+      ['Pijamalı Çocuk yine çatılarda', '{semt} semtinde gece boyunca çatıdan çatıya sallanan bir gölge görüldü.'],
+      ['Pijamalı Çocuk için imza kuyruğu', 'Hayranları {cadde} Caddesi\'nde onu bekledi ama kahraman gelmedi.'],
+      ['Ağ kalıntıları temizlendi', 'Belediye ekipleri {semt} semtindeki direklerden ağ parçalarını topladı.']
+    ],
+    calm: [['Sakin bir gün', 'Ekipler bugün sadece kedileri ağaçtan indirdi.']],
+    match: {
+      win: [
+        ['{w} rakibini geçti', '{w}, {l} karşısında {ws}-{ls} kazandı. Teknik direktör "çocuklar sahada her şeyi verdi" dedi.'],
+        ['{l} cephesinde hayal kırıklığı', '{ls}-{ws} biten maçın ardından {l} taraftarları stadyumu sessizce terk etti.']
+      ],
+      draw: [
+        ['Puanlar paylaşıldı', '{a} ile {b} arasındaki maç {x}-{y} bitti. Tribünler sonucu beğenmedi.'],
+        ['Kıran kırana bir beraberlik', '{a} ile {b} 90 dakika boyunca birbirine üstünlük kuramadı.']
+      ],
+      goals: [['Golcüler sahnede', '{a} ile {b} toplam {total} gol attı; skor tabelası zor yetişti.']],
+      live: [
+        ['Ankara Stadı\'nda nefesler tutuldu', 'Skor {x}-{y}. {a} ile {b} arasındaki mücadele tüm hızıyla sürüyor.'],
+        ['Tribünler ayakta', '{a} ile {b} karşılaşıyor; skor şu an {x}-{y}.']
+      ],
+      upcomingTeams: [
+        ['{a} ile {b} sahaya çıkıyor', 'Semt derbisi saat {next} itibarıyla Ankara Stadı\'nda. Biletler tükenmek üzere.'],
+        ['Günün maçı: {a} - {b}', 'İki takım saat {next} itibarıyla karşı karşıya. Taraftarlar şimdiden stada yürüyor.'],
+        ['Derbi günü', '{a} ve {b} taraftarları maç öncesi Kızılay\'da buluştu. Karşılaşma saat {next} itibarıyla.']
+      ]
+    },
+    time: {
+      morning: [
+        ['Okul servisleri yolda', '{semt} semtinde sabah saatlerinde servis araçları trafiği yoğunlaştırdı.'],
+        ['Sabah koşucuları parkta', '{semt} semtindeki parkta erken saatte koşanlar ördekleri uyandırdı.']
+      ],
+      noon: [
+        ['Öğle güneşi', '{cadde} Caddesi\'nde öğle arası yürüyüşe çıkanlar kafelerin önünde mola verdi.'],
+        ['Ofislerde öğle telaşı', 'Söğütözü\'nün kulelerinden inen çalışanlar asansör kuyruğunda bekledi.']
+      ],
+      afternoon: [
+        ['İkindi trafiği başladı', '{cadde} Caddesi\'nde okul çıkışıyla birlikte trafik yavaşladı.'],
+        ['Parklarda öğleden sonra', '{semt} semtinde banklar doldu; kediler en iyi yerleri çoktan kaptı.']
+      ],
+      evening: [
+        ['Gün batımı', 'Gökyüzü kızıla döndü; Atakule\'nin ışıkları yandı.'],
+        ['Akşam yemeği telaşı', 'Marketlerde ekmek rafları akşam saatlerinde boşaldı.']
+      ],
+      catsSoon: [['Bu gece meclis var', 'Reis toplantıya çağrı yaptı. Gündem: {agenda}. Üyelerin geç kalmaması istendi.']],
+      catsNow: [['Meclisten ilk sesler', 'Bu gecenin gündemi {agenda}. Toplantıdan miyavlamalar yükseliyor.']],
+      night: [
+        ['Gece nöbeti', 'İtfaiye ve polis ekipleri gece nöbetini devraldı. Şehir sakin.'],
+        ['Gece yarısı simitçisi', '{semt} semtinde gece geç saatte simit satan seyyar satıcı ilgi gördü.']
+      ]
+    },
+    weekday: {
+      1: [['Haftanın ilk günü', 'Kahve kuyrukları uzun, servisler kalabalık. Herkes "bu hafta kesin erken yatacağım" diyor.']],
+      2: [['Salı sakinliği', 'Haftanın en sıradan günü diye bilinen salı, bugün de beklentileri karşıladı.']],
+      3: [['Çarşamba pazarı', '{semt} semtinde kurulan pazarda sebze fiyatları konuşuldu.']],
+      4: [['Perşembe akşamı', 'Kafeler "hafta sonu başlamadan son bir kahve" diyenlerle doldu.']],
+      5: [['Cuma akşamı planları', 'Tunalı\'da masalar erkenden ayrıldı.']],
+      6: [['Cumartesi alışverişi', 'Kızılay\'daki dükkânlarda hafta sonu kalabalığı başladı.']],
+      0: [['Pazar kahvaltısı', 'Fırınlarda simit ve poğaça kuyruğu öğlene kadar sürdü.']]
+    },
+    dates: {
+      '02-14': { items: [['Sevgililer Günü', 'Çiçekçilerde kırmızı gül kalmadı. Kediler de günü kutladı, en azından öyle görünüyor.']] },
+      '03-08': { items: [['Dünya Kadınlar Günü', 'Ankara\'da Dünya Kadınlar Günü etkinliklerle kutlanıyor.']] },
+      '03-18': { solemn: true, items: [['18 Mart Çanakkale Zaferi', 'Çanakkale şehitleri saygı ve rahmetle anılıyor.']] },
+      '06-21': { items: [['Yılın en uzun günü', 'Güneş bugün Ankara\'da 15 saatten fazla gökte kalacak.']] },
+      '11-24': { items: [['Öğretmenler Günü', 'Öğrenciler öğretmenlerine çiçek ve kartlarla teşekkür etti.']] },
+      '12-21': { items: [['Yılın en uzun gecesi', 'Bu gece yılın en uzun gecesi. Kedi meclisi toplantıyı uzatmayı planlıyor.']] }
+    },
+    season: {
+      autumn: [['Kestane kokusu', 'Köşe başlarında kestane közleyen satıcılar şehre geri döndü.'], ['Sararan yapraklar', 'Belediye ekipleri {semt} semtinde yaprak toplama çalışması başlattı.']],
+      winter: [['Kalorifer sezonu', 'Kediler sıcak petek önlerini paylaşamıyor.'], ['Kış güneşi', 'Soğuk ama güneşli günlerde parklar yine doldu.']],
+      spring: [['Erik çiçekleri açtı', 'Parklardaki ağaçlar beyaza büründü.'], ['Bahar temizliği', 'Balkonlarda halı silkeleyenler {semt} semtinde mesaiye başladı.']],
+      summer: [['Dondurma kuyrukları', '{cadde} Caddesi\'ndeki dondurmacılarda akşam kuyruğu oluştu.'], ['Yaz akşamları', 'Parklarda geç saatlere kadar oturanlar var; kediler memnun.']]
+    },
+    city: [
+      ['Banklarda yer kalmadı', 'Şehrin banklarında oturacak yer bulunmuyor; kediler "biz önce geldik" diyor.'],
+      ['Otobüs hatlarında yoğunluk', '12, 34 ve 56 numaralı hatlarda yolcu sayısı arttı.'],
+      ['Tünel yolunda akış', 'Dağdaki tünelden şehre giren araçlar doğu kavşağında sıra oluşturdu.']
+    ],
+    catDay: [
+      ['Günün kedisi: {cat}', '{cat} bugün {semt} semtinde en çok sevilen kedi seçildi. Rengi: {coat}.'],
+      ['{cat} kucaktan inmedi', 'Muhabirimizin tespitine göre {cat} bugün en az on kişiye kendini sevdirdi.'],
+      ['Mahallenin yıldızı {cat}', '{semt} semtinde mama kabının başından ayrılmayan {cat} mahallenin gündemine oturdu.']
+    ],
+    dev: [
+      ['Kapüşonlu geliştirici görüldü', 'Muhabirimiz meydanın doğusunda yaşayan geliştiriciyi gördü: {where}.'],
+      ['Geliştirici nerede?', 'Telefonunda portfolyosu olan geliştirici şu sıralar ne yapıyor? Cevap: {where}.'],
+      ['"Bir commit daha"', 'Geliştiriciyi soranlara kısa cevap: {where}. Yanında yine sırt çantası var.']
+    ],
+    transit: [
+      ['Otobüs {line} zamanında', '{line} numaralı hat bugün tarifesine uydu. Yolcular şaşkın.'],
+      ['{line} numaralı hatta kalabalık', '{semt} semtindeki durakta bekleyenler otobüse sığmakta zorlandı.'],
+      ['Durakta bekleme', '{line} numaralı otobüsün durakta bekleme süresi ortalama {n} dakika oldu.'],
+      ['Şoförden anons', '{line} numaralı hattın şoförü "arkalara doğru ilerleyelim" çağrısı yaptı.']
+    ],
+    semt: {
+      'Kızılay': [['Güvenpark\'ta güvercinler', 'Kızılay\'da simit kırıntısı arayan güvercinler meydanı doldurdu.'], ['Kızılay\'da kitapçı haftası', 'Sakarya Caddesi\'ndeki kitapçılar ikinci el kitap haftası başlattı.']],
+      'Ulus': [['Ulus\'ta tarihi çarşı kalabalığı', 'Hanlar bölgesinde bakırcılar ve kuru meyve satan dükkânlar ziyaretçi akınına uğradı.'], ['Kale yolunda yürüyüş', 'Ulus\'tan Ankara Kalesi\'ne yürüyen gezi grupları görüldü.']],
+      'Kavaklıdere': [['Tunalı\'da yeni kafe', 'Tunalı Hilmi Caddesi\'nde bir kafe daha açıldı; sayısını bilen yok.'], ['Kuğulu Park\'ta kuğular', 'Kuğulu Park\'ın kuğuları bugün de ziyaretçilerden simit kabul etmedi.']],
+      'Bahçelievler': [['7. Cadde\'de akşam yürüyüşü', 'Bahçelievler\'in ünlü caddesi akşam saatlerinde yürüyenlerle doldu.'], ['Bahçelievler\'de fırın kuyruğu', 'Mahallenin eski fırınının önünde sabah erkenden kuyruk oluştu.']],
+      'Çankaya': [['Atakule\'de manzara', 'Atakule\'ye çıkanlar şehri baştan sona izledi; dağlar bugün net göründü.'], ['Çankaya yokuşu', 'Çankaya yokuşunu bisikletle çıkanlar bugün de nefes nefese kaldı.']],
+      'Söğütözü': [['Kuleler arasında rüzgâr', 'Söğütözü\'nün kuleleri arasında esen rüzgâr şemsiyeleri zorladı.'], ['Plazalarda yoğun gün', 'Söğütözü\'nde öğle arasında asansörler hiç boş kalmadı.']],
+      'Çukurambar': [['Çukurambar\'da kahve rekoru', 'Plazaların arasındaki kahvecilerde öğleden önce yüzlerce bardak satıldı.'], ['Çukurambar\'da mesai çıkışı', 'Mesai bitiminde Çukurambar\'ın ara sokakları doldu.']],
+      'Ayrancı': [['Ayrancı\'da sakin sokaklar', 'Ayrancı\'nın ağaçlı sokaklarında yürüyenler kuş seslerini dinledi.'], ['Ayrancı\'da mahalle pazarı', 'Pazarın ilk saatlerinde domatesler bitti.']],
+      'Yenimahalle': [['Yenimahalle\'de bahçeler', 'Müstakil evlerin bahçelerinde son domatesler toplandı.'], ['Yenimahalle\'de tavla turnuvası', 'Mahallenin çay bahçesinde tavla turnuvası sürüyor.']]
+    },
+    esnaf: [
+      ['Simitçiler fiyatı sabit tuttu', 'Ankara simidinin fiyatı bu hafta da değişmedi; esnaf "simit herkesin hakkı" diyor.'],
+      ['Çay ocağında yeni semaver', '{semt} semtindeki çay ocağı yeni semaverini tanıttı. Müdavimler "çay daha demli" diyor.'],
+      ['Berberde sıra', '{cadde} Caddesi\'ndeki berberde hafta sonu sırası şimdiden doldu.'],
+      ['Çiçekçide mevsim', 'Çiçekçiler bu hafta en çok saksı çiçeği sattığını açıkladı.'],
+      ['Tamirci ustası konuştu', '"Ekranı kırık telefonla gelenler arttı" diyen usta kılıf kullanmayı öneriyor.']
+    ],
+    kultur: [
+      ['Sokak müzisyenleri sahnede', '{cadde} Caddesi\'nde bir bağlama ve bir gitar akşam boyunca çaldı.'],
+      ['Kitapçıda imza günü', '{semt} semtindeki kitapçıda yerel bir yazar okurlarıyla buluştu.'],
+      ['Açık hava sineması', 'Parkta kurulan perdede bu akşam eski bir Türk filmi gösteriliyor.'],
+      ['Resim sergisi açıldı', 'Kızılay\'daki galeride Ankara sokaklarını anlatan bir sergi açıldı.'],
+      ['Konser söylentisi', 'Ankara Stadı\'nda hafta sonu konser düzenleneceği konuşuluyor; biletler henüz satışta değil.']
+    ]
+  };
+  const merge = (a, b) => { for (const k in b) { if (Array.isArray(b[k])) a[k] = (a[k] || []).concat(b[k]); else if (b[k] && typeof b[k] === 'object') a[k] = merge(a[k] || {}, b[k]); else a[k] = b[k]; } return a; };
+  merge(P.newsKit, more);
+  P.news = P.news.concat([
+    ['Ördekler grev yaptı', 'Parktaki ördekler simit yerine poğaça istedi. Görüşmeler sürüyor.'],
+    ['Saat kulesi bir dakika geri kaldı', 'Yetkililer "kule dinleniyordu" açıklamasını yaptı.'],
+    ['Kedi meclisinde istifa', 'Bir üye "mama dağıtımı adil değil" diyerek istifa etti, beş dakika sonra geri döndü.'],
+    ['Ağ kullanım kılavuzu yayımlandı', 'Pijamalı Çocuk\'un kılavuzunun ilk maddesi: "Kedilere ağ atılmaz."'],
+    ['Banklar boyandı', 'Belediye bankları yeniledi; kediler boyanın kurumasını beklemeden oturdu.'],
+    ['Atakule\'den merdivenle iniş', 'Asansör arızası yüzünden merdivenden inenler "manzara güzeldi" dedi.'],
+    ['Otobüs 12 yolunu şaşırdı', 'Şoför "kestirme sandım" dedi, yolcular manzarayı sevdi.'],
+    ['Geliştirici kahve molası verdi', 'Kapüşonlu vatandaşın molası yarım saat sürdü; kod beklemede.'],
+    ['Martı değil, güvercin', 'Ankara\'da martı gördüğünü söyleyenler aslında güvercin gördüğünü kabul etti.'],
+    ['Trafik ışığı rekoru', 'Bir sürücü üç yeşil ışığı arka arkaya yakaladı. Uzmanlar "şanstan öte" diyor.'],
+    ['Kucak sıralaması tartışma yarattı', 'Şehrin en çok kucaklanan kedisi anketine kediler itiraz etti.'],
+    ['Kafede priz savaşı', 'Laptopla gelenler tek prizi paylaşamadı; garson uzatma kablosu getirdi.'],
+    ['Şemsiyeler boşuna taşındı', 'Sabah şemsiye alan herkes gün boyu yağmur bekledi. Yağmadı.'],
+    ['Tünelde yankı yarışması', 'Sürücüler "tünelde korna çalmayın" uyarısına rağmen yankıyı test etti.'],
+    ['Kuaförde sezonun modası', 'Bu sezonun saç modası "biraz yanlardan" olarak açıklandı.'],
+    ['Poşet krizi çözüldü', 'Müşteri sonunda poşet istemedi; kasiyer alkışlandı.'],
+    ['Kediler uzaylı mı?', 'Kedi meclisinden açıklama: "Şimdilik bir şey söyleyemeyiz."'],
+    ['Ofsayt kararına kedi itirazı', 'Tribünü izleyen kediler ofsayt kararına miyavlayarak itiraz etti.'],
+    ['Mama baronu kim?', 'Parktaki dedikodulara göre bölgenin mama baronu iri bir sarman.'],
+    ['Kediler Vadisi ikinci sezon', 'Parktaki kediler arasında güç dengeleri değişiyor. Reis "her şey kontrol altında" dedi.']
+  ]);
+})(window.PORTFOLIO);

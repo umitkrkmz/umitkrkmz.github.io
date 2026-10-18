@@ -124,7 +124,17 @@ const GOAL_P = 0.05;                                            // kaleyi bulan 
 const pad = n => String(n).padStart(2, '0');
 const clockState = () => { for (const s of SLOTS) { const el = (C.hour - s) * 60; if (el >= -PRE && el < POST) return { s, el }; } return null; };
 const playedOf = el => el < 0 ? 0 : el < HT ? el : el < HT_END ? 45 : Math.min(90, el - 15);
-const seedOf = s => { const d = new Date(); let h = 2166136261; for (const c of d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + '|' + s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return C.rng(h >>> 0); };
+const seedOf = (s, dayOff) => { const d = new Date(); if (dayOff) d.setDate(d.getDate() + dayOff); let h = 2166136261; for (const c of d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + '|' + s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return C.rng(h >>> 0); };
+/* aynı tohumla bir maçın takımları ve o dakikaya kadarki skoru, sahneye dokunmadan (startMatch ile aynı sırayla çeker).
+   Ankara Haber (sıradaki ve son maç) ve kedi toplantısı (şike gündemi) kullanır. dayOff -1: dünkü maç */
+C.matchPreview = (s, played, dayOff) => {
+  const r = seedOf(s, dayOff), sh = a => a.map(x => [x, r()]).sort((p, q) => p[1] - q[1]).map(x => x[0]);
+  const names = sh(C.DISTRICTS.map(d => d.name)); sh(KITS);
+  const teams = [0, 1].map(k => names[k] + ' ' + SUFFIX[Math.floor(r() * SUFFIX.length)]);
+  r(); const score = [0, 0];
+  for (let m = 0; m < (played || 0); m++) for (let k = 0; k < 2; k++) if (r() < 1.3 / 90) score[k]++;
+  return { teams, score };
+};
 C.matchTimes = SLOTS.map(s => pad(Math.floor(s)) + ':' + pad(Math.round(s % 1 * 60)));
 function startMatch(S) {
   const r = seedOf(S.s); newTeams(r);

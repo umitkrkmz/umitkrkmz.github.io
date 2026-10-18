@@ -176,7 +176,12 @@ function step(c, dt) {
     const k = club.cats.indexOf(c), a = k / (club.cats.length - 1) * Math.PI * 2;
     const sx = k === 0 ? club.x : club.x + Math.cos(a) * 2.1, sz = k === 0 ? club.z : club.z + Math.sin(a) * 2.1;
     if (Math.hypot(sx - c.x, sz - c.z) > 0.15) { c.st = 'walk'; moveTo(c, sx, sz, 0.9, dt); }
-    else { c.st = 'sit'; c.sp = 0; const fx = club.x - c.x, fz = club.z - c.z; c.ry = k === 0 ? c.ry + dt * 0.25 : Math.atan2(-fz, fx); }
+    else if (k === 0) {                                              // reis dönmez: parkın ortasına bakar, konuşana yavaşça döner
+      c.st = 'sit'; c.sp = 0;
+      const L = club.look, want = L ? Math.atan2(-(L.z - c.z), L.x - c.x) : Math.atan2(-(club.blk.bz - c.z), club.blk.bx - c.x);
+      let d = want - c.ry; d = Math.atan2(Math.sin(d), Math.cos(d)); c.ry += d * Math.min(1, dt * 2.5);
+    }
+    else { c.st = 'sit'; c.sp = 0; const fx = club.x - c.x, fz = club.z - c.z; c.ry = Math.atan2(-fz, fx); }
     return;
   }
   if ((c.t -= dt) <= 0) nextState(c);
@@ -251,6 +256,53 @@ function holdPose(c) {
 const MEOW = ['Miyav!', 'Mrrr…', 'Miyaaav.', 'Mırr mırr ♥'];
 const CLUB = ['Miyav! Toplantı başladı.', 'Bu gece balık var mı?', 'Mama kabı yine boş, bunu konuşmalıyız.', 'Çatıdaki güvercinler yine…',
   'Pijamalı Çocuk ağlarıyla bizi korkutuyor.', 'Kim benim kutuma oturdu?', 'Mrrr… oylamaya geçelim.', 'Miyav miyav!', 'Sessizlik! Reis konuşuyor.'];
+/* ---------- toplantı gündemi: her gece tarihten tohumlanan konu, sırayla konuşulur ('R:' reis, gerisi adıyla bir üye).
+   Fırtınada olağanüstü, bayramda bayram, anma gününde kısa toplantı. Ankara Haber aynı gündemi yazar (C.cats.agenda) ---------- */
+const TOPICS = {
+  mama: { title: 'mama kabı krizi', lines: ['R:Toplantıyı açıyorum. Gündem: mama kabı.', 'Kap yine boş, Reis. Üç gündür boş!', 'Kızılay\'daki fırıncı simit kırıntısı veriyor ama o mama değil.', 'R:Bir komisyon kuruyoruz. Başkanı da benim.', 'Komisyon ne zaman toplanacak?', 'R:Mama gelince.', 'Mrrr… oylamaya geçelim.'] },
+  hava: { title: 'havanın durumu', lines: [] },
+  mac: { title: 'akşamki maçta şike iddiası', lines: ['R:Bu akşamki maç hepimizin aklında.', '{a} ile {b} {x}-{y} bitti. Bunda bir iş var Reis.', 'Hakem sarmandı, tesadüf mü sizce?', 'Ben bahsimi ton balığına yapmıştım, gitti mamam.', 'R:Şike varsa ortaya çıkacak. Pati izleri inceleniyor.', 'Tribünde biri bana simit attı, rüşvet miydi acaba?', 'R:Federasyona dilekçe yazıyoruz. İmza yerine pati.'] },
+  vadi: { title: 'Kediler Vadisi', lines: ['R:Bu parkta kurallar bellidir. Mama kabına kimse izinsiz el sürmez.', 'Pati Alemdar şehre dönmüş diyorlar Reis…', 'R:Pati Alemdar\'ı ben yetiştirdim. Gelsin, konuşalım.', 'Ulus\'taki çöp konteyneri artık bizim. Haberiniz olsun.', 'R:Biz bu parkın kalbiyiz. Kalp durursa park durur.', 'Herkes yerine! Tekir geliyor…', 'R:Toplantı bitti. Kimse bir şey görmedi, kimse bir şey duymadı.'] },
+  baron: { title: 'mama baronluğu', lines: ['R:Son zamanlarda bölgemizde bir mama baronu türedi.', 'Söğütözü kulelerinin arka bahçesini kimse paylaşmıyor.', 'Ton balıklı mamanın fiyatı arttı. Bunu baronlar yapıyor!', 'Kızılay\'daki marketin arkası kimin bölgesi, netleşsin artık.', 'R:Baron benim. Ama halkçı bir baronum.', 'Halkçı baron mama dağıtır, Reis.', 'R:Yarın sabah dağıtım listesini açıklayacağım.'] },
+  uzayli: { title: 'kediler uzaylı mı iddiası', lines: ['R:İnsanlar internette bizim uzaylı olduğumuzu yazıyormuş.', 'Gece yıldızlara bu kadar bakmamız bundan mı acaba?', 'Ana gemi ne zaman geliyor Reis?', 'R:Sessiz! Kayıt cihazı olabilir.', 'Bence Pijamalı Çocuk da bizden.', 'R:İddiaları yalanlıyoruz. Şimdilik.', 'Miyav miyav… (şifreli)'] },
+  pijamali: { title: 'Pijamalı Çocuk ve ağ meselesi', lines: ['R:Gündem: Pijamalı Çocuk.', 'Dün gece çatıda yine sallanıyordu. Kuyruğum ağa takıldı.', 'Tazminat istiyorum! Tüylerim hâlâ yapışık.', 'Ama hırsızı da o yakaladı, hakkını yiyemeyiz.', 'R:Kendisiyle görüştüm. Bizim çatıya artık ağ atmayacak.', 'Pijaması güzel ama, kabul.', 'R:Kabul edenler kuyruğunu kaldırsın.'] },
+  kopek: { title: 'mahalleye yeni gelen köpek', lines: ['R:Mahallemize yeni bir köpek taşındı.', 'Büyük mü Reis?', 'R:Büyük. Ama kibar. Sabahları selam veriyor.', 'Bence casus. Kuyruğunu çok sallıyor.', 'Bahçelievler\'de görmüşler, simitçinin yanında oturuyormuş.', 'R:Diplomasi yoluyla çözeceğiz. Yarın beraber çay içiyoruz.'] },
+  guvercin: { title: 'çatıdaki güvercinler', lines: ['R:Çatıdaki güvercinler yine toplantı yapıyormuş.', 'Bizim saatimize denk getiriyorlar, bilerek!', 'Ulus\'taki güvercinler daha kibar ama.', 'R:Bir heyet gönderiyoruz. Konuşacağız, kovalamak yok.', 'Ya kovalarsam?', 'R:O zaman heyetten çıkarsın.'] },
+  firtina: { title: 'olağanüstü fırtına toplantısı', lines: ['R:Olağanüstü toplantı! Gök gürlüyor.', 'Şimşek çakınca herkes bankın altına.', 'Kuyruğum elektriklendi Reis!', 'R:Panik yok. Kısa keseceğiz.', 'Toplantıyı saçak altına alalım mı?', 'R:Kabul. Herkes saçak altına, sessizce.'] },
+  bayram: { title: 'bayram toplantısı', lines: ['R:Bugün bayram. Tartışma yok, kavga yok.', 'Herkese çift mama mı Reis?', 'R:Çift mama ve bir de ton balığı.', 'Yaşasın! Miyav!', 'R:Bayramınız kutlu olsun.'] },
+  anma: { title: 'kısa ve sessiz toplantı', lines: ['R:Bugün saygı günü. Toplantıyı kısa tutuyoruz.', 'R:Herkes bir dakika sessiz dursun.', 'R:Teşekkürler. Toplantı kapandı.'] }
+};
+const WX_LINES = {
+  rain: ['R:Gündem: yağmur.', 'Saçak altı paylaşımı adil değil, Reis.', 'Islak kedi mutsuz kedidir. Bunu tutanağa yazın.', 'R:Bankın altı yaşlılara ayrıldı.', 'Hava {temp} derece ama ıslak olunca daha soğuk.', 'R:Yağmur dinince toplantıya devam ederiz.'],
+  snow: ['R:Gündem: kar ve kalorifer peteği.', 'Petek önü sırası bende!', 'Karda yürüyünce patilerim donuyor Reis.', 'R:Sıcak yerler sırayla. Liste kapıya asılacak.', 'Hava {temp} derece. Ben eve gidiyorum.'],
+  fog: ['R:Gündem: sis.', 'Kimse kimseyi görmüyor, oylamada hile olur.', 'R:Bu gece el kaldırarak değil, miyavlayarak oylayacağız.', 'Miyav!', 'R:Kabul edilmiştir.'],
+  clear: ['R:Gündem: güneşli banklar.', 'Öğleden sonra en güneşli bankı yine insanlar kaptı.', 'Hava {temp} derece, tam güneşlenme havası.', 'R:Sabah erken gelen bankı alır. Kural bu.', 'Ya ben erken uyanamıyorsam?', 'R:O zaman gölgede kalırsın.'],
+  cloudy: ['R:Gündem: kapalı hava.', 'Güneş yok, keyif yok Reis.', 'Hava {temp} derece, ne sıcak ne soğuk.', 'R:Böyle havada uyumak serbesttir.', 'Uyuyalım o zaman.']
+};
+const DATES = { '01-01': 'bayram', '04-23': 'bayram', '05-19': 'bayram', '08-30': 'bayram', '10-29': 'bayram', '11-10': 'anma', '03-18': 'anma' };
+const NORMAL = ['mama', 'hava', 'mac', 'vadi', 'baron', 'uzayli', 'pijamali', 'kopek', 'guvercin', 'hava', 'mac'];
+const pad2 = n => String(n).padStart(2, '0');
+function nightDate() { const d = new Date(); if (C.hour < 12) d.setDate(d.getDate() - 1); return d; }   // gece yarısından sonra dünkü toplantı sürer
+function wxKind() { const W = C.weather; return W ? (W.live ? (W.data ? W.data.kind : 'clear') : W.pick) : 'clear'; }
+function topicId() {
+  if (wxKind() === 'storm') return 'firtina';
+  const d = nightDate(), sp = DATES[pad2(d.getMonth() + 1) + '-' + pad2(d.getDate())];
+  if (sp) return sp;
+  let h = 2166136261; for (const ch of d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + '|kedi') { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return NORMAL[(h >>> 0) % NORMAL.length];
+}
+/* gündemin sözleri: hava o anki havadan, şike akşam maçının skorundan */
+function topicLines(id) {
+  if (id === 'hava') { const k = wxKind(); return WX_LINES[/drizzle|rain/.test(k) ? 'rain' : k === 'snow' ? 'snow' : k === 'fog' ? 'fog' : k === 'overcast' ? 'cloudy' : 'clear']; }
+  return TOPICS[id].lines;
+}
+function lineVars() {
+  const W = C.weather, v = { temp: W && W.data ? Math.round(W.data.temp) : 15, a: 'Kızılay Gücü', b: 'Ulus SK', x: 1, y: 0 };
+  const M = C.match, last = M && M.last ? { teams: M.last.teams, score: M.last.score } : C.matchPreview ? C.matchPreview(19, 90, C.hour < 12 ? -1 : 0) : null;
+  if (last) Object.assign(v, { a: last.teams[0], b: last.teams[1], x: last.score[0], y: last.score[1] });
+  return v;
+}
+const T_ = s => (window.T ? window.T(s) : s), fillV = (s, v) => T_(s).replace(/\{(\w+)\}/g, (m, k) => v[k] !== undefined ? v[k] : m);
 C.cats = {
   list: cats,
   near(pos, r) {
@@ -268,7 +320,9 @@ C.cats = {
   },
   meow(c) { return pick(MEOW); },
   describe: c => c.name + ', ' + c.coat.name,
-  club: () => club
+  club: () => club,
+  /* bu geceki toplantının gündemi (Ankara Haber yazar) */
+  agenda: () => { const id = topicId(); return { id, title: id === 'hava' ? { rain: 'yağmur ve saçak altı paylaşımı', snow: 'kar ve kalorifer peteği', fog: 'sis altında oylama', clear: 'güneşli bankların paylaşımı', cloudy: 'kapalı havada uyku hakkı' }[(k => /drizzle|rain/.test(k) ? 'rain' : k === 'snow' ? 'snow' : k === 'fog' ? 'fog' : k === 'overcast' ? 'cloudy' : 'clear')(wxKind())] : TOPICS[id].title }; }
 };
 
 let clubT = 3;
@@ -278,10 +332,19 @@ C.updaters.push((dt, t, D) => {
   if (held) { if (!P().active) C.cats.drop(); else holdPose(held); }
   /* toplantıda konuşmalar: kamera yakınsa balon */
   if (club && meetingTime() && P() && P().say && (clubT -= dt) <= 0) {
-    clubT = 2.5 + Math.random() * 2.5;
-    const cam = C.camera.position;
-    if (Math.hypot(cam.x - club.x, cam.z - club.z) < 45) { const c = Math.random() < 0.4 ? club.cats[0] : pick(club.cats); P().say(() => new THREE.Vector3(c.x, c.y + 0.7, c.z), c === club.cats[0] ? 'Reis: ' + pick(CLUB) : pick(CLUB), 0, 2.6); }
+    clubT = 3.2 + Math.random() * 1.8;
+    const cam = C.camera.position, id = topicId();
+    if (club.topic !== id) { club.topic = id; club.line = 0; }               // yeni gündem baştan
+    if (Math.hypot(cam.x - club.x, cam.z - club.z) < 45) {
+      const lines = topicLines(id), reis = club.cats[0], members = club.cats.slice(1);
+      let text, c;
+      if (club.line < lines.length) { const l = lines[club.line++], r = l.startsWith('R:'); c = r ? reis : pick(members); text = fillV(r ? l.slice(2) : l, lineVars()); }
+      else { c = Math.random() < 0.3 ? reis : pick(members); text = T_(pick(c === reis ? CLUB : MEOW.concat(CLUB))); if (++club.line > lines.length + 3) club.line = 0; }   // ara laflar, sonra gündem baştan
+      if (c !== reis) club.look = c;
+      P().say(() => new THREE.Vector3(c.x, c.y + 0.7, c.z), (c === reis ? 'Reis' : c.name) + ': ' + text, 0, 3);
+    }
   }
+  if (club && !meetingTime()) { club.topic = null; club.look = null; }
   group.visible = D <= 130;
   if (!group.visible) return;
   const cam = C.camera.position;
