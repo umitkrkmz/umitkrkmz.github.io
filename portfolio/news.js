@@ -94,6 +94,10 @@ window.MSNews = (function () {
     if (C && C.developer && C.developer.where && R('dev')() < 0.6) add('Kent', one(K.dev, 'dev'), 33, { where: T(C.developer.where()) });
     /* ulaşım, semt, esnaf, kültür (şehir olmadan da) */
     if (R('transit')() < 0.55) add('Ulaşım', one(K.transit, 'transit'), 38, { line: ['12', '34', '56'][Math.floor(R('line')() * 3)] });
+    /* saatlik trafik: şehirdeysek traffic.js'in eğrisi, değilse yalnızca saat ve haftanın günü */
+    const we = [0, 6].includes(o.date.getDay());
+    const tk = C && C.trafficLevel ? C.trafficLevel(h).key : we ? (h >= 8 && h < 22 ? 'weekend' : 'night') : h >= 6.5 && h < 9.75 ? 'morning' : h >= 16.5 && h < 19.5 ? 'evening' : h < 6 || h >= 22.5 ? 'night' : null;
+    if (K.rush && K.rush[tk]) add('Trafik', one(K.rush[tk], 'rush' + tk), tk === 'morning' || tk === 'evening' ? 56 : 30);
     if (K.semt) { const ks = Object.keys(K.semt), sk = ks[Math.floor(R('semtpick')() * ks.length)]; add('Semt', one(K.semt[sk], 'semt'), 40); }
     if (R('esnaf')() < 0.6) add('Esnaf', one(K.esnaf, 'esnaf'), 37);
     if (R('kultur')() < 0.5) add('Kültür', one(K.kultur, 'kultur'), 36);

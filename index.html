@@ -315,8 +315,9 @@ body:not(.hero-mode) .hero-only, body.hero-mode .cit-only { display: none; }
         <div class="wx-note" id="wxNote" aria-live="polite"></div>
       </div>
       <div class="field">
-        <div class="field-top"><label for="traffic">Trafik yoğunluğu</label><output id="trafficOut" for="traffic">50%</output></div>
+        <div class="field-top"><label for="traffic">Trafik yoğunluğu</label><span class="hour-r"><button class="btn tiny on" id="trafficLive" aria-pressed="true" title="Saate göre: sabah ve akşam yoğun, gece sakin">● Saate göre</button><output id="trafficOut" for="traffic">50%</output></span></div>
         <input type="range" id="traffic" min="0" max="100" step="5" value="50">
+        <div class="wx-note" id="trafficNote" aria-live="polite"></div>
       </div>
       <div class="opts">
         <label class="check"><input type="checkbox" id="shadowChk" checked> Gölgeler</label>

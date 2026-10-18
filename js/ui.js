@@ -7,11 +7,13 @@ const camera = C.camera, scene = C.scene, renderer = C.renderer, stage = $('stag
 const fmt = new Intl.NumberFormat(window.MSLang ? MSLang.locale : 'tr-TR');
 
 /* ---------- dünyayı kur ---------- */
-C.genBlocks(); C.buildStreet(); C.populate(2026); C.setDensity(C.Q.density); C.buildPeople(); C.refreshPickables();
-C.playing = false; C.dayRate = 0.25;
 /* saat: varsayılan gerçek Türkiye saati (GMT+3, yaz saati yok); kaydırıcıyla elle, "Günü ilerlet" ile hızlı, "Canlı" ile gerçeğe döner */
 C.trHour = () => ((Date.now() / 3.6e6 + 3) % 24 + 24) % 24;
 C.liveClock = true; C.hour = C.trHour();
+/* trafik saate göre (traffic.js C.trafficLevel): kapasite kalitenin yoğunluğunun 1,3 katı, zirvede hepsi yolda */
+C.trafficPeak = Math.min(1, C.Q.density * 1.3);
+C.genBlocks(); C.buildStreet(); C.populate(2026); C.setDensity(C.trafficPeak); C.buildPeople(); C.refreshPickables();
+C.playing = false; C.dayRate = 0.25;
 
 /* ---------- kamera ---------- */
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -230,10 +232,27 @@ C.setLiveClock = setLive;
 $('hour').addEventListener('input', e => { setLive(false); setHour(parseFloat(e.target.value)); });
 $('playBtn').addEventListener('click', () => { const on = !C.playing; if (on) setLive(false); setPlaying(on); });
 $('nowBtn').addEventListener('click', () => setLive(true));
-$('traffic').addEventListener('input', e => { C.setDensity(parseInt(e.target.value, 10) / 100); $('trafficOut').textContent = e.target.value + '%'; });
+/* trafik: "Saate göre" açıkken kaydırıcı saatin yoğunluğunu gösterir; elle çekince sabit kalır */
+const TRAFFIC_NOTE = { night: 'Gece: yollar sakin', morning: 'Sabah yoğunluğu', day: 'Gün içi: orta', evening: 'Akşam yoğunluğu', late: 'Akşam: trafik azalıyor', weekend: 'Hafta sonu: gün boyu orta' };
+let trafficKey = '';
+function syncTraffic() {
+  const auto = C.trafficAuto, b = $('trafficLive'), L = C.trafficLevel();
+  const v = Math.round((auto ? C.trafficPeak * L.v : C.density) * 100);
+  if (auto) $('traffic').value = v;
+  const note = auto ? TRAFFIC_NOTE[L.key] + (L.wet ? ' · yağış' : '') : 'Elle seçildi, saatle değişmez', key = v + note + auto;
+  if (key === trafficKey) return;                                    // değişmediyse dokunma (çeviri her yazışta yeniden çalışır)
+  trafficKey = key;
+  $('trafficOut').textContent = v + '%';
+  b.classList.toggle('on', auto); b.setAttribute('aria-pressed', auto); b.textContent = auto ? '● Saate göre' : 'Saate göre';
+  $('trafficNote').textContent = note;
+}
+C.syncTraffic = syncTraffic;
+$('traffic').addEventListener('input', e => { C.trafficAuto = false; C.setDensity(parseInt(e.target.value, 10) / 100); syncTraffic(); });
+$('trafficLive').addEventListener('click', () => { C.setTrafficAuto(true); syncTraffic(); });
+setInterval(syncTraffic, 1000);
 const coarse = window.matchMedia('(pointer:coarse)').matches || window.innerWidth < 720;
 $('shadowChk').checked = C.Q.shadow; sun.castShadow = C.Q.shadow;
-$('traffic').value = Math.round(C.Q.density * 100); $('trafficOut').textContent = $('traffic').value + '%';
+syncTraffic();
 /* grafik kalitesi: seçim saklanır, sayfa yeniden yüklenir (orman, arazi, kalabalık baştan kurulur) */
 $('quality').value = C.qualityPick;
 const QNAME = { low: 'düşük', mid: 'orta', high: 'yüksek' };
@@ -321,7 +340,7 @@ let slowN = 0, cut = 0, warm = 0;
 function degrade() {
   const save = q => { try { localStorage.setItem('ms.qualityAuto', q); } catch (e) {} };
   if (cut === 0 && sun.castShadow) { sun.castShadow = false; $('shadowChk').checked = false; save(C.QUALITY === 'high' ? 'mid' : 'low'); qualityNote('Kare yavaştı: gölgeler kapatıldı.'); }
-  else if (cut <= 1) { C.Q.live = 0; const v = Math.max(0.15, C.Q.density * 0.6); C.setDensity(v); $('traffic').value = Math.round(v * 100); $('trafficOut').textContent = $('traffic').value + '%'; save('low'); qualityNote('Kare yavaştı: gölgeler, gerçek odalar kapatıldı, trafik azaltıldı.'); cut = 1; }
+  else if (cut <= 1) { C.Q.live = 0; const v = Math.max(0.15, C.density * 0.6); if (C.trafficAuto) C.trafficPeak = v; C.setDensity(v); if (!C.trafficAuto) $('traffic').value = Math.round(v * 100); syncTraffic(); save('low'); qualityNote('Kare yavaştı: gölgeler, gerçek odalar kapatıldı, trafik azaltıldı.'); cut = 1; }
   cut++;
 }
 function adapt(ms) {

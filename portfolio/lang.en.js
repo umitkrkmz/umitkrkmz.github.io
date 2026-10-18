@@ -467,6 +467,29 @@ L.add({
   "Kediler Vadisi ikinci sezon": "Cat Valley, season two",
   "Parktaki kediler arasında güç dengeleri değişiyor. Reis \"her şey kontrol altında\" dedi.": "The balance of power among the park cats is shifting. Reis says \"everything is under control\"."
 });
+/* saatlik trafik haberleri (content.js rush) */
+L.add({
+  "Sabah trafiği başladı": "Morning traffic has begun",
+  "{cadde} Caddesi'nde araçlar adım adım ilerliyor. Ofise yetişmeye çalışanlar kornaya sarıldı.": "Cars are inching along {cadde} Street. People rushing to the office are leaning on their horns.",
+  "Kızılay'da sabah yoğunluğu": "Morning rush in Kızılay",
+  "Okul servisleri ve ofis yolcuları aynı saatte yola çıktı. Kavşaklarda kuyruk var.": "School buses and office commuters all set off at the same time. There are queues at the junctions.",
+  "Tünel yolunda kuyruk": "Queue on the tunnel road",
+  "Şehre dağ tünelinden girmek isteyenler doğu kavşağında bekliyor.": "Drivers coming into the city through the mountain tunnel are waiting at the eastern junction.",
+  "Akşam trafiği zirvede": "Evening traffic at its peak",
+  "Mesai bitti, {cadde} Caddesi'nde kırmızı ışıkta beklemeyen yok.": "The working day is over, and everyone on {cadde} Street is waiting at a red light.",
+  "Eve dönüş yoğunluğu": "The rush home",
+  "{semt} çıkışında araçlar tampon tampona. Otobüs şeridi bu saatte altın değerinde.": "Cars are bumper to bumper on the way out of {semt}. At this hour the bus lane is worth its weight in gold.",
+  "Söğütözü'nden çıkış zor": "Getting out of Söğütözü is hard",
+  "Kulelerden inenler aynı anda otoparktan çıkınca yan sokaklar da doldu.": "Everyone came down from the towers and left the car parks at once, filling the side streets too.",
+  "Yollar boş": "Empty roads",
+  "Gece yarısından sonra {cadde} Caddesi'nde yalnızca birkaç taksi ve itfaiye aracı var.": "After midnight there are only a few taxis and a fire engine on {cadde} Street.",
+  "Gece sakinliği": "Night-time calm",
+  "Trafik ışıkları kimse için yanıp sönüyor. Kediler yolun ortasından karşıya geçiyor.": "The traffic lights are changing for nobody. Cats are crossing down the middle of the road.",
+  "Hafta sonu trafiği rahat": "Easy weekend traffic",
+  "Sabah erken kimse yola çıkmadı. Öğleden sonra çarşılara doğru hareketlilik başladı.": "Nobody set off early this morning. In the afternoon, people began heading for the shops.",
+  "Tunalı'da park yeri yok": "No parking on Tunalı",
+  "Hafta sonu kahvaltısına gelenler park yeri bulmak için semti üç kez turladı.": "People coming for weekend breakfast circled the district three times looking for a parking space."
+});
 const R = L.rule;
 R(/^Son güncelleme: (.+)$/, d => `Updated: ${t(d)}`);
 R(/^(\d+) gün önce$/, n => `${n} days ago`);

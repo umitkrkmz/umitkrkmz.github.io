@@ -240,7 +240,21 @@ L.add({
   "güneşli bankların paylaşımı": "sharing the sunny benches",
   "kapalı havada uyku hakkı": "the right to nap on a cloudy day"
 });
+/* saate göre trafik (ui.js) */
+L.add({
+  "● Saate göre": "● By hour",
+  "Saate göre": "By hour",
+  "Saate göre: sabah ve akşam yoğun, gece sakin": "By hour: busy in the morning and evening, quiet at night",
+  "Gece: yollar sakin": "Night: quiet roads",
+  "Sabah yoğunluğu": "Morning rush",
+  "Gün içi: orta": "Daytime: moderate",
+  "Akşam yoğunluğu": "Evening rush",
+  "Akşam: trafik azalıyor": "Evening: traffic easing",
+  "Hafta sonu: gün boyu orta": "Weekend: moderate all day",
+  "Elle seçildi, saatle değişmez": "Set by hand, does not follow the hour"
+});
 /* değişkenli metinler */
+L.rule(/^(.+) · yağış$/, n => `${t(n)} · rain`);
 const R = L.rule;
 R(/^E: Kediyi sev \((.+?), (.+)\) · Q: Kucağına al$/, (n, c) => `E: Pet the cat (${n}, ${t(c)}) · Q: Pick up`);
 R(/^E: Gir · (.+)$/, n => `E: Enter · ${t(n)}`);

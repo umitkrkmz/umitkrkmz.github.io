@@ -130,8 +130,73 @@ const sigs = [C.inst(sigGeo(-1), sigM, MAXC), C.inst(sigGeo(1), sigM, MAXC)];   
 sigs.forEach(m => { m.count = 0; scene.add(m); C.carLayers.push(m); });
 const CAR_COLORS = ['#c9372c', '#1f5fa8', '#e8e8e8', '#2b2d31', '#f2b705', '#2f8f5b', '#8d939a', '#ffffff', '#6b3fa0', '#d9822b'].map(C.col);
 
+/* ---------- saate göre trafik: hafta içi sabah ve akşam zirvesi, gece sakin; hafta sonu geç başlar, gün boyu orta.
+   Ankara'nın ölçümü değil, örnek tasarım değerleri (ileride canlı veriyle değişebilir). Otomatikte (C.trafficAuto) kapasite
+   C.trafficPeak ile kurulur, saatin istediği kadarı yolda kalır: fazlası kameradan uzakta yoldan çekilir (uyur), eksik
+   olunca uyuyan bir araç uzakta boş bir şeride konur. Yağış trafiği biraz artırır ---------- */
+const WEEKDAY = [[0, .12], [3, .06], [5.5, .08], [6.5, .25], [7.5, .75], [8.25, 1], [9.25, .8], [10, .45], [12.5, .5], [14, .4], [16, .55], [17.25, .9], [18, 1], [19, .85], [19.75, .45], [22, .25], [24, .12]];
+const WEEKEND = [[0, .2], [3, .1], [6, .06], [8, .15], [10, .35], [12, .5], [14, .55], [17, .55], [19, .5], [21, .4], [22.5, .3], [24, .2]];
+const curveAt = (P, h) => {
+  for (let i = 1; i < P.length; i++) if (h <= P[i][0]) { const [a, va] = P[i - 1], [b, vb] = P[i], t = (h - a) / (b - a); return va + (vb - va) * t * t * (3 - 2 * t); }
+  return P[0][1];
+};
+C.trafficAuto = true;
+C.trafficLevel = h => {
+  if (h === undefined) h = C.hour;
+  h = ((h % 24) + 24) % 24;
+  const day = new Date(Date.now() + 3 * 3600e3).getUTCDay(), we = day === 0 || day === 6;   // Türkiye'de haftanın günü
+  const w = C.weather && C.weather.cur, wet = w ? Math.min(1, w.rain + w.snow) : 0;
+  const v = Math.min(1, curveAt(we ? WEEKEND : WEEKDAY, h) * (1 + wet * 0.12));
+  const key = we ? (h < 8 || h >= 22 ? 'night' : 'weekend')
+    : h < 6 || h >= 22.5 ? 'night' : h >= 6.5 && h < 9.75 ? 'morning' : h >= 16.5 && h < 19.5 ? 'evening' : h >= 19.5 ? 'late' : 'day';
+  return { v, key, weekend: we, wet: wet > 0.2 };
+};
+const sleepers = [];
+let cap = 0, balT = 0;
+function sleep(c) {
+  const l = c.e.cars, k = l.indexOf(c); if (k >= 0) l.splice(k, 1);
+  c.off = true; c.leaving = false; c.path = []; c.stopEdge = null;
+  for (const p of parts) p.setMatrixAt(c.idx, ZERO4);
+  sleepers.push(c);
+}
+function wake(c, e, s) {
+  c.off = false; Object.assign(c, { e, s, v: 7, tin: null, path: [], crashed: false, yaw: 0, pull: 0, wx: undefined });
+  c.next = chooseNext(c, e); e.cars.push(c);
+}
+/* kameradan uzak mı: şehir kademesinde araçlar zaten gizli, her yer uzak sayılır */
+const far = (x, z) => {
+  const cam = C.camera.position, tg = C.controls ? C.controls.target : cam, D = cam.distanceTo(tg);
+  if (D > 320) return true;
+  const R = Math.max(110, D * 0.9);
+  return Math.hypot(x - tg.x, z - tg.z) > R && Math.hypot(x - cam.x, z - cam.z) > R;
+};
+const canSleep = c => !(c.special || c.off || c.parked || c.crashed || c.leaving || (c.path && c.path.length));
+function balance(dt) {
+  if ((balT -= dt) > 0) return;
+  balT = 0.2;
+  let act = 0; for (const c of cars) if (!c.special && !c.off) act++;
+  const diff = Math.round(cap * C.trafficLevel().v) - act;
+  let n = Math.min(Math.abs(diff), Math.max(1, Math.ceil(Math.abs(diff) * 0.05)));   // farkın %5'i (en az 1), 0,2 sn'de bir
+  for (let tries = 0; n > 0 && tries < n * 6 + 6; tries++) {
+    if (diff < 0) {
+      const c = cars[(Math.random() * cars.length) | 0];
+      if (!canSleep(c) || (c.wx !== undefined && !far(c.wx, c.wz))) continue;
+      sleep(c); n--;
+    } else {
+      if (!sleepers.length) break;
+      const e = edges[(Math.random() * edges.length) | 0];
+      if (e.blocked || e.cars.length >= MAXPER || e.len < 20) continue;
+      const s = 4 + Math.random() * (e.len - 12);
+      if (!far(e.ox + e.dx * s, e.oz + e.dz * s) || e.cars.some(o => Math.abs(o.s - s) < 12)) continue;
+      wake(sleepers.pop(), e, s); n--;
+    }
+  }
+}
+C.setTrafficAuto = on => { C.trafficAuto = on; if (on) C.setDensity(C.trafficPeak); };
+
 C.setDensity = function (d) {
   C.density = d;
+  sleepers.length = 0;
   const r = C.rng(1234), keep = cars.filter(c => c.special);
   let idx = 0;
   cars.length = 0;
@@ -146,6 +211,9 @@ C.setDensity = function (d) {
     }
   }
   /* yedek havuz: şeritte değil, çizilmez; yoldan şehre giren araç buradan çıkar, şehirden çıkan buraya döner */
+  cap = idx;
+  /* otomatikte saatin istemediği kadarı baştan uyur (kamera bakmaksızın, kurulum zaten her şeyi yeniden dizer) */
+  if (C.trafficAuto) { let extra = cars.length - Math.round(cap * C.trafficLevel().v); for (let k = cars.length - 1; k >= 0 && extra > 0; k--) if (r() * (k + 1) < extra) { sleep(cars[k]); extra--; } }
   reserve.length = 0;
   for (let k = 0; k < RES; k++) { const car = { e: edges[0], s: 0, v: 0, v0: 10 + r() * 3, len: 4.6, idx: idx++, tin: null, next: edges[0], off: true, col: CAR_COLORS[(r() * CAR_COLORS.length) | 0] }; for (const p of parts) p.setMatrixAt(car.idx, ZERO4); reserve.push(car); cars.push(car); }
   hwCars.length = 0;
@@ -248,7 +316,7 @@ function laneFree(dir) { for (const c of hwCars) if (c.dir === dir && prog(c) < 
 function updateHighway(dt) {
   /* şehirden ayrılanlar: arada bir rastgele bir araç çıkış kavşağına yönelir (giriş ve çıkış dengede kalsın) */
   if ((leaveTimer -= dt) <= 0) {
-    leaveTimer = 3 + Math.random() * 3;
+    leaveTimer = (3 + Math.random() * 3) / (C.trafficAuto ? Math.max(0.2, C.trafficLevel().v) : 1);
     for (let k = 0; k < 20; k++) {
       const c = cars[(Math.random() * cars.length) | 0];
       if (c.special || c.off || c.crashed || c.leaving || (c.path && c.path.length) || c.s < 0) continue;
@@ -258,7 +326,7 @@ function updateHighway(dt) {
   /* tünelden gelen: yedek havuzda yer ayrılmış kadar */
   const inbound = hwCars.filter(c => c.dir < 0).length;
   if ((hwTimer -= dt) <= 0 && reserve.length > inbound && laneFree(-1)) {
-    hwTimer = 2.5 + Math.random() * 4;
+    hwTimer = (2.5 + Math.random() * 4) / (C.trafficAuto ? Math.max(0.2, C.trafficLevel().v) : 1);   // gece tünelden seyrek araç gelir
     hwCars.push({ dir: -1, lane: Math.random() < 0.5 ? 0 : 1, s: HW.L, v: 14, v0: 15 + Math.random() * 6, col: CAR_COLORS[(Math.random() * CAR_COLORS.length) | 0], k: 0 });
   }
   hwCars.sort((a, b) => prog(b) - prog(a));
@@ -303,6 +371,7 @@ function oncoming(e) {
 }
 C.updateTraffic = function (dt) {
   simT += dt;
+  if (C.trafficAuto) balance(dt);
   const ph = phaseOf(simT);
   if (ph !== lastPhase) { lastPhase = ph; lightX = ph[0]; lightZ = ph[1]; paintLamps(lightX, lightZ); }
   for (const e of edges) if (e.cars.length > 1) e.cars.sort((p, q) => q.s - p.s);

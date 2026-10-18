@@ -424,6 +424,27 @@ window.PORTFOLIO = {
       ['Geliştirici nerede?', 'Telefonunda portfolyosu olan geliştirici şu sıralar ne yapıyor? Cevap: {where}.'],
       ['"Bir commit daha"', 'Geliştiriciyi soranlara kısa cevap: {where}. Yanında yine sırt çantası var.']
     ],
+    /* saatlik trafik (traffic.js C.trafficLevel'ın anahtarları) */
+    rush: {
+      morning: [
+        ['Sabah trafiği başladı', '{cadde} Caddesi\'nde araçlar adım adım ilerliyor. Ofise yetişmeye çalışanlar kornaya sarıldı.'],
+        ['Kızılay\'da sabah yoğunluğu', 'Okul servisleri ve ofis yolcuları aynı saatte yola çıktı. Kavşaklarda kuyruk var.'],
+        ['Tünel yolunda kuyruk', 'Şehre dağ tünelinden girmek isteyenler doğu kavşağında bekliyor.']
+      ],
+      evening: [
+        ['Akşam trafiği zirvede', 'Mesai bitti, {cadde} Caddesi\'nde kırmızı ışıkta beklemeyen yok.'],
+        ['Eve dönüş yoğunluğu', '{semt} çıkışında araçlar tampon tampona. Otobüs şeridi bu saatte altın değerinde.'],
+        ['Söğütözü\'nden çıkış zor', 'Kulelerden inenler aynı anda otoparktan çıkınca yan sokaklar da doldu.']
+      ],
+      night: [
+        ['Yollar boş', 'Gece yarısından sonra {cadde} Caddesi\'nde yalnızca birkaç taksi ve itfaiye aracı var.'],
+        ['Gece sakinliği', 'Trafik ışıkları kimse için yanıp sönüyor. Kediler yolun ortasından karşıya geçiyor.']
+      ],
+      weekend: [
+        ['Hafta sonu trafiği rahat', 'Sabah erken kimse yola çıkmadı. Öğleden sonra çarşılara doğru hareketlilik başladı.'],
+        ['Tunalı\'da park yeri yok', 'Hafta sonu kahvaltısına gelenler park yeri bulmak için semti üç kez turladı.']
+      ]
+    },
     transit: [
       ['Otobüs {line} zamanında', '{line} numaralı hat bugün tarifesine uydu. Yolcular şaşkın.'],
       ['{line} numaralı hatta kalabalık', '{semt} semtindeki durakta bekleyenler otobüse sığmakta zorlandı.'],
