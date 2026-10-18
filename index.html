@@ -81,8 +81,13 @@ h1 { margin: 0; font: 800 30px/1 var(--f-display); letter-spacing: .06em; text-t
   position: fixed; right: max(16px, env(safe-area-inset-right, 0px));
   bottom: max(16px, calc(env(safe-area-inset-bottom, 0px) + 8px));
   width: min(300px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  /* her ekranda üstte Portfolyo düğmesine yer kalır; kart ve panel bu yüksekliği paylaşır, panelin içi kayar (tablet, dizüstü, yatay telefon) */
+  max-height: calc(100vh - 76px - env(safe-area-inset-bottom, 0px)); max-height: calc(100dvh - 76px - env(safe-area-inset-bottom, 0px));
 }
 .stack > * { pointer-events: auto; }
+.stack > .card { flex: 0 0 auto; max-height: 45vh; max-height: 45dvh; overflow-y: auto; overscroll-behavior: contain; }   /* kart küçülmez, yer gerekirse panel kısalır */
+.stack > .dock { flex: 0 1 auto; min-height: 44px; display: flex; flex-direction: column; }
+.dock-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .card { padding: 12px 14px; }
 .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card h2 { margin: 0; font: 800 22px/1 var(--f-display); letter-spacing: .05em; text-transform: uppercase; }
@@ -138,7 +143,14 @@ input[type="range"] { width: 100%; margin: 0; accent-color: var(--accent); }
   .dock .field-top { margin-bottom: 2px; }
   .dock .sel { min-height: 30px; }
 }
-@media (max-height: 560px) { .dock-body { max-height: 58vh; } }
+/* kısa ekran (yatay telefon): panel yığının sınırıyla kayar; sol üst başlıkta yalnızca ad, semt ve kademe */
+@media (max-height: 560px) {
+  .dock-body { max-height: none; }
+  .desc, .scale, .hint { display: none; }
+  .brand { padding: 9px 12px; gap: 7px; }
+  h1 { font-size: 24px; }
+  .feed li:nth-child(n+3) { display: none; }
+}
 #boot, #nogl {
   position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; padding: 24px; text-align: center;
   background: var(--bg); color: var(--muted); font: 500 13px var(--f-mono); letter-spacing: .08em; text-transform: uppercase;
@@ -317,6 +329,7 @@ body:not(.hero-mode) .hero-only, body.hero-mode .cit-only { display: none; }
       <div class="field">
         <div class="field-top"><label for="quality">Grafik</label><output id="qualityNow"></output></div>
         <select id="quality" class="sel"><option value="auto">Otomatik (cihaza göre)</option><option value="high">Yüksek</option><option value="mid">Orta</option><option value="low">Düşük (telefon)</option></select>
+        <div class="wx-note" id="qualityNote"></div>
       </div>
       <div class="field">
         <div class="field-top"><label for="lang">Dil · Language</label></div>

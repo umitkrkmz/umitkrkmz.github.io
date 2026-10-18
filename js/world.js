@@ -56,7 +56,20 @@ C.QS = {
 };
 try { C.qualityPick = localStorage.getItem('ms.quality') || 'auto'; } catch (e) { C.qualityPick = 'auto'; }
 C.small = Math.min(screen.width, screen.height) < 720;
-C.QUALITY = C.QS[C.qualityPick] ? C.qualityPick : C.coarse ? (C.small ? 'low' : 'mid') : 'high';
+/* otomatikte ekran kartına da bakılır: yazılımla çizen ve zayıf tümleşik kart düşük, güçlü tümleşik orta. Dizüstünde tarayıcı çoğu zaman
+   tümleşik kartı seçer (Optimus); kartın adı Grafik alanında görünür. Çalışırken kare yavaş kalırsa ui.js kademeyi düşürür ve öğrenilen
+   kademeyi saklar ('ms.qualityAuto'), sonraki açılış ondan başlar */
+C.gpu = '';
+try { const g = renderer.getContext(), x = g.getExtension('WEBGL_debug_renderer_info'); C.gpu = x ? String(g.getParameter(x.UNMASKED_RENDERER_WEBGL)) : ''; } catch (e) {}
+{ const m = /ANGLE \([^,]+, (.+?)(?: \(0x[0-9A-Fa-f]+\))?(?: Direct3D| vs_| OpenGL|,|\)$)/.exec(C.gpu); C.gpuName = (m ? m[1] : C.gpu).replace(/\((R|TM)\)/g, '').replace(/^ANGLE Metal Renderer: /, '').replace(/\s+/g, ' ').trim(); }
+C.gpuSoft = /SwiftShader|llvmpipe|softpipe|Microsoft Basic Render|Software/i.test(C.gpu);
+C.gpuIntegrated = !C.gpuSoft && /Intel|Radeon(\(TM\))? (Vega \d+ )?Graphics|Mali|Adreno|PowerVR/i.test(C.gpu);
+const TIERS = ['low', 'mid', 'high'], lower = (a, b) => TIERS[Math.min(TIERS.indexOf(a), TIERS.indexOf(b))];
+const gpuTier = C.gpuSoft ? 'low' : /Intel.*(HD Graphics|UHD)|Mali-[GT]\d|Adreno \(TM\) [1-5]\d\d|PowerVR/i.test(C.gpu) ? 'low' : C.gpuIntegrated ? 'mid' : 'high';
+let learned = null; try { learned = localStorage.getItem('ms.qualityAuto'); } catch (e) {}
+const deviceTier = C.coarse ? (C.small ? 'low' : 'mid') : 'high';
+C.QUALITY = C.QS[C.qualityPick] ? C.qualityPick : [deviceTier, gpuTier, C.QS[learned] ? learned : 'high'].reduce(lower);
+C.qualityWhy = C.QS[C.qualityPick] ? 'manual' : C.QS[learned] && learned === C.QUALITY && learned !== lower(deviceTier, gpuTier) ? 'learned' : gpuTier === C.QUALITY && gpuTier !== deviceTier ? 'gpu' : 'device';
 C.Q = C.QS[C.QUALITY];
 C.maxPR = Math.min(window.devicePixelRatio || 1, C.Q.pr);
 renderer.setPixelRatio(C.maxPR);

@@ -24,6 +24,9 @@ L.add({
   'Rastgele olaylar': 'Random events', 'Olay çıkar': 'Trigger event', 'Grafik': 'Graphics',
   'Otomatik (cihaza göre)': 'Automatic (by device)', 'Yüksek': 'High', 'Orta': 'Medium', 'Düşük (telefon)': 'Low (phone)', 'düşük': 'low', 'orta': 'medium', 'yüksek': 'high',
   'Dil · Language': 'Language · Dil', 'Otomatik': 'Automatic',
+  'Tümleşik kart; dizüstündeysen tarayıcıyı Windows grafik ayarlarından yüksek performansa al.': 'Integrated GPU; on a laptop, set the browser to High performance in Windows graphics settings.',
+  'Donanım hızlandırma kapalı görünüyor.': 'Hardware acceleration seems to be off.', 'Bu cihazda daha önce yavaş kaldığı için düşürüldü.': 'Lowered because it ran slowly on this device before.',
+  'Kare yavaştı: gölgeler kapatıldı.': 'Frames were slow: shadows turned off.', 'Kare yavaştı: gölgeler, gerçek odalar kapatıldı, trafik azaltıldı.': 'Frames were slow: shadows and live rooms turned off, less traffic.',
   'Beni bul 📱': 'Find me 📱', 'Kuş bakışı': "Bird's-eye", 'Siluet': 'Skyline', 'Sokağa in': 'Street level', 'Saat kulesi': 'Clock tower',
   'Karakteri oyna': 'Play as citizen', 'Pijamalı Çocuğu izle': 'Follow Underoos', 'İzlemeyi bırak': 'Stop following', 'Pijamalı Çocuk olarak oyna': 'Play as Underoos',
   'Kuş bakışına dön': "Back to bird's-eye", 'Yeni şehir kur': 'Build a new city', 'Seçimi kaldır': 'Clear selection',
@@ -140,6 +143,7 @@ R(/^Sıra numaranız A-(\d+)\. Bekleme salonunda oturabilirsiniz\.$/, n => `Your
 R(/^Hırsızlık · (.+) · (\d+) m$/, (p, d) => `Theft · ${p} · ${d} m`);
 R(/^GOOOL! (.+) · (\d+-\d+)$/, (k, s) => `GOAL! ${k} · ${s}`);
 R(/^(.+ \d+ - \d+ .+) · (birazdan|devre arası|maç sonu|\d+')$/, (s, p) => `${s} · ${({ birazdan: 'starting soon', 'devre arası': 'half-time', 'maç sonu': 'full time' })[p] || p}`);
+R(/^Ekran kartı: (.+)$/, s => 'GPU: ' + s.split(' · ').map(x => t(x)).join(' · '));
 R(/^Bugün (.+) ve (.+)$/, (a, b) => `Today ${a} and ${b}`);
 R(/^Ankara · (.+) · nem %(\d+) · rüzgâr (\d+) km\/sa$/, (l, h, w) => `Ankara · ${t(l)} · humidity ${h}% · wind ${w} km/h`);
 R(/^Elle: ([^·]+?)(?: · Ankara'da şu an (-?\d+)° (.+))?$/, (k, d, l) => `Manual: ${t(k)}` + (d ? ` · Ankara now ${d}° ${t(l)}` : ''));

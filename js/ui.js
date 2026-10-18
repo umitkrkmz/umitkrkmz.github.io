@@ -236,10 +236,23 @@ $('shadowChk').checked = C.Q.shadow; sun.castShadow = C.Q.shadow;
 $('traffic').value = Math.round(C.Q.density * 100); $('trafficOut').textContent = $('traffic').value + '%';
 /* grafik kalitesi: seçim saklanır, sayfa yeniden yüklenir (orman, arazi, kalabalık baştan kurulur) */
 $('quality').value = C.qualityPick;
-$('qualityNow').textContent = { low: 'düşük', mid: 'orta', high: 'yüksek' }[C.QUALITY];
+const QNAME = { low: 'düşük', mid: 'orta', high: 'yüksek' };
+$('qualityNow').textContent = QNAME[C.QUALITY];
+/* ekran kartı notu: hangi kartla çizildiği; tümleşik kartta güçlü karta geçme ipucu */
+function qualityNote(extra) {
+  const n = $('qualityNote'); if (!n) return;
+  const parts = [];
+  if (C.gpuName) parts.push('Ekran kartı: ' + C.gpuName);
+  if (extra) parts.push(extra);
+  else if (C.qualityWhy === 'gpu' && C.gpuIntegrated && !C.coarse) parts.push('Tümleşik kart; dizüstündeysen tarayıcıyı Windows grafik ayarlarından yüksek performansa al.');
+  else if (C.qualityWhy === 'gpu' && C.gpuSoft) parts.push('Donanım hızlandırma kapalı görünüyor.');
+  else if (C.qualityWhy === 'learned') parts.push('Bu cihazda daha önce yavaş kaldığı için düşürüldü.');
+  n.textContent = parts.join(' · ');
+}
+qualityNote();
 /* dil: seçim saklanır, sayfa yeniden yüklenir (lang.js) */
 if (window.MSLang) { $('lang').value = MSLang.pick; $('lang').addEventListener('change', e => MSLang.set(e.target.value)); }
-$('quality').addEventListener('change', e => { try { localStorage.setItem('ms.quality', e.target.value); } catch (er) {} location.reload(); });
+$('quality').addEventListener('change', e => { try { localStorage.setItem('ms.quality', e.target.value); localStorage.removeItem('ms.qualityAuto'); } catch (er) {} location.reload(); });   // elle seçimde öğrenilen kademe sıfırlanır
 $('shadowChk').addEventListener('change', e => { sun.castShadow = e.target.checked; });
 $('dockToggle').addEventListener('click', () => { const d = $('dock'), c = d.classList.toggle('collapsed'); $('dockToggle').setAttribute('aria-expanded', !c); });
 if (window.innerWidth < 720) { $('dock').classList.add('collapsed'); $('dockToggle').setAttribute('aria-expanded', 'false'); }
@@ -302,14 +315,25 @@ let last = performance.now(), frameN = 0, booted = false;
 setHour(C.hour);
 /* uyarlanır çözünürlük: iki saniyelik ortalama kare süresi uzunsa piksel oranı düşer, rahatlayınca kaliteye göre en yükseğe kadar çıkar */
 let frSum = 0, frN = 0, frT = 0, curPR = renderer.getPixelRatio();
+/* kare 6 sn boyunca 28 ms'den uzunsa (otomatik kalitede) yük kademe kademe azalır: önce gölge, sonra gerçek odalar ve trafik;
+   piksel oranı kurtarmaz çünkü asıl yük gölge haritası ve üçgen sayısı. Öğrenilen kademe saklanır, sonraki açılış ondan başlar */
+let slowN = 0, cut = 0, warm = 0;
+function degrade() {
+  const save = q => { try { localStorage.setItem('ms.qualityAuto', q); } catch (e) {} };
+  if (cut === 0 && sun.castShadow) { sun.castShadow = false; $('shadowChk').checked = false; save(C.QUALITY === 'high' ? 'mid' : 'low'); qualityNote('Kare yavaştı: gölgeler kapatıldı.'); }
+  else if (cut <= 1) { C.Q.live = 0; const v = Math.max(0.15, C.Q.density * 0.6); C.setDensity(v); $('traffic').value = Math.round(v * 100); $('trafficOut').textContent = $('traffic').value + '%'; save('low'); qualityNote('Kare yavaştı: gölgeler, gerçek odalar kapatıldı, trafik azaltıldı.'); cut = 1; }
+  cut++;
+}
 function adapt(ms) {
-  if (ms > 250 || document.hidden) return;                          // sekme arkadaydı
+  if (ms > 1000 || document.hidden) return;                         // sekme arkadaydı (çok zayıf kartta 250 ms'lik kareler de sayılsın)
+  if ((warm += ms) < 6000) return;                                   // açılıştaki derleme ve ayrıntı kurulumu sayılmaz
   frSum += ms; frN++; if ((frT += ms) < 2000) return;
   const avg = frSum / frN; frSum = frN = frT = 0;
   let pr = curPR;
-  if (avg > 30 && pr > 0.6) pr = Math.max(0.6, pr - 0.15);
+  if (avg > 26 && pr > 0.6) pr = Math.max(0.6, pr - 0.15);
   else if (avg < 17 && pr < C.maxPR) pr = Math.min(C.maxPR, pr + 0.1);
   if (Math.abs(pr - curPR) > 0.01) { curPR = pr; renderer.setPixelRatio(pr); C.pixelRatio = pr; }
+  if (C.qualityPick === 'auto' && cut < 2 && avg > 28) { if (++slowN >= 3) { slowN = 0; degrade(); } } else slowN = 0;
 }
 function loop(now) {
   requestAnimationFrame(loop);
