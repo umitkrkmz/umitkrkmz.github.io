@@ -156,7 +156,6 @@ let cap = 0, balT = 0;
 function sleep(c) {
   const l = c.e.cars, k = l.indexOf(c); if (k >= 0) l.splice(k, 1);
   c.off = true; c.leaving = false; c.path = []; c.stopEdge = null;
-  for (const p of parts) p.setMatrixAt(c.idx, ZERO4);
   sleepers.push(c);
 }
 function wake(c, e, s) {
@@ -198,28 +197,25 @@ C.setDensity = function (d) {
   C.density = d;
   sleepers.length = 0;
   const r = C.rng(1234), keep = cars.filter(c => c.special);
-  let idx = 0;
   cars.length = 0;
   for (const e of edges) {
     e.cars.length = 0;
     const n = Math.min(MAXPER, Math.floor(d * MAXPER + r()));
     for (let k = 0; k < n; k++) {
-      const car = { e, s: e.len * (1 - (k + 0.5) / n) + (r() - 0.5) * 3, v: 0, v0: 9 + r() * 4, len: 4.6, idx: idx++, tin: null, next: null, col: CAR_COLORS[(r() * CAR_COLORS.length) | 0] };
+      const car = { e, s: e.len * (1 - (k + 0.5) / n) + (r() - 0.5) * 3, v: 0, v0: 9 + r() * 4, len: 4.6, tin: null, next: null, col: CAR_COLORS[(r() * CAR_COLORS.length) | 0] };
       car.next = chooseNext(car, e);
-      parts[0].setColorAt(car.idx, car.col);
       e.cars.push(car); cars.push(car);
     }
   }
   /* yedek havuz: şeritte değil, çizilmez; yoldan şehre giren araç buradan çıkar, şehirden çıkan buraya döner */
-  cap = idx;
+  cap = cars.length;
   /* otomatikte saatin istemediği kadarı baştan uyur (kamera bakmaksızın, kurulum zaten her şeyi yeniden dizer) */
   if (C.trafficAuto) { let extra = cars.length - Math.round(cap * C.trafficLevel().v); for (let k = cars.length - 1; k >= 0 && extra > 0; k--) if (r() * (k + 1) < extra) { sleep(cars[k]); extra--; } }
   reserve.length = 0;
-  for (let k = 0; k < RES; k++) { const car = { e: edges[0], s: 0, v: 0, v0: 10 + r() * 3, len: 4.6, idx: idx++, tin: null, next: edges[0], off: true, col: CAR_COLORS[(r() * CAR_COLORS.length) | 0] }; for (const p of parts) p.setMatrixAt(car.idx, ZERO4); reserve.push(car); cars.push(car); }
+  for (let k = 0; k < RES; k++) { const car = { e: edges[0], s: 0, v: 0, v0: 10 + r() * 3, len: 4.6, tin: null, next: edges[0], off: true, col: CAR_COLORS[(r() * CAR_COLORS.length) | 0] }; reserve.push(car); cars.push(car); }
   hwCars.length = 0;
   for (const c of keep) { cars.push(c); if (!c.parked) c.e.cars.push(c); }
-  parts.forEach(p => p.count = idx); sigs.forEach(m => m.count = idx);
-  if (parts[0].instanceColor) parts[0].instanceColor.needsUpdate = true;
+  for (const m of parts.concat(sigs)) m.count = 0;   // çizim döngüsü yalnızca yoldakileri sırayla yazar
 };
 
 /* ---------- trafik ışıkları ---------- */
@@ -295,7 +291,7 @@ C.carPush = function (p, R) {
 /* ---------- şehir dışı yol (terrain.js'deki C.highway): her yönde iki şerit ----------
    dir 1: şehirden tünele (s artar), dir -1: tünelden şehre (s azalır). Tünelden gelen araç doğu kavşağında
    şehrin ağına katılır (yedek havuzdan bir araç o şeride konur); şehirden o kavşağa gelenlerin bir kısmı yola çıkar. */
-const HW = C.highway, ZERO4 = new THREE.Matrix4().makeScale(0, 0, 0), hwCars = [];
+const HW = C.highway, hwCars = [];
 let eIn = null, eOut = null, hwParts = null, hwTimer = 2, leaveTimer = 3;
 if (HW) {
   const xn = nodeId(HW.startNode[0], HW.startNode[1]), wn = nodeId(HW.startNode[0] - 1, HW.startNode[1]);
@@ -345,7 +341,6 @@ function updateHighway(dt) {
         const car = reserve.pop(); car.off = false;
         Object.assign(car, { e: eIn, s: 0, v: c.v, tin: null, path: [], col: c.col, crashed: false, yaw: 0, pull: 0 });
         car.next = chooseNext(car, eIn); eIn.cars.push(car);
-        parts[0].setColorAt(car.idx, car.col); parts[0].instanceColor.needsUpdate = true;
         hwCars.splice(i, 1);
       } else { c.v = 0; }
     }
@@ -416,7 +411,7 @@ C.updateTraffic = function (dt) {
   for (const car of movers) {
     const e = car.e, f = car.next, t = turnOf(e, f);
     if (HW && e === eOut && !car.special && (car.leaving || Math.random() < 0.35) && laneFree(1)) {   // şehirden çık: yola, tünele doğru
-      e.cars.splice(e.cars.indexOf(car), 1); car.off = true; car.leaving = false; for (const p of parts) p.setMatrixAt(car.idx, ZERO4); reserve.push(car);
+      e.cars.splice(e.cars.indexOf(car), 1); car.off = true; car.leaving = false; reserve.push(car);
       hwCars.push({ dir: 1, lane: Math.random() < 0.5 ? 0 : 1, s: 0, v: car.v, v0: 15 + Math.random() * 6, col: car.col, k: 0 });
       continue;
     }
@@ -425,22 +420,30 @@ C.updateTraffic = function (dt) {
     car.next = chooseNext(car, f);
   }
   if (HW) updateHighway(dt);
+  /* yalnızca yoldaki araçlar sırayla yazılır (yayalardaki begin/put/end gibi), count küçülür: yoldan çekilen, park eden ve
+     yedek havuzdaki araçlar GPU'ya hiç gitmez. car.slot o karedeki yazma sırası; slot ya da renk değişince gövde rengi
+     yeniden yazılır. Sinyallerde iki taraf da yalnızca yanan lambaları kendi sırasıyla yazar */
   const blinkOn = (simT * 1.6) % 1 < 0.55;
+  let n = 0, nl = 0, nr = 0, colDirty = false;
   for (const car of cars) {
-    if (car.parked || car.off || car.model) { sigs[0].setMatrixAt(car.idx, ZERO4); sigs[1].setMatrixAt(car.idx, ZERO4); if (car.parked || car.off) continue; }
+    if (car.parked || car.off) { car.slot = -1; continue; }
     carPos(car, pos);
     const ry = Math.atan2(-pos.hz, pos.hx) + (car.yaw || 0);
     if (car.pull > 0.01 && !car.model) { const l = Math.hypot(pos.hx, pos.hz) || 1, o = car.pull * 1.9 / l; pos.x -= pos.hz * o; pos.z += pos.hx * o; }
     car.wx = pos.x; car.wz = pos.z; car.wr = ry;                        // çarpışma için (C.carPush)
     if (car.model) { car.model(pos.x, pos.z, ry); continue; }
     dm.position.set(pos.x, 0, pos.z); dm.rotation.set(0, ry, 0); dm.updateMatrix();
-    for (const p of parts) p.setMatrixAt(car.idx, dm.matrix);
+    for (const p of parts) p.setMatrixAt(n, dm.matrix);
+    if (car.slot !== n || car.slotCol !== car.col) { parts[0].setColorAt(n, car.col); car.slot = n; car.slotCol = car.col; colDirty = true; }
+    n++;
+    if (!blinkOn) continue;
     /* dönüşte ya da kavşağa 25 m kala, dönüş düz değilse */
     const tk = car.s < 0 && car.tin ? car.tin.kind : car.next && car.e.len - car.s < 25 ? turnOf(car.e, car.next).kind : 's';
-    sigs[0].setMatrixAt(car.idx, blinkOn && tk === 'l' ? dm.matrix : ZERO4);
-    sigs[1].setMatrixAt(car.idx, blinkOn && tk === 'r' ? dm.matrix : ZERO4);
+    if (tk === 'l') sigs[0].setMatrixAt(nl++, dm.matrix); else if (tk === 'r') sigs[1].setMatrixAt(nr++, dm.matrix);
   }
-  for (const p of parts) p.instanceMatrix.needsUpdate = true;
+  for (const p of parts) { p.count = n; p.instanceMatrix.needsUpdate = true; }
+  if (colDirty) parts[0].instanceColor.needsUpdate = true;
+  sigs[0].count = nl; sigs[1].count = nr;
   for (const m of sigs) m.instanceMatrix.needsUpdate = true;
 };
 
