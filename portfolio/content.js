@@ -26,7 +26,7 @@ window.PORTFOLIO = {
      paper: makale bağlantısı, extra: [ad, bağlantı] ek düğme. Açıklamalar Türkçe ve elle yazılır, GitHub'a ulaşılamazsa da görünür */
   projects: [
     {
-      group: 'Öne çıkanlar', title: 'Mikro Şehir',
+      group: 'Öne çıkanlar', title: 'Mikro Şehir', repo: 'umitkrkmz.github.io',
       desc: 'Tarayıcıda çalışan prosedürel 3B Ankara: Kızılay\'dan Söğütözü\'ne semtler, canlı Ankara havası, dağlarla çevrili vadi, trafik ve yayalar, camın ardında yaşayan odalar, olaylar, kediler, stadyumda maç ve ağla sallanan bir kahraman.',
       tags: ['JavaScript', 'Three.js', 'GLSL', 'Prosedürel üretim'], live: '../index.html'
     },

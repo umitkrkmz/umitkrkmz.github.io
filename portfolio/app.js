@@ -48,7 +48,7 @@ function projectCard(p) {
   const links = [
     here ? (embed ? '<span>Şu an içindesin</span>' : '<a href="../index.html">Şehre gir</a>') : p.live ? go('Canlı', p.live) : '',
     p.paper ? go('Makale', p.paper) : '',
-    p.repo ? go('Kod', 'https://github.com/' + (P.github || '') + '/' + p.repo, 'ghost') : here ? '<span>Kod yakında</span>' : '',
+    p.repo ? go('Kod', 'https://github.com/' + (P.github || '') + '/' + p.repo, 'ghost') : '',
     p.extra ? go(esc(p.extra[0]), p.extra[1], 'ghost') : ''
   ].join('');
   const lang = r && r.lang ? `<span class="lang" style="--l:${LANG[r.lang] || '#8b949e'}">${esc(r.lang)}</span>` : '';
