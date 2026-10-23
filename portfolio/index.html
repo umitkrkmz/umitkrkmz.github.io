@@ -60,10 +60,10 @@
   <!-- uygulamalar: açılınca tam ekran (şehirde telefon büyür) -->
   <section class="screen app-view" id="projects" aria-label="Projeler" hidden>
     <header><div class="url" data-path="projeler"></div><button class="back" data-home>‹ Ana ekran</button><h2>Projeler</h2></header>
-    <div class="body"><div id="projectList"></div><a class="more" id="moreLink" target="_blank" rel="noopener"></a></div>
+    <div class="body"><div class="constel" id="constel"></div><div id="projectList"></div><a class="more" id="moreLink" target="_blank" rel="noopener"></a></div>
   </section>
   <section class="screen app-view" id="project" aria-label="Proje" hidden>
-    <header><div class="url" data-path="projeler"></div><button class="back" data-to="projects">‹ Projeler</button><h2 id="pjTitle"></h2><div class="sub" id="pjSub"></div></header>
+    <header><div class="url" data-path="projeler"></div><button class="back" data-to="projects">‹ Projeler</button><h2 id="pjTitle"></h2><div class="sub" id="pjSub"></div><div class="readbar" aria-hidden="true"><i id="pjBar"></i></div></header>
     <div class="body" id="pjBody"></div>
   </section>
   <section class="screen app-view" id="map" aria-label="Harita" hidden>
@@ -134,6 +134,7 @@
 <script src="icons.js"></script>
 <script src="content.js"></script>
 <script src="details.js"></script>
+<script src="gen.js"></script>
 <script src="news.js"></script>
 <script src="app.js"></script>
 </body>

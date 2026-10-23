@@ -581,6 +581,14 @@ L.add({
   "Ayarlar": "Settings",
   "Son çalışmalar": "Recent work",
   "Etkinlik": "Activity",
+  "Takımyıldızlar": "Constellations",
+  "Bağımsız yıldız": "Lone star",
+  "Sürümler": "Releases",
+  "Bağlantılı projeler": "Related projects",
+  "Projeler arası bağlar": "How the projects connect",
+  "Sürümler yükleniyor…": "Loading releases…",
+  "Sürüm bilgisi alınamadı.": "Release info couldn't be loaded.",
+  "Henüz yayımlanmış sürüm yok.": "No published releases yet.",
   "Sıradakiler": "Up next",
   "Lig tablosu ›": "League table ›",
   "Ajanda ›": "Agenda ›",
@@ -690,6 +698,7 @@ R(/^Maç sonu: (.+)\.$/, a => `Full time: ${a}.`);
 R(/^bitti (\d+-\d+)$/, x => `full time ${x}`);
 R(/^devre arası (\d+-\d+)$/, x => `half time ${x}`);
 R(/^tribünler doluyor$/, () => 'stands filling up');
+R(/^(\d+) sürüm · (.+) – (.+)$/, (n, a, b) => `${n} release${n === '1' ? '' : 's'} · ${a} – ${b}`);
 R(/^Devre arası · (.+)$/, x => `Half time · ${x}`);
 R(/^Maç sürüyor · (\d+)' · (.+)$/, (m, x) => `Match on · ${m}' · ${x}`);
 R(/^Sıradaki maç (yarın )?(\d\d\.\d\d)$/, (y, h) => `Next match ${y ? 'tomorrow ' : ''}${h}`);

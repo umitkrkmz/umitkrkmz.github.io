@@ -102,9 +102,15 @@ const detailLinks = p => (p.repo ? `<a href="${esc('https://github.com/' + (P.gi
 function detailHtml(p) {
   const d = p.detail;
   const facts = (d.facts || []).map(([k, v, live]) => `<div><small>${esc(tx(k))}</small><b${live ? ` data-live="${esc(live)}"` : ''}>${esc((live === 'release' && relText(p)) || tx(v))}</b></div>`).join('');
-  const groups = [{ id: 'sec-top', h: 'Özet', html: `${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}<p class="lead">${esc(tx(d.lead) || p.desc)}</p><div class="facts">${facts}</div><ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>` }];
+  const cover = d.gen && window.GEN ? `<div class="cover"><canvas class="gen" data-gen="${esc(d.gen)}" aria-hidden="true"></canvas></div>` : '';
+  const nums = d.nums ? `<div class="nums">${d.nums.map(([v, l]) => `<div><b>${esc(tx(v))}</b><small>${esc(tx(l))}</small></div>`).join('')}</div>` : '';
+  const groups = [{ id: 'sec-top', h: 'Özet', html: `${cover}<p class="lead">${esc(tx(d.lead) || p.desc)}</p>${nums}<div class="facts">${facts}</div><ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}` }];
   for (const s of d.sections || []) { if (s.h) groups.push({ id: 'sec-' + groups.length, h: tx(s.h), html: '' }); groups[groups.length - 1].html += block(s); }
+  if (p.repo) groups.push({ id: 'sec-rel', h: 'Sürümler', html: `<h3>Sürümler</h3><div class="tl" data-repo="${esc(p.repo)}"><p class="empty">Sürümler yükleniyor…</p></div>` });
   if (d.stack) groups.push({ id: 'sec-stack', h: 'Teknolojiler', html: `<h3>Teknolojiler</h3>${rowsOf(d.stack)}` });
+  if (d.related && d.related.length) groups.push({ id: 'sec-links', h: 'Bağlantılı projeler', html: `<h3>Bağlantılı projeler</h3><div class="rel">${d.related.map(([sl, why]) => {
+    const q = (P.projects || []).find(x => x.slug === sl); if (!q) return '';
+    return `<button type="button" class="relc" data-detail="${esc(sl)}" style="--rc:${esc((q.detail && q.detail.theme) || '#ffb53d')}"><b>${esc(q.title)}</b><span>${esc(tx(why))}</span></button>`; }).join('')}</div>` });
   const toc = `<nav class="toc" aria-label="İçindekiler"><b>İçindekiler</b><ul>${groups.map(g => `<li><a href="#${g.id}" data-sec="${g.id}">${esc(g.h)}</a></li>`).join('')}</ul><div class="links">${detailLinks(p)}</div></nav>`;
   return `<div class="post-wrap">${toc}<article class="post">${groups.map(g => `<section class="sec" id="${g.id}">${g.html}</section>`).join('')}<div class="links">${detailLinks(p)}</div></article></div>`;
 }
@@ -117,6 +123,108 @@ function tocSpy() {
   tocObs = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) set(e.target.id); }, { root: body, rootMargin: '-12% 0px -70% 0px' });   // kayan kap izlenir, sayfa değil
   body.querySelectorAll('.sec').forEach(s => tocObs.observe(s));
 }
+/* detay açılınca: tema rengi, canlı kapak, kaydırmada belirme, okuma çubuğu, sürüm zaman çizelgesi */
+const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+let rvObs = null;
+function detailFx(p) {
+  const v = $('project'), body = $('pjBody'), d = p.detail;
+  v.style.setProperty('--pa', d.theme || 'var(--accent)');
+  const cv = body.querySelector('canvas.gen'); if (cv && window.GEN) GEN.mount(cv, cv.dataset.gen, d.theme);
+  if (rvObs) rvObs.disconnect();
+  if (!REDUCE && window.IntersectionObserver) {
+    const secs = [...body.querySelectorAll('.sec')].slice(1); secs.forEach(s => s.classList.add('rv'));
+    rvObs = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) { e.target.classList.add('in'); rvObs.unobserve(e.target); } }, { root: body, rootMargin: '0px 0px -8% 0px' });
+    secs.forEach(s => rvObs.observe(s));
+  }
+  barSync();
+  const tl = body.querySelector('.tl[data-repo]'); if (tl) releases(tl.dataset.repo).then(list => drawTimeline(tl, list)).catch(() => { tl.innerHTML = '<p class="empty">Sürüm bilgisi alınamadı.</p>'; });
+}
+function barSync() { const b = $('pjBody'), m = b.scrollHeight - b.clientHeight; $('pjBar').style.width = (m > 0 ? Math.min(100, b.scrollTop / m * 100) : 0) + '%'; }
+if ($('pjBody')) $('pjBody').addEventListener('scroll', barSync, { passive: true });
+/* GitHub sürümleri (anahtarsız, depo başına 6 saat saklanır) */
+const RELS_KEY = 'ms.rels';
+let rels = {}; try { rels = JSON.parse(localStorage.getItem(RELS_KEY)) || {}; } catch (e) {}
+function releases(repo) {
+  const c = rels[repo]; if (c && Date.now() - c.t < 216e5) return Promise.resolve(c.list);
+  return fetch('https://api.github.com/repos/' + encodeURIComponent(P.github) + '/' + encodeURIComponent(repo) + '/releases?per_page=40').then(r => r.ok ? r.json() : Promise.reject(r.status)).then(a => {
+    const list = a.filter(x => !x.draft).map(x => ({ tag: x.tag_name, date: x.published_at || x.created_at })).sort((p, q) => Date.parse(p.date) - Date.parse(q.date));
+    rels[repo] = { t: Date.now(), list }; try { localStorage.setItem(RELS_KEY, JSON.stringify(rels)); } catch (e) {}
+    return list;
+  });
+}
+function drawTimeline(el, list) {
+  if (!list.length) { el.innerHTML = '<p class="empty">Henüz yayımlanmış sürüm yok.</p>'; return; }
+  const t0 = Date.parse(list[0].date), t1 = Date.parse(list[list.length - 1].date), span = Math.max(1, t1 - t0), fmt = s => new Date(s).toLocaleDateString(LOC, { day: 'numeric', month: 'short', year: 'numeric' });
+  const step = Math.max(1, Math.ceil(list.length / 7)), label = (k) => k === 0 || k === list.length - 1 || k % step === 0;
+  const dots = list.map((r, k) => { const x = list.length === 1 ? 50 : 4 + (Date.parse(r.date) - t0) / span * 92;
+    return `<i class="d${label(k) ? ' lab' : ''}${k % 2 ? ' dn' : ''}" style="left:${x.toFixed(2)}%" title="${esc(r.tag)} · ${esc(fmt(r.date))}">${label(k) ? `<span>${esc(r.tag)}</span>` : ''}</i>`; }).join('');
+  el.innerHTML = `<div class="tlbar">${dots}</div><p class="src">${list.length} sürüm · ${esc(fmt(list[0].date))} – ${esc(fmt(list[list.length - 1].date))}</p>`;
+}
+/* Projeler sayfası: takımyıldızlar. Üç tematik küme (çizgiler yalnızca kendi içinde) ve üç bağımsız yıldız; boş yıldızlar henüz
+   proje olmayan yerler. Konumlar sahnenin yüzdesi, iki yerleşim: geniş [x, y] ve dar ekranda dikey [px, py]. Düğüm
+   [slug | null, yıldız kodu, x, y, px, py, parlak], bağımsız yıldız [slug, ad, x, y, px, py, efekt], küme adı lab [x, y, px, py].
+   Yıldız kodları gerçek (Bayer ya da Flamsteed). Dokununca proje açılır, üzerine gelince takımyıldızın adı belirir; kenara taşan etiketler
+   ölçülüp içeri kaydırılır. Gökyüzü bütün Projeler ekranının arka planı (style.css #projects). Detay sayfalarındaki "Bağlantılı projeler"
+   (details.js related) ayrı: gerçek ilişkiler */
+const STARS = {
+  clusters: [
+    { id: 'lynx', name: 'Lynx', sub: { tr: 'Steganografi ve analiz', en: 'Steganography and analysis' }, lab: [22, 20, 26, 11],
+      nodes: [['chaotic-audio', 'α Lyncis', 13, 60, 16, 31, 1], ['stegotester', 'Alsciaukat (31 Lyn)', 24, 40, 38, 21], ['ui2py', '38 Lyncis', 29, 76, 54, 36],
+        [null, '15 Lyncis', 7, 30, 8, 20], [null, '21 Lyncis', 37, 55, 74, 25]],
+      links: [[0, 1], [1, 3], [1, 4], [0, 2], [2, 4]] },
+    { id: 'reticulum', name: 'Reticulum', sub: { tr: 'Ağ ve DPI aşma', en: 'Networking and DPI bypass' }, lab: [53, 10, 30, 44],
+      nodes: [['zerodivert', 'α Reticuli', 53, 22, 66, 46, 1], ['limbo', 'ζ Reticuli', 45, 45, 44, 55], [null, 'β Reticuli', 61, 46, 84, 54], [null, 'ε Reticuli', 53, 66, 64, 63]],
+      links: [[0, 1], [1, 3], [3, 2], [2, 0], [0, 3]] },
+    { id: 'norma', name: 'Norma', sub: { tr: 'AI mühendisliği ve korkuluklar', en: 'AI engineering and guardrails' }, lab: [81, 14, 72, 68],
+      nodes: [['how-ai-actually-works', 'γ² Normae', 74, 36, 30, 72, 1], ['ai-context-mapping', 'ε Normae', 87, 60, 62, 82], [null, 'δ Normae', 91, 26, 10, 64], [null, 'η Normae', 71, 64, 34, 86]],
+      links: [[2, 0], [0, 3], [3, 1]] }
+  ],
+  solo: [['mikro-sehir', 'Sirius', 62, 86, 26, 93, 'pulse'], ['mediagrab', 'Altair', 92, 84, 76, 93], ['kurumsal-bilgi', 'Regulus', 36, 13, 50, 3]]
+};
+const GHOST = [{ tr: 'Keşfedilmemiş sektör', en: 'Uncharted sector' }, { tr: 'Geliştirme aşamasında', en: 'In development' }];
+function drawConstel() {
+  const box = $('constel'); if (!box) return;
+  const byS = new Map((P.projects || []).map(p => [p.slug, p])), col = sl => (byS.get(sl) && byS.get(sl).detail && byS.get(sl).detail.theme) || '#ffb53d';
+  let tall = null;
+  const render = () => {
+    const k = tall ? 2 : 0, at = (x, y) => `left:${x}%;top:${y}%`;
+    let gi = 0, lines = '', nodes = '', labels = '';
+    for (const c of STARS.clusters) {
+      for (const [a, b] of c.links) { const p = c.nodes[a].slice(2 + k), q = c.nodes[b].slice(2 + k); lines += `<line class="k-${c.id}" x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}"/>`; }
+      labels += `<div class="skyname k-${c.id}" style="${at(c.lab[k], c.lab[k + 1])}"><b>${esc(c.name)}</b><small>${esc(tx(c.sub))}</small></div>`;
+      for (const n of c.nodes) {
+        const [sl, code, main] = [n[0], n[1], n[6]], pos = at(n[2 + k], n[3 + k]);
+        if (!sl) { nodes += `<span class="cn ghost" data-k="${c.id}" style="${pos}" tabindex="0"><i></i><small>${esc(code)}</small><em>${esc(tx(GHOST[gi++ % GHOST.length]))}</em></span>`; continue; }
+        const p = byS.get(sl); if (!p) continue;
+        nodes += `<button type="button" class="cn${main ? ' main' : ''}" data-k="${c.id}" data-detail="${esc(sl)}" style="${pos};--rc:${esc(col(sl))}"><i></i><span>${esc(p.title)}</span><small>${esc(code)}</small></button>`;
+      }
+    }
+    for (const n of STARS.solo) {
+      const [sl, star, fx] = [n[0], n[1], n[6]], p = byS.get(sl); if (!p) continue;
+      nodes += `<button type="button" class="cn solo${fx ? ' ' + fx : ''}" data-detail="${esc(sl)}" style="${at(n[2 + k], n[3 + k])};--rc:${esc(col(sl))}"><i></i><span>${esc(p.title)}</span><small>${esc(star)} · <span>Bağımsız yıldız</span></small></button>`;
+    }
+    box.classList.toggle('tall', tall);
+    box.innerHTML = `<h3 class="group">Takımyıldızlar</h3><div class="cstage"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${labels}${nodes}</div>`;
+  };
+  const clamp = () => {   // etiketi sahnenin içine kaydır (nokta yerinde kalır; .cn'de yalnızca yazılar kayar)
+    const st = box.querySelector('.cstage'); if (!st) return; const W = st.clientWidth;
+    st.querySelectorAll('.cn, .skyname').forEach(e => {
+      e.style.setProperty('--dx', '0px'); const x = e.offsetLeft, hw = Math.max(...[...e.children].map(c => c.offsetWidth)) / 2;
+      e.style.setProperty('--dx', Math.round(Math.max(0, 6 - (x - hw)) - Math.max(0, x + hw - (W - 6))) + 'px');
+    });
+  };
+  const fit = () => { const t = box.clientWidth < 560; if (t !== tall) { tall = t; render(); } clamp(); };
+  fit();
+  if (window.ResizeObserver) new ResizeObserver(fit).observe(box);
+  if (document.fonts) document.fonts.ready.then(clamp);
+  const hot = k => box.querySelectorAll('[class*="k-"]').forEach(e => e.classList.toggle('on', !!k && e.classList.contains('k-' + k)));
+  box.addEventListener('mouseover', e => { const n = e.target.closest('.cn'); hot(n && n.dataset.k); });
+  box.addEventListener('focusin', e => { const n = e.target.closest('.cn'); hot(n && n.dataset.k); });
+  box.addEventListener('mouseleave', () => hot(null));
+  const pv = $('projects'), pb = pv && pv.querySelector('.body');   // yakın yıldız tozu kaydırınca yavaşça kayar: derinlik
+  if (pb) pb.addEventListener('scroll', () => pv.style.setProperty('--sy', (-pb.scrollTop * 0.12).toFixed(1) + 'px'), { passive: true });
+}
+drawConstel();
 /* kopyala: panoya yazılamazsa (eski tarayıcı, izin yok) seçili metinle dener */
 function copyText(t) {
   if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
@@ -131,7 +239,7 @@ function openDetail(slug, from) {
   $('pjTitle').textContent = p.title; v.dataset.slug = slug; $('pjSub').innerHTML = metaOf(p) + `<div class="links top">${detailLinks(p)}</div>`; $('pjBody').innerHTML = detailHtml(p);
   show('project', from); history.replaceState(null, '', '#projects/' + slug);
   $('pjBody').scrollTop = 0;                                          // görünür olduktan sonra: gizliyken atanan kaydırma yok sayılır, önceki detayın yeri kalırdı
-  tocSpy();
+  tocSpy(); detailFx(p);
   const c = rel[p.repo];
   if (p.repo && P.github && !(c && Date.now() - c.t < 36e5)) {
     fetch('https://api.github.com/repos/' + encodeURIComponent(P.github) + '/' + encodeURIComponent(p.repo) + '/releases/latest').then(r => r.ok ? r.json() : Promise.reject(r.status)).then(x => {

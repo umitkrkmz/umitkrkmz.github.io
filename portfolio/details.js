@@ -1,7 +1,7 @@
 /* ===== details.js: projelerin detay sayfaları (blog gibi), app.js 'detailHtml' çizer. Yazılar burada, iki dilli; çeviri sözlüğünden geçmez.
    Her metin { tr, en }; görsel ve bağlantıda {l} dile göre tr ya da en. Bölüm blokları: h, p, quote, list, rows ([ad, açıklama]),
    code (komut, kopyalanır), diagram (kopyalanmaz), img / imgs ([görsel, açıklama, 'phone' | 'fit']), actions (kurulum kartları: t, d, code, links), after (bloktan sonra paragraf).
-   facts: [ad, değer, 'release' ise GitHub'dan son sürüm]. links: [ad, adres]; '#projects/<slug>' başka bir projenin detayını açar.
+   facts: [ad, değer, 'release' ise GitHub'dan son sürüm]; theme (renk), gen (gen.js kapak animasyonu), nums (öne çıkan rakamlar), related ([slug, neden]). links: [ad, adres]; '#projects/<slug>' başka bir projenin detayını açar.
    Görseller portfolio/img/<slug>/ altında WebP. Anahtar content.js'teki projenin 'slug'ı ===== */
 (function (P) {
 'use strict';
@@ -216,6 +216,40 @@ const D = {
      "en": "Release notes"
     },
     "https://github.com/umitkrkmz/umitkrkmz.github.io/releases/latest"
+   ]
+  ],
+  "theme": "#ffb53d",
+  "gen": "city",
+  "nums": [
+   [
+    "9",
+    {
+     "tr": "semt",
+     "en": "districts"
+    }
+   ],
+   [
+    "1.750",
+    {
+     "tr": "gerçek maçtan skor dağılımı",
+     "en": "real matches behind the scores"
+    }
+   ],
+   [
+    "0",
+    {
+     "tr": "derleme adımı",
+     "en": "build steps"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "mediagrab",
+    {
+     "tr": "İkisi de sunucusuz, hesapsız, telemetrisiz; veri kullanıcıda kalır.",
+     "en": "Both need no server, no account and no telemetry; data stays with the user."
+    }
    ]
   ]
  },
@@ -488,6 +522,47 @@ const D = {
     },
     "https://github.com/umitkrkmz/mediagrab/blob/master/docs/README.{l}.md"
    ]
+  ],
+  "theme": "#5b8def",
+  "gen": "download",
+  "nums": [
+   [
+    "1.700+",
+    {
+     "tr": "desteklenen site",
+     "en": "supported sites"
+    }
+   ],
+   [
+    "19",
+    {
+     "tr": "sürüm, iki ayda",
+     "en": "releases in two months"
+    }
+   ],
+   [
+    "0",
+    {
+     "tr": "reklam ve telemetri",
+     "en": "ads and telemetry"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "ai-context-mapping",
+    {
+     "tr": "MediaGrab, ai-context-mapping'in gerçek bir mimarideki vaka çalışması.",
+     "en": "MediaGrab is ai-context-mapping's case study in a real architecture."
+    }
+   ],
+   [
+    "mikro-sehir",
+    {
+     "tr": "İkisi de sunucusuz, hesapsız, telemetrisiz; veri kullanıcıda kalır.",
+     "en": "Both need no server, no account and no telemetry; data stays with the user."
+    }
+   ]
   ]
  },
  "kurumsal-bilgi": {
@@ -718,6 +793,50 @@ const D = {
     },
     "https://github.com/umitkrkmz/CorporateKnowledgeBase-legacy"
    ]
+  ],
+  "theme": "#8b6cf6",
+  "gen": "rag",
+  "nums": [
+   [
+    "4",
+    {
+     "tr": "katmanlı mimari",
+     "en": "architecture layers"
+    }
+   ],
+   [
+    "~3.000",
+    {
+     "tr": "satırlık tasarım sistemi",
+     "en": "lines of design system"
+    }
+   ],
+   [
+    {
+     "tr": "Yerel",
+     "en": "Local"
+    },
+    {
+     "tr": "dil modeli, veri dışarı çıkmaz",
+     "en": "language model, data stays in"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "how-ai-actually-works",
+    {
+     "tr": "RAG: biri bir ürünün içinde çalışıyor, öbürü mekanizmayı sıfırdan kuruyor.",
+     "en": "RAG: one runs inside a product, the other builds the mechanism from scratch."
+    }
+   ],
+   [
+    "limbo",
+    {
+     "tr": "Aynı yığın: C# ve .NET 10.",
+     "en": "The same stack: C# and .NET 10."
+    }
+   ]
   ]
  },
  "stegotester": {
@@ -917,6 +1036,47 @@ const D = {
     },
     "https://github.com/umitkrkmz/StegoTester-AI-Training"
    ]
+  ],
+  "theme": "#3fbf7f",
+  "gen": "stego",
+  "nums": [
+   [
+    "30+",
+    {
+     "tr": "metrik",
+     "en": "metrics"
+    }
+   ],
+   [
+    "%99,9",
+    {
+     "tr": "sesteki LSB, kuralla",
+     "en": "audio LSB, by rule"
+    }
+   ],
+   [
+    "3",
+    {
+     "tr": "medya türü",
+     "en": "media types"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "chaotic-audio",
+    {
+     "tr": "İkisi de steganografi: biri veriyi seste gizler, öbürü gizli veriyi arar.",
+     "en": "Both are steganography: one hides data in audio, the other hunts for hidden data."
+    }
+   ],
+   [
+    "ui2py",
+    {
+     "tr": "StegoTester'ın PySide6 arayüzü, ui2py'nin çözdüğü iş akışıyla yazıldı.",
+     "en": "StegoTester's PySide6 interface was built with the workflow ui2py solves."
+    }
+   ]
   ]
  },
  "chaotic-audio": {
@@ -1088,6 +1248,44 @@ const D = {
      "en": "Paper"
     },
     "https://doi.org/10.64470/elene.2025.12"
+   ]
+  ],
+  "theme": "#ef5b4f",
+  "gen": "lorenz",
+  "nums": [
+   [
+    "7",
+    {
+     "tr": "kaotik harita",
+     "en": "chaotic maps"
+    }
+   ],
+   [
+    ">100 dB",
+    "PSNR"
+   ],
+   [
+    "2025",
+    {
+     "tr": "hakemli yayın",
+     "en": "peer-reviewed paper"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "stegotester",
+    {
+     "tr": "İkisi de steganografi: biri veriyi seste gizler, öbürü gizli veriyi arar.",
+     "en": "Both are steganography: one hides data in audio, the other hunts for hidden data."
+    }
+   ],
+   [
+    "ui2py",
+    {
+     "tr": "Aynı PySide6 ve Qt Designer iş akışı.",
+     "en": "The same PySide6 and Qt Designer workflow."
+    }
    ]
   ]
  },
@@ -1496,6 +1694,47 @@ const D = {
     "how-ai-actually-works",
     "#projects/how-ai-actually-works"
    ]
+  ],
+  "theme": "#22b8cf",
+  "gen": "graph",
+  "nums": [
+   [
+    "90",
+    {
+     "tr": "ajan çalıştırması",
+     "en": "agent runs"
+    }
+   ],
+   [
+    "0 / 6",
+    {
+     "tr": "zararlı değişiklik, çerçeveyle",
+     "en": "harmful changes, with the framework"
+    }
+   ],
+   [
+    "0",
+    {
+     "tr": "bağımlılık",
+     "en": "dependencies"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "how-ai-actually-works",
+    {
+     "tr": "Kardeş depolar: biri araç ve ölçülen kanıt, öbürü altındaki mekanizmalar.",
+     "en": "Companion repositories: one is the tool and the measured evidence, the other the mechanisms underneath."
+    }
+   ],
+   [
+    "mediagrab",
+    {
+     "tr": "MediaGrab, ai-context-mapping'in gerçek bir mimarideki vaka çalışması.",
+     "en": "MediaGrab is ai-context-mapping's case study in a real architecture."
+    }
+   ]
   ]
  },
  "how-ai-actually-works": {
@@ -1785,6 +2024,47 @@ const D = {
     "ai-context-mapping",
     "#projects/ai-context-mapping"
    ]
+  ],
+  "theme": "#f0913a",
+  "gen": "vectors",
+  "nums": [
+   [
+    "8",
+    {
+     "tr": "modül",
+     "en": "modules"
+    }
+   ],
+   [
+    "15",
+    {
+     "tr": "assert'le biten betik",
+     "en": "scripts ending in asserts"
+    }
+   ],
+   [
+    "< 2 sn",
+    {
+     "tr": "bütün doğrulama",
+     "en": "full verification"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "ai-context-mapping",
+    {
+     "tr": "Kardeş depolar: biri araç ve ölçülen kanıt, öbürü altındaki mekanizmalar.",
+     "en": "Companion repositories: one is the tool and the measured evidence, the other the mechanisms underneath."
+    }
+   ],
+   [
+    "kurumsal-bilgi",
+    {
+     "tr": "RAG: biri bir ürünün içinde çalışıyor, öbürü mekanizmayı sıfırdan kuruyor.",
+     "en": "RAG: one runs inside a product, the other builds the mechanism from scratch."
+    }
+   ]
   ]
  },
  "limbo": {
@@ -2009,6 +2289,50 @@ const D = {
     },
     "https://github.com/umitkrkmz/Limbo/releases/latest"
    ]
+  ],
+  "theme": "#9c7bff",
+  "gen": "layers",
+  "nums": [
+   [
+    "7",
+    {
+     "tr": "strateji",
+     "en": "strategies"
+    }
+   ],
+   [
+    {
+     "tr": "Alan adı",
+     "en": "Per domain"
+    },
+    {
+     "tr": "başına profil",
+     "en": "profiles"
+    }
+   ],
+   [
+    "AVX2",
+    {
+     "tr": "paket ayrıştırma",
+     "en": "packet parsing"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "zerodivert",
+    {
+     "tr": "İkisi de WinDivert ile DPI aşıyor: Limbo her site için ayrı strateji, ZeroDivert yalnızca Discord.",
+     "en": "Both bypass DPI with WinDivert: Limbo with a strategy per site, ZeroDivert for Discord only."
+    }
+   ],
+   [
+    "kurumsal-bilgi",
+    {
+     "tr": "Aynı yığın: C# ve .NET 10.",
+     "en": "The same stack: C# and .NET 10."
+    }
+   ]
   ]
  },
  "zerodivert": {
@@ -2209,6 +2533,40 @@ const D = {
     },
     "https://github.com/umitkrkmz/ZeroDivert/releases/latest"
    ]
+  ],
+  "theme": "#7289da",
+  "gen": "packets",
+  "nums": [
+   [
+    "4",
+    {
+     "tr": "teknik, sırayla",
+     "en": "techniques, in order"
+    }
+   ],
+   [
+    "5",
+    {
+     "tr": "ardışık başarıda kalibrasyon",
+     "en": "successes to calibrate"
+    }
+   ],
+   [
+    "0",
+    {
+     "tr": "VPN, hız kaybı",
+     "en": "VPN, speed loss"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "limbo",
+    {
+     "tr": "İkisi de WinDivert ile DPI aşıyor: Limbo her site için ayrı strateji, ZeroDivert yalnızca Discord.",
+     "en": "Both bypass DPI with WinDivert: Limbo with a strategy per site, ZeroDivert for Discord only."
+    }
+   ]
   ]
  },
  "ui2py": {
@@ -2362,6 +2720,50 @@ const D = {
      "en": "Download"
     },
     "https://github.com/umitkrkmz/ui2py-pyside6/releases/latest"
+   ]
+  ],
+  "theme": "#41cd52",
+  "gen": "uic",
+  "nums": [
+   [
+    "1",
+    {
+     "tr": "tıkla dönüştürme",
+     "en": "click to convert"
+    }
+   ],
+   [
+    {
+     "tr": "Toplu",
+     "en": "Batch"
+    },
+    {
+     "tr": "dönüştürme",
+     "en": "conversion"
+    }
+   ],
+   [
+    "venv",
+    {
+     "tr": "derleyici seçimi",
+     "en": "compiler choice"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "stegotester",
+    {
+     "tr": "StegoTester'ın PySide6 arayüzü, ui2py'nin çözdüğü iş akışıyla yazıldı.",
+     "en": "StegoTester's PySide6 interface was built with the workflow ui2py solves."
+    }
+   ],
+   [
+    "chaotic-audio",
+    {
+     "tr": "Aynı PySide6 ve Qt Designer iş akışı.",
+     "en": "The same PySide6 and Qt Designer workflow."
+    }
    ]
   ]
  }
