@@ -96,13 +96,26 @@ function block(s) {
     (s.actions ? `<div class="acts">${s.actions.map(x => `<div class="act"><b>${esc(tx(x.t))}</b><p>${esc(tx(x.d))}</p>${x.code ? codeBox(x.code) : ''}<div class="links">${(x.links || []).map((l, i) => linkTo(l, i ? 'ghost' : '')).join('')}</div></div>`).join('')}</div>` : '') +
     (s.after || []).map(t => `<p>${esc(tx(t))}</p>`).join('');
 }
+/* bağlantılar (Kod, İndir, Kılavuz…): başlığın altında ve yazının sonunda */
+const detailLinks = p => (p.repo ? `<a href="${esc('https://github.com/' + (P.github || '') + '/' + p.repo)}" target="_blank" rel="noopener">Kod</a>` : '') + (p.detail.links || []).map(l => linkTo(l, 'ghost')).join('');
+/* bölümler başlığa göre gruplanır (başlıksız blok öncekine eklenir); geniş ekranda solda içindekiler, aktif bölüm vurgulu (Scrollspy) */
 function detailHtml(p) {
-  const d = p.detail, code = 'https://github.com/' + (P.github || '') + '/' + p.repo;
+  const d = p.detail;
   const facts = (d.facts || []).map(([k, v, live]) => `<div><small>${esc(tx(k))}</small><b${live ? ` data-live="${esc(live)}"` : ''}>${esc((live === 'release' && relText(p)) || tx(v))}</b></div>`).join('');
-  const stack = d.stack ? `<h3>Teknolojiler</h3>${rowsOf(d.stack)}` : '';
-  const links = (p.repo ? `<a href="${esc(code)}" target="_blank" rel="noopener">Kod</a>` : '') + (d.links || []).map(l => linkTo(l, 'ghost')).join('');
-  return `<article class="post">${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}<p class="lead">${esc(tx(d.lead) || p.desc)}</p><div class="facts">${facts}</div>` +
-    `<ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${(d.sections || []).map(block).join('')}${stack}<div class="links">${links}</div></article>`;
+  const groups = [{ id: 'sec-top', h: 'Özet', html: `${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}<p class="lead">${esc(tx(d.lead) || p.desc)}</p><div class="facts">${facts}</div><ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>` }];
+  for (const s of d.sections || []) { if (s.h) groups.push({ id: 'sec-' + groups.length, h: tx(s.h), html: '' }); groups[groups.length - 1].html += block(s); }
+  if (d.stack) groups.push({ id: 'sec-stack', h: 'Teknolojiler', html: `<h3>Teknolojiler</h3>${rowsOf(d.stack)}` });
+  const toc = `<nav class="toc" aria-label="İçindekiler"><b>İçindekiler</b><ul>${groups.map(g => `<li><a href="#${g.id}" data-sec="${g.id}">${esc(g.h)}</a></li>`).join('')}</ul><div class="links">${detailLinks(p)}</div></nav>`;
+  return `<div class="post-wrap">${toc}<article class="post">${groups.map(g => `<section class="sec" id="${g.id}">${g.html}</section>`).join('')}<div class="links">${detailLinks(p)}</div></article></div>`;
+}
+let tocObs = null;
+function tocSpy() {
+  if (tocObs) tocObs.disconnect();
+  const body = $('pjBody'), links = [...body.querySelectorAll('.toc [data-sec]')], set = id => links.forEach(a => a.classList.toggle('on', a.dataset.sec === id));
+  if (!links.length || !window.IntersectionObserver) return;
+  set(links[0].dataset.sec);
+  tocObs = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) set(e.target.id); }, { root: body, rootMargin: '-12% 0px -70% 0px' });   // kayan kap izlenir, sayfa değil
+  body.querySelectorAll('.sec').forEach(s => tocObs.observe(s));
 }
 /* kopyala: panoya yazılamazsa (eski tarayıcı, izin yok) seçili metinle dener */
 function copyText(t) {
@@ -115,9 +128,10 @@ function openDetail(slug, from) {
   const p = (P.projects || []).find(x => x.slug === slug); if (!p || !p.detail) return;
   const v = $('project');
   v.querySelector('.url').innerHTML = `<i class="lk">${SV('lock')}</i>${esc(P.site || '')}/<b>projeler/${esc(slug)}</b>`;
-  $('pjTitle').textContent = p.title; v.dataset.slug = slug; $('pjSub').innerHTML = metaOf(p); $('pjBody').innerHTML = detailHtml(p);
+  $('pjTitle').textContent = p.title; v.dataset.slug = slug; $('pjSub').innerHTML = metaOf(p) + `<div class="links top">${detailLinks(p)}</div>`; $('pjBody').innerHTML = detailHtml(p);
   show('project', from); history.replaceState(null, '', '#projects/' + slug);
   $('pjBody').scrollTop = 0;                                          // görünür olduktan sonra: gizliyken atanan kaydırma yok sayılır, önceki detayın yeri kalırdı
+  tocSpy();
   const c = rel[p.repo];
   if (p.repo && P.github && !(c && Date.now() - c.t < 36e5)) {
     fetch('https://api.github.com/repos/' + encodeURIComponent(P.github) + '/' + encodeURIComponent(p.repo) + '/releases/latest').then(r => r.ok ? r.json() : Promise.reject(r.status)).then(x => {
@@ -736,7 +750,21 @@ function watchEvents() {
   clearTimeout(toastT); toastT = setTimeout(() => { t.classList.remove('in'); setTimeout(() => { if (!t.classList.contains('in')) t.hidden = true; }, 300); }, 5000);
 }
 if ($('toast')) $('toast').addEventListener('click', () => { const t = $('toast'), g = t.dataset.go || ''; t.hidden = true; t.dataset.go = ''; if (g.startsWith('msgs:')) { msgOpen = g.slice(5); show('msgs'); } else show('city'); });
-function homeTick() { paintWall(); paintMinis(); watchEvents(); msgTick(); }
+/* tablet ana ekranı (telefon büyütülünce, 900 px ve üstü): büyük hava kartı (3 gün), bugünün maçları, ajandadan sıradakiler */
+function paintBigs() {
+  const dv = $('device'), wide = !!dv && dv.clientWidth >= 900 && dv.clientHeight >= 560;
+  for (const id of ['bigWx', 'bigMatch', 'bigNext']) $(id).hidden = !wide;
+  if (!wide) return;
+  const C = city(), h = hourNow(), put = (id, html) => { const e = $(id); if (e.dataset.h !== html) { e.dataset.h = html; e.innerHTML = html; } };
+  put('bigWx', weather(h, C));
+  const it = agendaItems(C), within = x => (h >= x.t && h < x.end) || (x.end > 24 && h < x.end - 24) || x.live;
+  const row = x => `<li class="${within(x) ? 'cur' : ''}"><time>${hhmm(x.t)}</time><span><b>${esc(x.title)}</b>${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</span></li>`;
+  const mrow = x => { const [teams, ...st] = (x.sub || '').split(' · '); return row({ ...x, title: teams, sub: st.join(' · ') || (C ? '' : 'Semt takımları') }); };   // başlık takımlar, alt satır durum
+  put('bigMatch', `<div class="kicker">Ankara Stadı · Bugün</div><ul class="bigl">${it.filter(x => x.cat === 'match').map(mrow).join('')}</ul><button type="button" class="more-b" data-open="league">Lig tablosu ›</button>`);
+  const nx = it.filter(x => x.cat !== 'match' && (within(x) || x.t > h)).slice(0, 4);
+  put('bigNext', `<div class="kicker">Sıradakiler</div><ul class="bigl">${nx.length ? nx.map(row).join('') : '<li><span><small>Bugün için başka bir şey yok.</small></span></li>'}</ul><button type="button" class="more-b" data-open="agenda">Ajanda ›</button>`);
+}
+function homeTick() { paintWall(); paintMinis(); paintBigs(); watchEvents(); msgTick(); }
 homeTick(); setInterval(homeTick, 1000);
 
 /* ---------- gezinme: uygulama açılır, geri ya da Esc ana ekrana döner. Tam ekran yalnızca elle (şehirde telefonun ⤢ düğmesi, tek başınayken sayfadaki düğme) ---------- */
@@ -768,6 +796,8 @@ document.addEventListener('click', e => {
   const o = e.target.closest('[data-open]'); if (o) { if (o.dataset.open === 'msgs') msgOpen = null; show(o.dataset.open, o); return; }
   const dt = e.target.closest('[data-detail]'); if (dt) { openDetail(dt.dataset.detail, dt); return; }
   const to = e.target.closest('[data-to]'); if (to) { show(to.dataset.to); return; }
+  const sec = e.target.closest('.toc [data-sec]');
+  if (sec) { e.preventDefault(); const t = $(sec.dataset.sec); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
   const cp = e.target.closest('.copy');
   if (cp) copyText(cp.parentNode.querySelector('pre').textContent).then(() => { cp.textContent = 'Kopyalandı'; clearTimeout(cp.t); cp.t = setTimeout(() => { cp.textContent = 'Kopyala'; }, 1600); }).catch(() => {});
   if (e.target.closest('[data-home]')) home();

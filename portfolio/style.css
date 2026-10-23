@@ -201,9 +201,15 @@ body:not(.embed) .home { padding-top: max(58px, calc(env(safe-area-inset-top, 0p
 .more { display: block; margin-top: 12px; padding: 14px 16px; border-radius: 18px; border: 1px dashed var(--line); color: var(--fg); text-decoration: none; font-weight: 600; text-align: center; }
 .more:hover { border-color: var(--accent); }
 .links button { padding: 6px 12px; border-radius: 10px; border: 0; font-weight: 600; font-size: 13px; cursor: pointer; background: var(--accent); color: var(--accent-fg); }
+.links button.ghost { background: var(--card2); color: var(--fg); }
 .tlink { background: none; border: 0; padding: 0; font: inherit; letter-spacing: inherit; color: inherit; cursor: pointer; text-align: left; }
 .tlink:hover { color: var(--accent); }
 /* proje detayı: blog yazısı gibi tek sütun; görseller çerçeveli, telefon ekran görüntüsü dar */
+#project .sub .links.top { margin-top: 10px; }
+#project .sub .links.top a, #project .sub .links.top button { padding: 5px 11px; font-size: 12.5px; }
+/* içindekiler: telefonda gizli; geniş ekranda solda yapışkan, aktif bölüm turuncu çizgiyle */
+.toc { display: none; }
+.sec { scroll-margin-top: 12px; }
 #project .sub .meta { display: flex; flex-wrap: wrap; gap: 12px; margin: 4px 0 0; font: 500 12px var(--f-mono); }
 #project .sub .lang::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--l); margin-right: 6px; vertical-align: -1px; }
 .post { max-width: 760px; }
@@ -214,7 +220,7 @@ body:not(.embed) .home { padding-top: max(58px, calc(env(safe-area-inset-top, 0p
 .shot img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); background: #0b0f13; }
 .shot figcaption { margin-top: 7px; font-size: 12.5px; color: var(--muted); text-align: center; }
 .shot.hero { margin-top: 0; }
-.shot.hero img { border: 0; }
+.shot.hero img { border: 0; max-height: 46vh; width: auto; max-width: 100%; margin: 0 auto; }   /* ilk bakışta metnin başı da görünsün */
 .shot.hero figcaption { display: none; }
 .shot.phone { max-width: 230px; margin-left: auto; margin-right: auto; }
 .shot.phone img { border-radius: 26px; }
@@ -416,6 +422,32 @@ details.card p { margin-top: 8px; }
 .galview .links { justify-content: center; }
 .galview .links button { border: 0; }
 
+/* tablet ana ekranı: telefon büyütülünce (900 px ve üstü) üç sütun; büyük kartlar, bütün uygulamalar tek ızgarada */
+.bigl { list-style: none; padding: 0; margin: 6px 0 0; display: grid; gap: 8px; }
+.bigl li { display: flex; gap: 10px; align-items: baseline; }
+.bigl time { flex: none; width: 44px; font: 600 13px var(--f-mono); color: var(--muted); }
+.bigl span { display: grid; min-width: 0; }
+.bigl b { font-weight: 600; font-size: 14px; }
+.bigl small { color: var(--muted); font-size: 12.5px; }
+.bigl li.cur time, .bigl li.cur b { color: var(--accent); }
+.more-b { margin-top: 10px; padding: 0; border: 0; background: none; color: var(--accent); font: 600 13px var(--f-body); cursor: pointer; }
+@container (min-width: 900px) and (min-height: 560px) {
+  .home { width: min(100%, 1180px); display: grid; grid-template-columns: 340px minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto 1fr auto;
+    grid-template-areas: "top wx match" "widget wx match" "next pages pages" "next dock dock"; gap: 18px 22px; padding: 32px 36px 24px; align-content: center; }
+  .home-top { grid-area: top; text-align: left; margin: 0; }
+  .clock { font-size: 84px; }
+  .home > .widget { grid-area: widget; }
+  .minis, .dots { display: none; }
+  #bigWx { grid-area: wx; } #bigMatch { grid-area: match; } #bigNext { grid-area: next; align-self: start; }
+  .bigw { margin: 0; background: rgba(10, 14, 18, .62); border-color: var(--line); backdrop-filter: blur(10px); }
+  .pages { grid-area: pages; display: grid; grid-template-columns: repeat(6, 1fr); gap: 18px 10px; margin: 0; padding: 0; overflow: visible; cursor: default; align-content: start; }
+  .pages > .apps { display: contents; }
+  .dockbar { grid-area: dock; margin: 0; }
+  .ico { width: 64px; height: 64px; border-radius: 18px; }
+  .ico svg { width: 31px; height: 31px; }
+  .app { font-size: 13px; }
+}
+
 /* geniş (tam ekran) düzen */
 @container (min-width: 640px) {
   .app-view header, .body { padding-left: max(32px, calc((100% - 980px) / 2)); padding-right: max(32px, calc((100% - 980px) / 2)); }
@@ -430,9 +462,26 @@ details.card p { margin-top: 8px; }
   .shots.with-phone { grid-template-columns: 1fr 230px; }
   .acts { grid-template-columns: 1fr 1fr; }
   .mapgrid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
+}
+@container (min-width: 900px) {
+  .post-wrap { display: grid; grid-template-columns: 210px minmax(0, 760px); gap: 44px; justify-content: center; }
+  .post-wrap .post { max-width: none; }
+  .toc { display: block; position: sticky; top: 4px; align-self: start; max-height: calc(100cqh - 200px); overflow-y: auto; }
+  .toc > b { display: block; font: 500 11px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 2px 0 10px; }
+  .toc ul { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
+  .toc a { display: block; margin-left: -2px; padding: 6px 0 6px 14px; border-left: 2px solid transparent; color: var(--muted); font-size: 13.5px; line-height: 1.35; text-decoration: none; transition: color .2s, border-color .2s; }
+  .toc a:hover { color: var(--fg); }
+  .toc a.on { color: var(--fg); font-weight: 600; border-left-color: var(--accent); }
+  .toc .links { margin-top: 16px; }
+  .toc .links a, .toc .links button { margin: 0; padding: 6px 12px; border: 0; font-size: 12.5px; color: var(--accent-fg); }
+  .toc .links .ghost { color: var(--fg); }
+  #project .sub .links.top { display: none; }                      /* genişte bağlantılar içindekilerin altında */
+  #project header { padding-left: max(32px, calc((100% - 1014px) / 2)); }
+  #pjBody { padding-left: 32px; padding-right: 32px; }
   .shots .shot.phone { margin: 14px 0 20px; }
 }
 @container (min-width: 960px) { #cityNews { grid-template-columns: repeat(3, 1fr); } }
+@container (min-width: 1240px) { #projectList .grid { grid-template-columns: repeat(3, 1fr); } .app-view header, .body { padding-left: max(32px, calc((100% - 1180px) / 2)); padding-right: max(32px, calc((100% - 1180px) / 2)); } }
 
 .home-ind { position: absolute; z-index: 2; left: 50%; bottom: 7px; width: 120px; height: 5px; margin-left: -60px; border-radius: 3px; background: rgba(255, 255, 255, .55); pointer-events: none; }
 body.full .home-ind { display: none; }

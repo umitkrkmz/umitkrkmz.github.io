@@ -32,6 +32,9 @@
       <span class="pill" id="status"></span>
     </div>
     <div class="minis" id="minis" aria-label="Araçlar"></div>
+    <article class="card bigw weather" id="bigWx" hidden></article>
+    <article class="card bigw" id="bigMatch" hidden></article>
+    <article class="card bigw" id="bigNext" hidden></article>
     <div class="pages" id="pages">
     <nav class="apps" aria-label="Uygulamalar">
       <button class="app" data-open="projects"><span class="ico" style="--c:#ff9f43" data-icon="folder"></span>Projeler</button>
@@ -44,7 +47,7 @@
       <button class="app" data-open="league"><span class="ico" style="--c:#3b8b4a" data-icon="trophy"></span>Lig</button>
     </nav>
     <nav class="apps" aria-label="Uygulamalar, ikinci sayfa">
-      <button class="app" data-open="gh"><span class="ico" style="--c:#2b3036" data-icon="github"></span>GitHub</button>
+      <button class="app" data-open="gh"><span class="ico" style="--c:#2f6fd8" data-icon="pulse"></span>Etkinlik</button>
       <button class="app" data-open="camera"><span class="ico" style="--c:#4a5a6b" data-icon="camera"></span>Kamera</button>
       <button class="app" data-open="msgs"><span class="ico" style="--c:#2e9e5b" data-icon="message"></span>Mesajlar</button>
       <button class="app" data-open="settings"><span class="ico" style="--c:#6b7480" data-icon="gear"></span>Ayarlar</button>
@@ -83,8 +86,8 @@
       <div class="tabs" role="tablist"><button role="tab" data-tab="semt">Semt Ligi</button><button role="tab" data-tab="super">Süper Lig</button></div></header>
     <div class="body" id="leagueBody"></div>
   </section>
-  <section class="screen app-view" id="gh" aria-label="GitHub" hidden>
-    <header><div class="url" data-path="github"></div><button class="back" data-home>‹ Ana ekran</button><h2>GitHub</h2><p class="sub">Son çalışmalar</p></header>
+  <section class="screen app-view" id="gh" aria-label="Etkinlik" hidden>
+    <header><div class="url" data-path="etkinlik"></div><button class="back" data-home>‹ Ana ekran</button><h2>Etkinlik</h2><p class="sub">GitHub'daki son çalışmalarım</p></header>
     <div class="body" id="ghBody"></div>
   </section>
   <section class="screen app-view" id="msgs" aria-label="Mesajlar" hidden>

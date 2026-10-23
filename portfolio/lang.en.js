@@ -580,6 +580,15 @@ L.add({
   "Mesajlar": "Messages",
   "Ayarlar": "Settings",
   "Son çalışmalar": "Recent work",
+  "Etkinlik": "Activity",
+  "Sıradakiler": "Up next",
+  "Lig tablosu ›": "League table ›",
+  "Ajanda ›": "Agenda ›",
+  "Bugün için başka bir şey yok.": "Nothing else today.",
+  "Ankara Stadı · Bugün": "Ankara Stadium · Today",
+  "Özet": "Overview",
+  "İçindekiler": "Contents",
+  "GitHub'daki son çalışmalarım": "My recent work on GitHub",
   "Yükleniyor…": "Loading…",
   "GitHub şu an yanıt vermiyor.": "GitHub isn't responding right now.",
   "gönderim": "pushes",
@@ -678,6 +687,9 @@ R(/^(\d\d\.\d\d) maçı fırtına nedeniyle ertelendi\.$/, h => `The ${h} match 
 R(/^Maç başlıyor \((\d\d\.\d\d)\): (.+)\.$/, (h, a) => `Kick-off (${h}): ${a}.`);
 R(/^Devre arası: (.+)\.$/, a => `Half time: ${a}.`);
 R(/^Maç sonu: (.+)\.$/, a => `Full time: ${a}.`);
+R(/^bitti (\d+-\d+)$/, x => `full time ${x}`);
+R(/^devre arası (\d+-\d+)$/, x => `half time ${x}`);
+R(/^tribünler doluyor$/, () => 'stands filling up');
 R(/^Devre arası · (.+)$/, x => `Half time · ${x}`);
 R(/^Maç sürüyor · (\d+)' · (.+)$/, (m, x) => `Match on · ${m}' · ${x}`);
 R(/^Sıradaki maç (yarın )?(\d\d\.\d\d)$/, (y, h) => `Next match ${y ? 'tomorrow ' : ''}${h}`);
