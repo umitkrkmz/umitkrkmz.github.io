@@ -74,28 +74,48 @@ if (P.github && !(gh && Date.now() - gh.t < 36e5)) {
     renderProjects();
   }).catch(() => {});                                                   // ağ yoksa ya da sınır dolduysa elle yazılmış özet yeter
 }
-/* ---------- proje detayı: blog yazısı gibi; kapak, kısa bilgiler, görselli bölümler, teknolojiler.
-   Görsel ve bağlantılarda {l} dile göre tr ya da en. Son sürüm GitHub'dan (anahtarsız, depo başına 1 saat saklanır) ---------- */
+/* ---------- proje detayı: blog yazısı gibi (details.js). Metinler { tr, en }, dile göre seçilir; görsel ve bağlantıda {l} tr ya da en.
+   Bölüm blokları: h, p, quote, list, rows ([ad, açıklama]), code (komut, kopyalanır), diagram (kopyalanmaz), img / imgs, actions (kurulum kartları).
+   '#projects/<slug>' bağlantısı başka bir projenin detayını açar. Son sürüm GitHub'dan (anahtarsız, depo başına 1 saat saklanır) ---------- */
 const LG = window.MSLang && MSLang.en ? 'en' : 'tr', lz = s => String(s).replace(/\{l\}/g, LG);
+const tx = v => v && typeof v === 'object' && !Array.isArray(v) ? (LG === 'en' ? v.en : v.tr) : v;
 const REL_KEY = 'ms.rel';
 let rel = {}; try { rel = JSON.parse(localStorage.getItem(REL_KEY)) || {}; } catch (e) {}
-const fig = ([src, cap, kind]) => `<figure class="shot${kind ? ' ' + esc(kind) : ''}"><img src="${esc(lz(src))}" alt="${esc(cap || '')}" loading="lazy" decoding="async">${cap ? `<figcaption>${esc(cap)}</figcaption>` : ''}</figure>`;
+const fig = ([src, cap, kind]) => `<figure class="shot${kind ? ' ' + esc(kind) : ''}"><img src="${esc(lz(src))}" alt="${esc(tx(cap) || '')}" loading="lazy" decoding="async">${cap ? `<figcaption>${esc(tx(cap))}</figcaption>` : ''}</figure>`;
+const linkTo = ([k, h], cls) => h.startsWith('#projects/') ? `<button${cls ? ` class="${cls}"` : ''} data-detail="${esc(h.slice(10))}">${esc(tx(k))}</button>`
+  : `<a${cls ? ` class="${cls}"` : ''} href="${esc(lz(h))}" target="_blank" rel="noopener">${esc(tx(k))}</a>`;
+const codeBox = c => `<div class="code"><pre><code>${esc(tx(c))}</code></pre><button class="copy" type="button">Kopyala</button></div>`;
+const rowsOf = list => `<ul class="skillrows">${list.map(([k, v]) => `<li><b>${esc(tx(k))}</b><span>${esc(tx(v))}</span></li>`).join('')}</ul>`;
 const relText = p => rel[p.repo] ? rel[p.repo].tag + ' · ' + ago(rel[p.repo].date) : null;
+function block(s) {
+  return (s.h ? `<h3>${esc(tx(s.h))}</h3>` : '') + (s.p || []).map(t => `<p>${esc(tx(t))}</p>`).join('') +
+    (s.quote ? `<blockquote>${esc(tx(s.quote))}</blockquote>` : '') +
+    (s.list ? `<ul class="bul">${s.list.map(t => `<li>${esc(tx(t))}</li>`).join('')}</ul>` : '') +
+    (s.rows ? rowsOf(s.rows) : '') + (s.code ? codeBox(s.code) : '') + (s.diagram ? `<div class="code"><pre><code>${esc(tx(s.diagram))}</code></pre></div>` : '') + (s.img ? fig(s.img) : '') +
+    (s.imgs ? `<div class="shots${s.imgs.some(i => i[2] === 'phone') ? ' with-phone' : ''}">${s.imgs.map(fig).join('')}</div>` : '') +
+    (s.actions ? `<div class="acts">${s.actions.map(x => `<div class="act"><b>${esc(tx(x.t))}</b><p>${esc(tx(x.d))}</p>${x.code ? codeBox(x.code) : ''}<div class="links">${(x.links || []).map((l, i) => linkTo(l, i ? 'ghost' : '')).join('')}</div></div>`).join('')}</div>` : '') +
+    (s.after || []).map(t => `<p>${esc(tx(t))}</p>`).join('');
+}
 function detailHtml(p) {
   const d = p.detail, code = 'https://github.com/' + (P.github || '') + '/' + p.repo;
-  const facts = (d.facts || []).map(([k, v, live]) => `<div><small>${esc(k)}</small><b${live ? ` data-live="${esc(live)}"` : ''}>${esc((live === 'release' && relText(p)) || v)}</b></div>`).join('');
-  const secs = (d.sections || []).map(s => (s.h ? `<h3>${esc(s.h)}</h3>` : '') + (s.p || []).map(t => `<p>${esc(t)}</p>`).join('') +
-    (s.img ? fig(s.img) : '') + (s.imgs ? `<div class="shots">${s.imgs.map(fig).join('')}</div>` : '')).join('');
-  const stack = d.stack ? `<h3>Teknolojiler</h3><ul class="skillrows stack">${d.stack.map(([k, v]) => `<li><b>${esc(k)}</b><span>${esc(v)}</span></li>`).join('')}</ul>` : '';
-  const links = (p.repo ? `<a href="${esc(code)}" target="_blank" rel="noopener">Kod</a>` : '') + (d.links || []).map(([k, h]) => `<a class="ghost" href="${esc(lz(h))}" target="_blank" rel="noopener">${esc(k)}</a>`).join('');
-  return `<article class="post">${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}<p class="lead">${esc(d.lead || p.desc)}</p><div class="facts">${facts}</div>` +
-    `<ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${secs}${stack}<div class="links">${links}</div></article>`;
+  const facts = (d.facts || []).map(([k, v, live]) => `<div><small>${esc(tx(k))}</small><b${live ? ` data-live="${esc(live)}"` : ''}>${esc((live === 'release' && relText(p)) || tx(v))}</b></div>`).join('');
+  const stack = d.stack ? `<h3>Teknolojiler</h3>${rowsOf(d.stack)}` : '';
+  const links = (p.repo ? `<a href="${esc(code)}" target="_blank" rel="noopener">Kod</a>` : '') + (d.links || []).map(l => linkTo(l, 'ghost')).join('');
+  return `<article class="post">${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}<p class="lead">${esc(tx(d.lead) || p.desc)}</p><div class="facts">${facts}</div>` +
+    `<ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${(d.sections || []).map(block).join('')}${stack}<div class="links">${links}</div></article>`;
+}
+/* kopyala: panoya yazılamazsa (eski tarayıcı, izin yok) seçili metinle dener */
+function copyText(t) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t);
+  const a = document.createElement('textarea'); a.value = t; a.style.position = 'fixed'; a.style.opacity = '0'; document.body.appendChild(a); a.select();
+  try { document.execCommand('copy'); } finally { a.remove(); }
+  return Promise.resolve();
 }
 function openDetail(slug, from) {
   const p = (P.projects || []).find(x => x.slug === slug); if (!p || !p.detail) return;
   const v = $('project');
   v.querySelector('.url').innerHTML = `<i class="lk">${SV('lock')}</i>${esc(P.site || '')}/<b>projeler/${esc(slug)}</b>`;
-  $('pjTitle').textContent = p.title; $('pjSub').innerHTML = metaOf(p); $('pjBody').innerHTML = detailHtml(p); $('pjBody').scrollTop = 0;
+  $('pjTitle').textContent = p.title; v.dataset.slug = slug; $('pjSub').innerHTML = metaOf(p); $('pjBody').innerHTML = detailHtml(p); $('pjBody').scrollTop = 0;
   show('project', from); history.replaceState(null, '', '#projects/' + slug);
   const c = rel[p.repo];
   if (p.repo && P.github && !(c && Date.now() - c.t < 36e5)) {
@@ -280,6 +300,8 @@ document.addEventListener('click', e => {
   const o = e.target.closest('[data-open]'); if (o) { show(o.dataset.open, o); return; }
   const dt = e.target.closest('[data-detail]'); if (dt) { openDetail(dt.dataset.detail, dt); return; }
   const to = e.target.closest('[data-to]'); if (to) { show(to.dataset.to); return; }
+  const cp = e.target.closest('.copy');
+  if (cp) copyText(cp.parentNode.querySelector('pre').textContent).then(() => { cp.textContent = 'Kopyalandı'; clearTimeout(cp.t); cp.t = setTimeout(() => { cp.textContent = 'Kopyala'; }, 1600); }).catch(() => {});
   if (e.target.closest('[data-home]')) home();
 });
 document.addEventListener('keydown', e => {

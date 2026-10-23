@@ -23,201 +23,56 @@ window.PORTFOLIO = {
   ],
 
   /* group: başlık (sırası ilk geçişe göre), repo: GitHub deposu (Kod bağlantısı ve canlı bilgi), live: çalışan sürüm ('../index.html' = bu şehir),
-     paper: makale bağlantısı, extra: [ad, bağlantı] ek düğme. Açıklamalar Türkçe ve elle yazılır, GitHub'a ulaşılamazsa da görünür */
+     paper: makale bağlantısı, extra: [ad, bağlantı] ek düğme, slug: adres ve details.js'teki detay sayfasının anahtarı. Açıklamalar Türkçe ve elle yazılır, GitHub'a ulaşılamazsa da görünür */
   projects: [
     {
-      group: 'Öne çıkanlar', title: 'Mikro Şehir', repo: 'umitkrkmz.github.io',
+      group: 'Öne çıkanlar', title: 'Mikro Şehir', slug: 'mikro-sehir', repo: 'umitkrkmz.github.io',
       desc: 'Tarayıcıda çalışan prosedürel 3B Ankara: Kızılay\'dan Söğütözü\'ne semtler, canlı Ankara havası, dağlarla çevrili vadi, trafik ve yayalar, camın ardında yaşayan odalar, olaylar, kediler, stadyumda maç ve ağla sallanan bir kahraman.',
       tags: ['JavaScript', 'Three.js', 'GLSL', 'Prosedürel üretim'], live: '../index.html'
     },
     {
-      group: 'Öne çıkanlar', title: 'MediaGrab', repo: 'mediagrab',
+      group: 'Öne çıkanlar', title: 'MediaGrab', slug: 'mediagrab', repo: 'mediagrab',
       desc: 'Link yapıştır, indir. yt-dlp tabanlı, kendi bilgisayarında çalışan video ve ses indirme aracı: 1700\'den fazla site, playlist ve kanal takibi, QR kodla telefondan kullanım, tek tıkla Windows kurulumu, Docker ve Raspberry Pi. Reklam, hesap ve telemetri yok.',
-      tags: ['Python', 'FastAPI', 'yt-dlp', 'Docker'], slug: 'mediagrab',
-      detail: {
-        "hero": [
-          "img/mediagrab/hero.webp",
-          "MediaGrab masaüstünde ve telefonda"
-        ],
-        "lead": "Link yapıştır, indir. MediaGrab kendi bilgisayarında çalışan bir video ve ses indirme aracı: YouTube, YouTube Music ve yt-dlp'nin desteklediği 1700'den fazla site. Hesap, veritabanı, reklam ve telemetri yok; indirdiklerin ve ayarların o cihazda kalır.",
-        "facts": [
-          [
-            "İlk sürüm",
-            "Ağustos 2026"
-          ],
-          [
-            "Son sürüm",
-            "v2.4.0",
-            "release"
-          ],
-          [
-            "Lisans",
-            "GPL-3.0"
-          ],
-          [
-            "Çalıştığı yer",
-            "Windows, Linux, macOS, Raspberry Pi"
-          ]
-        ],
-        "sections": [
-          {
-            "h": "Neden",
-            "p": [
-              "iPhone'da App Store indirme uygulamalarına izin vermiyor, kısayollar da sık bozuluyor; çevrim içi indirme siteleri ise reklamla dolu. İstediğim şey basitti: kendi bilgisayarımda çalışan, link yapıştırınca dosyayı veren ve kimseye veri göndermeyen bir araç. Ağustos 2026'da küçük bir FastAPI uygulaması olarak başladı; 19 sürümde kanal takibi, telefondan kullanım ve tek dosyalık Windows kurulumu olan bir projeye dönüştü."
-            ]
-          },
-          {
-            "h": "Link yapıştır, gerisi kendiliğinden",
-            "p": [
-              "Kutuya yapıştırılan link hemen çözümlenir: MediaGrab yt-dlp ile videonun bütün ses ve video kalitelerini, varsa dublaj dillerini ve altyazıları listeler. Acelen varsa \"En iyi ses\" ya da \"En iyi video\" tek tıkla iner; ayrıntı isteyen her çözünürlüğü, Opus, M4A ya da MP3'ü, birden fazla ses parçasını tek bir .mkv dosyasında seçebilir. YouTube dosya boyutunu vermediğinde ortalama bit hızından tahmini boyut gösterilir."
-            ],
-            "img": [
-              "img/mediagrab/resolve-{l}.webp",
-              "Çözümlenmiş bir video: ses ve video seçenekleri"
-            ]
-          },
-          {
-            "h": "Aynı anda birden fazla indirme",
-            "p": [
-              "İndirmeler sayfanın altındaki kalıcı panelde ilerler: hız, kalan süre, iptal. Sayfa değişse ya da uygulama kapanıp açılsa da durum korunur. Aynı video yeniden indirilirken bir şey ters giderse eski dosya geri gelir; disk alanı yetmeyecekse indirme hiç başlamaz. Her dosyanın yanına başlık, kanal, tarih ve açıklamayı içeren bir JSON bilgi dosyası, istenirse altyazı (.srt) ve transkript (.txt) de kaydedilir."
-            ],
-            "img": [
-              "img/mediagrab/dock-{l}.webp",
-              "İndirme paneli"
-            ]
-          },
-          {
-            "h": "Telefondan, QR kodla",
-            "p": [
-              "Ayarlar'da bir parola belirleyip uzaktan erişimi açınca bir QR kod çıkar; telefonun kamerasıyla okutup aynı Wi-Fi'dan MediaGrab'ı tarayıcıda açarsın. Link yapıştırırsın, dosya doğrudan telefona iner. Telefona hiçbir şey kurulmaz; arayüz küçük ekranda açılır menü ve dokunmaya uygun düğmelerle gelir, istenirse ana ekrana uygulama (PWA) olarak eklenir."
-            ],
-            "imgs": [
-              [
-                "img/mediagrab/settings-remote-{l}.webp",
-                "Uzaktan erişim: parola ve QR kod"
-              ],
-              [
-                "img/mediagrab/mobile-home-{l}.webp",
-                "Telefonda MediaGrab",
-                "phone"
-              ]
-            ]
-          },
-          {
-            "h": "Kütüphane, istatistik, kanal takibi",
-            "p": [
-              "Geçmiş sayfası indirilenleri kapaklı kartlar ya da liste olarak gösterir: arama, kanala ve dosya türüne göre süzme, yeniden indirme. Detay sayfasında dosyanın gerçek çözünürlüğü, kare hızı ve codec'leri ffprobe ile okunur; kendi oynatıcısı YouTube'un klavye kısayollarıyla çalışır. İstatistikler yalnızca sayı tutar: hangi siteden, hangi biçimde, ne kadar; başlık ya da bağlantı kaydedilmez."
-            ],
-            "img": [
-              "img/mediagrab/history-{l}.webp",
-              "İndirme geçmişi"
-            ]
-          },
-          {
-            "p": [
-              "Takibe alınan YouTube kanalları her açılışta denetlenir: \"Bildir\" modunda yeni video ana sayfada haber verilir, \"Otomatik indir\" modunda seçilen biçimde kendiliğinden iner. Ev Sunucusu Modu'nda (ör. Raspberry Pi) denetim, kimse uygulamayı açmasa da üç saatte bir yapılır."
-            ],
-            "img": [
-              "img/mediagrab/channels-{l}.webp",
-              "Takip edilen kanallar"
-            ]
-          },
-          {
-            "h": "Kurulum: tek dosya",
-            "p": [
-              "Windows'ta MediaGrabSetup.exe her şeyi içinde getirir: gömülü Python, FFmpeg ve Deno. Python, Git ya da ffmpeg kurmak gerekmez, yönetici izni istenmez; MediaGrab bildirim alanında kendi simgesiyle, konsol penceresi olmadan çalışır. Kurulum önceki bir sürümü bulup ayarları, kanalları ve istatistikleri aktarmayı, videoları yeni klasöre taşımayı teklif eder. Linux, macOS ve Raspberry Pi için amd64 ve arm64 Docker imajı var."
-            ]
-          },
-          {
-            "h": "Nasıl yapıldı",
-            "p": [
-              "Sunucu FastAPI; sayfalar Jinja2 ile sunucuda basılıyor, arayüz sade HTML, CSS ve JavaScript. yt-dlp yalnızca tek bir dosyada (downloader.py) içe aktarılıyor, böylece yt-dlp'deki değişiklikler tek yerden karşılanıyor. Veritabanı yok: ayarlar, kanallar ve istatistikler küçük JSON dosyalarında.",
-              "Windows paketi bir Python betiğiyle (gömülü Python, paketler ve her indirmesi SHA256 ile doğrulanan FFmpeg) hazırlanıp Inno Setup ile tek dosyaya çevriliyor. GitHub Actions her push'ta testleri Linux'ta ve Windows'ta çalıştırıyor; yayın iş akışı kurulum programını derleyip Windows'a sessizce kurarak deniyor ve kaldırıyor."
-            ]
-          },
-          {
-            "h": "Güven",
-            "p": [
-              "Reklam, ücret, hesap ve telemetri yok. MediaGrab dışarıyla yalnızca işi için konuşur: indirdiğin siteyle, takip ettiğin kanallar için YouTube ile, sürüm kontrolünde GitHub ve PyPI ile. Her yayının notlarında kurulum dosyasının SHA256 değeri ve VirusTotal tarama bağlantısı var."
-            ]
-          }
-        ],
-        "stack": [
-          [
-            "Sunucu",
-            "Python 3.12, FastAPI, Pydantic, Jinja2"
-          ],
-          [
-            "İndirme",
-            "yt-dlp, FFmpeg, ffprobe, Deno"
-          ],
-          [
-            "Arayüz",
-            "HTML, CSS, JavaScript, PWA; Türkçe ve İngilizce"
-          ],
-          [
-            "Veri",
-            "JSON dosyaları, veritabanı yok"
-          ],
-          [
-            "Dağıtım",
-            "Inno Setup, Docker (amd64, arm64), GitHub Container Registry"
-          ],
-          [
-            "Test ve CI",
-            "pytest, GitHub Actions (Linux ve Windows)"
-          ]
-        ],
-        "links": [
-          [
-            "İndir",
-            "https://github.com/umitkrkmz/mediagrab/releases/latest"
-          ],
-          [
-            "Kılavuz",
-            "https://github.com/umitkrkmz/mediagrab/blob/master/docs/README.{l}.md"
-          ]
-        ]
-      }
+      tags: ['Python', 'FastAPI', 'yt-dlp', 'Docker']
     },
     {
-      group: 'Öne çıkanlar', title: 'Kurumsal Bilgi Yönetim Platformu', repo: 'CorporateKnowledgeBase',
+      group: 'Öne çıkanlar', title: 'Kurumsal Bilgi Yönetim Platformu', slug: 'kurumsal-bilgi', repo: 'CorporateKnowledgeBase',
       desc: 'Şirket içi belgeler, yazılar ve duyurular için bilgi platformu. Ollama ile yerel RAG asistanı bilgi tabanından soruları yanıtlar; SignalR ile anlık bildirimler, Hangfire ile arka plan işleri, rol tabanlı yetki ve içerik onay akışı.',
       tags: ['.NET 10', 'ASP.NET Core', 'Clean Architecture', 'CQRS', 'RAG']
     },
     {
-      group: 'Öne çıkanlar', title: 'StegoTester', repo: 'StegoTester',
+      group: 'Öne çıkanlar', title: 'StegoTester', slug: 'stegotester', repo: 'StegoTester',
       desc: 'Görsel, ses ve metin dosyalarında gizli veri arayan, steganografi yöntemlerini 30\'dan fazla metrikle karşılaştıran analiz aracı. Hızlı matematiksel eşik ile Random Forest ve Gradient Boosting modellerini birleştiren hibrit tespit, pHash ve spektral parmak iziyle otomatik eşleştirme, PDF rapor.',
       tags: ['Python', 'PySide6', 'scikit-learn', 'Veri analizi'], extra: ['Model eğitimi', 'https://github.com/umitkrkmz/StegoTester-AI-Training']
     },
     {
-      group: 'Öne çıkanlar', title: 'Chaotic Audio Steganography', repo: 'Chaotic_Audio_Steganography',
+      group: 'Öne çıkanlar', title: 'Chaotic Audio Steganography', slug: 'chaotic-audio', repo: 'Chaotic_Audio_Steganography',
       desc: 'Hakemli dergide yayımlanan "Secure Audio Steganography Using Vectorized LSB and Chaos-Based Encryption" makalesinin resmi kodu: yedi kaotik harita, NumPy ile vektörize LSB gömme, PySide6 arayüzü.',
       cite: 'Electrical Engineering and Energy (2025), 4(3), 68–86',
       tags: ['Python', 'NumPy', 'Kaos teorisi', 'Akademik'], paper: 'https://doi.org/10.64470/elene.2025.12'
     },
     {
-      group: 'Öne çıkanlar', title: 'ai-context-mapping', repo: 'ai-context-mapping',
+      group: 'Öne çıkanlar', title: 'ai-context-mapping', slug: 'ai-context-mapping', repo: 'ai-context-mapping',
       desc: 'AI kodlama ajanlarının (Claude Code, Cursor, Copilot) bağlamdan kopmasını, boşa token harcamasını ve koruyucu kodu "temizlemesini" engelleyen çerçeve: proje haritası, makinece okunur kurallar, AST denetimleri ve mutasyon testi. Bağımlılık yok, yalnızca Python standart kütüphanesi.',
       tags: ['Python', 'AI ajanları', 'Geliştirici araçları']
     },
     {
-      group: 'Öne çıkanlar', title: 'how-ai-actually-works', repo: 'how-ai-actually-works',
+      group: 'Öne çıkanlar', title: 'how-ai-actually-works', slug: 'how-ai-actually-works', repo: 'how-ai-actually-works',
       desc: "Modern AI sistemlerinin altındaki mekanizmalara ilk ilkelerden bir mühendislik rehberi: embedding, tokenizer (BPE), RAG, bağlam mühendisliği, MCP, ajan korkulukları, değerlendirme, çözümleme ve yapılandırılmış çıktı, VRAM ve nicemleme. Sekiz modül, yalnızca standart kütüphaneli Python; her iddia bir kaynakla ya da çalışan bir assert ile kanıtlanır.",
       tags: ['Python', 'LLM', 'RAG', 'MCP', 'Eğitim']
     },
     {
-      group: 'Windows araçları', title: 'Limbo', repo: 'Limbo',
+      group: 'Windows araçları', title: 'Limbo', slug: 'limbo', repo: 'Limbo',
       desc: 'Alan adına göre ayrı profiller kullanan DPI aşma motoru: yedi teknik, engellenen alan adlarını kendisi bulan Radar, gerçek bağlantı üzerinde otomatik kalibrasyon, DNS over HTTPS, ECH ve canlı trafik paneli. Paket ayrıştırma AVX2 ile hızlandırılmış.',
       tags: ['C#', '.NET', 'WinDivert', 'Ağ']
     },
     {
-      group: 'Windows araçları', title: 'ZeroDivert', repo: 'ZeroDivert',
+      group: 'Windows araçları', title: 'ZeroDivert', slug: 'zerodivert', repo: 'ZeroDivert',
       desc: 'VPN olmadan, hız kaybı olmadan Discord erişimi. Yalnızca Discord\'un TLS el sıkışma paketlerini düzenler, bir yöntem işe yaramazsa otomatik olarak sıradakini dener; geri kalan trafiğe dokunmaz.',
       tags: ['C#', '.NET', 'WinDivert']
     },
     {
-      group: 'Windows araçları', title: 'ui2py-pyside6', repo: 'ui2py-pyside6',
+      group: 'Windows araçları', title: 'ui2py-pyside6', slug: 'ui2py', repo: 'ui2py-pyside6',
       desc: 'Qt Designer .ui dosyalarını tek tıkla PySide6 Python koduna çeviren masaüstü aracı: toplu dönüştürme, sürükle bırak, sanal ortam algılama, açık ve koyu tema.',
       tags: ['Python', 'PySide6', 'Qt']
     }
