@@ -451,11 +451,23 @@ C.startEvent = function (type) {
   return START[type]() || START[pick(['fire', 'accident', 'crime', 'pedestrian'])]();
 };
 C.eventsOn = true;
-let timer = 8;
+/* rastgele olaylar seyrek: ilk olay açılıştan 1-2 dakika sonra, sonra 4-8 dakikada bir (gece 1,5 kat seyrek). Şehirde süren bir olay
+   varken yenisi çıkmaz ve sayaç durur: iki olay arasında hep bu kadar boşluk kalır. Tür saate göre: sabah ve akşam yoğunluğunda kaza, gece hırsızlık
+   daha olası (C.trafficLevel'ın anahtarı). "Olay çıkar" düğmesi bunlardan bağımsız, hemen çıkarır */
+const tkey = () => C.trafficLevel ? C.trafficLevel().key : 'day';
+const nextGap = () => (240 + Math.random() * 240) * (tkey() === 'night' ? 1.5 : 1);
+function randomType() {
+  const k = tkey(), rush = k === 'morning' || k === 'evening', night = k === 'night';
+  const w = { fire: 0.3, accident: rush ? 0.5 : 0.3, crime: night ? 0.45 : 0.2, pedestrian: rush ? 0.25 : night ? 0.08 : 0.2 };
+  let r = Math.random() * (w.fire + w.accident + w.crime + w.pedestrian);
+  for (const t in w) if ((r -= w[t]) < 0) return t;
+  return 'fire';
+}
+let timer = 60 + Math.random() * 60;
 C.updaters.push((dt, t) => {
   const cam = C.camera, h = C.renderer.domElement.height, sc = h / (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)));
   for (const E of emitters) E.mat.uniforms.scale.value = sc;
-  if (C.eventsOn && (timer -= dt) <= 0) { timer = 30 + Math.random() * 40; C.startEvent(); }
+  if (C.eventsOn && !active.length && (timer -= dt) <= 0) { timer = nextGap(); C.startEvent(randomType()); }
   updateVehicles(dt);
   for (let i = active.length - 1; i >= 0; i--) {
     const ev = active[i]; ev.age += dt;
