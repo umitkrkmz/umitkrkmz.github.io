@@ -97,6 +97,19 @@ function make(kind, blk, club, coat) {
   cats.push(c); return c;
 }
 let club = null;
+/* Kedidex (telefondaki koleksiyon): sevilen kedi tüy + ad eşleşmesiyle kaydedilir. Kediler her açılışta yeniden doğduğu için koleksiyon
+   kataloğa göre tutulur (her tüyün ad havuzu, artı Reis). Telefon şehir olmadan da okuyabilsin diye katalog da aynı kayda yazılır */
+const DEX_KEY = 'ms.catdex';
+const dexKey = c => c.coat.name + '|' + c.name;
+const catalog = () => COATS.flatMap(co => co.names.map(n => ({ key: co.name + '|' + n, name: n, coat: co.name, col: co.col, col2: co.col2, st: co.st, bib: co.bib })))
+  .concat([{ key: 'sarman|Reis', name: 'Reis', coat: 'sarman', col: coatByName('sarman').col, st: 1, reis: true }]);
+function dexRead() { try { const d = JSON.parse(localStorage.getItem(DEX_KEY)); return d && d.seen ? d : { seen: {} }; } catch (e) { return { seen: {} }; } }
+function dexWrite(seen) { try { localStorage.setItem(DEX_KEY, JSON.stringify({ v: 1, catalog: catalog(), seen })); } catch (e) {} }
+function remember(c) {
+  const seen = dexRead().seen, k = dexKey(c);
+  const e = seen[k] || { first: Date.now(), n: 0, place: c.club ? 'club' : C.districtAt(c.x, c.z).name };
+  e.n++; e.last = Date.now(); seen[k] = e; dexWrite(seen);
+}
 function spawn() {
   cats.length = 0;
   const city = C.blocks.filter(b => b.kind === 'city'), parks = C.blocks.filter(b => b.kind === 'park');
@@ -110,6 +123,7 @@ function spawn() {
     for (let k = 0; k < 8; k++) club.cats.push(make('park', cp, true, k === 0 ? coatByName('sarman') : null));
     Object.assign(club.cats[0], { name: 'Reis', size: 1.22 });
   }
+  dexWrite(dexRead().seen);                                         // katalog güncel kalsın
 }
 
 /* ---------- davranış ---------- */
@@ -311,7 +325,7 @@ C.cats = {
     return best;
   },
   get held() { return held; },
-  pet(c) { c.st = c === held ? 'held' : 'pet'; c.purr = c === held ? 0 : 3.2; if (c !== held) { const p = P().pos; c.ry = Math.atan2(-(p.z - c.z), p.x - c.x); } return c; },
+  pet(c) { remember(c); c.st = c === held ? 'held' : 'pet'; c.purr = c === held ? 0 : 3.2; if (c !== held) { const p = P().pos; c.ry = Math.atan2(-(p.z - c.z), p.x - c.x); } return c; },
   pick(c) { held = c; c.st = 'held'; c.purr = 0; holdPose(c); },
   drop() {
     if (!held) return; const c = held, p = P(), f = p.face; held = null;
@@ -320,6 +334,7 @@ C.cats = {
   },
   meow(c) { return pick(MEOW); },
   describe: c => c.name + ', ' + c.coat.name,
+  dexKey, catalog,                                                   // Kedidex: tüy|ad anahtarı ve bütün eşleşmeler
   club: () => club,
   /* bu geceki toplantının gündemi (Ankara Haber yazar) */
   agenda: () => { const id = topicId(); return { id, title: id === 'hava' ? { rain: 'yağmur ve saçak altı paylaşımı', snow: 'kar ve kalorifer peteği', fog: 'sis altında oylama', clear: 'güneşli bankların paylaşımı', cloudy: 'kapalı havada uyku hakkı' }[(k => /drizzle|rain/.test(k) ? 'rain' : k === 'snow' ? 'snow' : k === 'fog' ? 'fog' : k === 'overcast' ? 'cloudy' : 'clear')(wxKind())] : TOPICS[id].title }; }

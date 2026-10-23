@@ -18,7 +18,7 @@ a { color: var(--accent); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* cihaz: tek başınayken ortada telefon; uygulama açıkken (body.full) sayfayı doldurur */
-.device { position: relative; height: 100%; max-width: 440px; margin: 0 auto; background: var(--bg); overflow: hidden; overflow: clip; container-type: inline-size; }
+.device { position: relative; height: 100%; max-width: 440px; margin: 0 auto; background: var(--bg); overflow: hidden; overflow: clip; container-type: size; }   /* size: ana ekran yüksekliğe göre sıkışır */
 body.full:not(.embed) .device { max-width: none; }
 @media (min-width: 720px) and (min-height: 700px) {
   body:not(.embed) { display: grid; place-items: center; padding: 56px 16px 24px; }
@@ -123,6 +123,33 @@ body:not(.embed) .home { padding-top: max(58px, calc(env(safe-area-inset-top, 0p
 .dockbar { margin-top: auto; display: flex; justify-content: space-around; padding: 12px 12px 10px; border-radius: 28px; background: rgba(255, 255, 255, .12); backdrop-filter: blur(10px); }
 .app.small .ico { width: 54px; height: 54px; }
 .app.small .ico svg { width: 26px; height: 26px; }
+/* iki sıra uygulama: kısa ekranda saat, boşluklar ve simgeler küçülür (kısayol çubuğu ekranda kalsın); yine sığmazsa ana ekran kayar */
+.home { overflow-y: auto; scrollbar-width: none; }
+.home::-webkit-scrollbar { display: none; }
+@container (max-height: 860px) {
+  .home { gap: 15px; }
+  .home-top { margin-top: 4px; }
+  .clock { font-size: 62px; }
+  .widget { padding: 13px 14px; }
+  .widget .tag { margin-top: 6px; }
+  .apps { gap: 11px 8px; }
+  .ico { width: 54px; height: 54px; border-radius: 15px; }
+  .ico svg { width: 27px; height: 27px; }
+  .dockbar { padding: 9px 10px 8px; }
+  .app.small .ico { width: 46px; height: 46px; }
+  .app.small .ico svg { width: 23px; height: 23px; }
+  .mini { padding: 10px 12px; }
+}
+@container (max-height: 700px) {
+  .home { gap: 11px; padding-top: 14px; }
+  .clock { font-size: 52px; }
+  .widget p { font-size: 13px; }
+  .pill { margin-top: 6px; }
+  .app { font-size: 11.5px; gap: 4px; }
+  .ico { width: 48px; height: 48px; border-radius: 14px; }
+  .ico svg { width: 24px; height: 24px; }
+  .mini b { font-size: 21px; }
+}
 
 /* uygulama: tarayıcı gibi, üstte adres çubuğu */
 /* uygulama açılışı: simgeden büyür (zoom), başka yerden kayar (slide); kapanırken küçülüp söner (out) */
@@ -258,6 +285,40 @@ details.card summary::after { content: " +"; color: var(--muted); }
 details.card[open] summary::after { content: " –"; }
 details.card p { margin-top: 8px; }
 
+/* Harita: canvas ve altında (genişte yanında) yerler */
+.mapgrid { display: grid; gap: 14px; }
+#mapCanvas { display: block; width: 100%; aspect-ratio: 1; border-radius: 16px; border: 1px solid var(--line); cursor: pointer; touch-action: manipulation; background: #262c33; }
+.places, .agenda { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; align-content: start; }
+.places li, .agenda li.ag { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.places .dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--d); box-shadow: 0 0 0 3px color-mix(in srgb, var(--d) 30%, transparent); }
+.places .tx, .agenda .tx { flex: 1; min-width: 0; display: grid; }
+.places b, .agenda b { font-weight: 600; font-size: 14px; }
+.places small, .agenda small { color: var(--muted); font-size: 12.5px; }
+.places button, .agenda button, .dex .here { flex: none; padding: 5px 12px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accent-fg); font: 600 13px var(--f-body); cursor: pointer; }
+/* Ajanda: zaman çizelgesi, şu anki satır vurgulu, "Şimdi" çizgisi */
+.agenda { max-width: 720px; }
+.agenda time { flex: none; width: 48px; font: 600 14px var(--f-mono); color: var(--muted); }
+.agenda i { font: 500 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; font-style: normal; color: var(--muted); }
+.ag.dev i { color: var(--accent); } .ag.match i { color: #5ec27a; } .ag.cats i { color: #c48bff; } .ag.traffic i { color: #f2a516; }
+.agenda li.cur { border-color: var(--accent); background: rgba(255, 181, 61, .08); }
+.agenda li.cur time { color: var(--accent); }
+.agenda li.now { display: flex; align-items: center; gap: 8px; color: var(--live); font: 600 12px var(--f-mono); letter-spacing: .05em; text-transform: uppercase; }
+.agenda li.now::after { content: ""; flex: 1; height: 1px; background: var(--live); opacity: .6; }
+/* Kedidex: ilerleme, katalog ızgarası; tanışılmayan kedi gölge */
+.dexhead .bar { height: 8px; border-radius: 4px; background: var(--card2); overflow: hidden; margin: 2px 0 8px; }
+.dexhead .bar i { display: block; height: 100%; background: var(--accent); }
+.dexhead p { margin: 0 0 4px; }
+.dexhead .top { color: var(--muted); font-size: 13.5px; }
+.dex { list-style: none; padding: 0; margin: 14px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 10px; }
+.dex li { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 12px 8px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); text-align: center; }
+.dex li:not(.met) { opacity: .72; }
+.dex li.reis { border-color: rgba(196, 139, 255, .55); }
+.dex svg { width: 52px; height: 52px; margin-bottom: 4px; }
+.dex b { font-weight: 600; font-size: 14px; }
+.dex small { font-size: 11.5px; line-height: 1.3; color: var(--muted); }
+.dex .here { margin-top: 6px; padding: 3px 9px; font-size: 12px; }
+.dex .here:disabled { opacity: .5; cursor: default; }
+
 /* geniş (tam ekran) düzen */
 @container (min-width: 640px) {
   .app-view header, .body { padding-left: max(32px, calc((100% - 980px) / 2)); padding-right: max(32px, calc((100% - 980px) / 2)); }
@@ -271,6 +332,7 @@ details.card p { margin-top: 8px; }
   .shots { grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
   .shots.with-phone { grid-template-columns: 1fr 230px; }
   .acts { grid-template-columns: 1fr 1fr; }
+  .mapgrid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
   .shots .shot.phone { margin: 14px 0 20px; }
 }
 @container (min-width: 960px) { #cityNews { grid-template-columns: repeat(3, 1fr); } }

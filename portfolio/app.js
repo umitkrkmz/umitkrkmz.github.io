@@ -1,4 +1,4 @@
-/* ===== app.js: telefon arayüzü: ana ekran, uygulamalar (Projeler, Hakkımda, İletişim, Ankara Haber), saat.
+/* ===== app.js: telefon arayüzü: ana ekran, uygulamalar (Projeler, Hakkımda, İletişim, Ankara Haber, Harita, Ajanda, Kedidex), saat.
    Uygulama açılınca sayfa tam ekrana geçer (şehirdeysek telefon büyür); içerik content.js'ten, canlı şehir bilgisi şehrin kendisinden (window.parent.C). ===== */
 (function () {
 'use strict';
@@ -256,6 +256,185 @@ function paintMinis() {
   const html = wx + m; if (html === miniSig) return; miniSig = html; el.innerHTML = html;
 }
 
+/* ---------- Harita, Ajanda, Kedidex: şehrin canlı verisinden (window.parent.C). Bir yere dokununca telefon kapanır, kamera oraya uçar.
+   Tek başınayken harita yerine şehre giriş, ajandada sabit saatler, Kedidex'te kaydedilen koleksiyon (localStorage, şehirle aynı köken) ---------- */
+const V3 = (x, y, z) => new window.parent.THREE.Vector3(x, y, z);
+const inGame = C => !!(C.player && (C.player.active || C.player.entering));
+/* bir yere uç: telefonu kapatır; oyundayken kamera karakteri izlediği için uçmaz */
+function goTo(C, f) {
+  if (!C || !C.flyTo || inGame(C)) return false;
+  if (C.phone) C.phone.close();
+  setTimeout(f, 60);
+  return true;
+}
+const flyAbove = (C, x, z) => {                                       // kuş bakışından o noktaya: bakış yönü korunur
+  const cam = C.camera.position, tg = C.controls.target, d = V3(cam.x - tg.x, cam.y - tg.y, cam.z - tg.z), L = Math.min(260, Math.max(140, d.length()));
+  d.normalize(); if (d.y < 0.5) { d.y = 0.75; d.normalize(); }
+  C.flyTo(V3(x + d.x * L, d.y * L, z + d.z * L), V3(x, 0, z), 1800);
+};
+const flyNear = (C, x, z, r, h) => C.flyTo(V3(x + r, h, z + r), V3(x, 0.8, z), 2000);
+
+/* yerler: haritada işaret ve altındaki listede satır */
+function places(C) {
+  const out = [], M = C.match, club = C.cats && C.cats.club ? C.cats.club() : null, h = C.hour;
+  const D = C.developer;
+  if (D) out.push({ k: 'dev', x: D.x, z: D.z, col: '#ffb53d', label: P.name || 'Geliştirici', sub: D.where ? D.where() : '', go: () => C.findDeveloper && C.findDeveloper() });
+  if (C.hero && C.hero.pos) out.push({ k: 'hero', x: C.hero.pos.x, z: C.hero.pos.z, col: '#e23b3b', label: 'Pijamalı Çocuk', sub: C.hero.task ? 'Hırsızın peşinde' : 'Çatılarda devriyede', go: () => flyNear(C, C.hero.pos.x, C.hero.pos.z, 22, 26) });
+  for (const ev of C.activeEvents || []) out.push({ k: 'ev', type: ev.type, x: ev.x, z: ev.z, col: DOT[ev.type] || '#ffb53d', label: ev.title + ' · ' + ev.place, sub: ev.status, go: () => { const [p, t] = ev.view(); C.flyTo(p, t, 2200); } });
+  const st = (C.landmarks || []).find(l => l.type === 'stadium');
+  if (st) {
+    const sub = M && M.on ? (M.ph === 'pre' ? 'Tribünler doluyor' : M.ph === 'half' ? 'Devre arası · ' + M.score.join('-') : `Maç sürüyor · ${Math.floor(M.min)}' · ${M.score.join('-')}`) : 'Sıradaki maç ' + (h < 13.5 ? '13.30' : h < 19 ? '19.00' : 'yarın 13.30');
+    out.push({ k: 'stadium', x: st.bx, z: st.bz, col: '#5ec27a', label: 'Ankara Stadı', sub, live: !!(M && M.on), go: () => { const [p, t] = C.clearView(st); C.flyTo(p, t, 2200); } });
+  }
+  if (club) {
+    const on = h >= 21.5 || h < 1, ag = C.cats.agenda ? C.cats.agenda().title : '';
+    out.push({ k: 'cats', x: club.x, z: club.z, col: '#c48bff', label: 'Kedi meclisi', sub: on ? 'Şu an toplantıda: ' + ag : 'Bu gece 21.30, gündem: ' + ag, live: on, go: () => flyNear(C, club.x, club.z, 9, 8) });
+  }
+  return out;
+}
+const LM_LETTER = { hospital: 'H', fire: 'İ', police: 'P', stadium: 'S' };
+let mapBase = null, mapHits = [], mapPlaces = [];
+/* sabit katman: yollar, semt renginde bloklar, parklar, meydan, önemli yapılar, semt adları (bir kez çizilir) */
+function mapBaseOf(C, W) {
+  if (mapBase && mapBase.width === W) return mapBase;
+  const cv = document.createElement('canvas'); cv.width = cv.height = W; const x = cv.getContext('2d'), T = C.TOTAL, k = W / T, b = C.BLOCK * k;
+  x.fillStyle = '#262c33'; x.fillRect(0, 0, W, W);
+  for (const blk of C.blocks || []) {
+    const u = (blk.bx + T / 2) * k - b / 2, v = (blk.bz + T / 2) * k - b / 2, d = C.districtAt(blk.bx, blk.bz);
+    x.fillStyle = blk.kind === 'park' ? '#3d7a4b' : blk.kind === 'plaza' ? '#cbc5b6' : d.tint; x.globalAlpha = blk.kind === 'city' ? 0.5 : blk.kind === 'landmark' ? 0.75 : 0.9;
+    x.beginPath(); x.roundRect ? x.roundRect(u, v, b, b, b * 0.12) : x.rect(u, v, b, b); x.fill();
+  }
+  x.globalAlpha = 1; x.textAlign = 'center'; x.textBaseline = 'middle';
+  for (const L of C.landmarks || []) {
+    const u = (L.bx + T / 2) * k, v = (L.bz + T / 2) * k;
+    const lr = Math.max(b * 0.42, W / 44);
+    x.fillStyle = '#10161c'; x.strokeStyle = 'rgba(238, 242, 244, .7)'; x.lineWidth = Math.max(1, W / 400); x.beginPath(); x.arc(u, v, lr, 0, 7); x.fill(); x.stroke();
+    x.fillStyle = '#eef2f4'; x.font = `700 ${Math.round(lr * 1.15)}px 'IBM Plex Sans', sans-serif`; x.fillText(LM_LETTER[L.type] || '•', u, v + 1);
+  }
+  x.font = `800 ${Math.round(W / 26)}px 'Big Shoulders Display', 'Arial Narrow', sans-serif`;
+  for (const d of C.DISTRICTS) { x.fillStyle = 'rgba(8, 11, 14, .55)'; const tw = x.measureText(d.name.toLocaleUpperCase('tr')).width; const u = (d.cx + T / 2) * k, v = (d.cz + T / 2) * k; x.fillRect(u - tw / 2 - 5, v - W / 48, tw + 10, W / 24); x.fillStyle = '#eef2f4'; x.fillText(d.name.toLocaleUpperCase('tr'), u, v + 1); }
+  return (mapBase = cv);
+}
+function mapRender() {
+  const C = city(), cv = $('mapCanvas'), list = $('mapList'), note = $('mapNote');
+  const ok = !!(C && C.blocks && C.blocks.length && C.TOTAL);
+  $('mapWrap').hidden = !ok; $('mapOff').hidden = ok; if (!ok) { list.innerHTML = ''; return; }
+  /* liste: her işaretin satırı ve Git (tuval henüz ölçülmemiş olsa da) */
+  const game = inGame(C); mapPlaces = places(C);
+  note.textContent = game ? 'Oyundayken kamera karakteri izler; haritadan uçmak için oyundan çık.' : 'Bir işarete ya da haritada bir yere dokun: kamera oraya uçar.';
+  const html = mapPlaces.map((p, i) => `<li><span class="dot" style="--d:${p.col}"></span><span class="tx"><b>${esc(p.label)}</b><small>${esc(p.sub)}</small></span>${game ? '' : `<button data-go="${i}">Git</button>`}</li>`).join('');
+  if (list.dataset.h !== html) { list.dataset.h = html; list.innerHTML = html; }
+  const W = Math.round(cv.clientWidth * (window.devicePixelRatio || 1)); if (!W) return;
+  if (cv.width !== W) { cv.width = cv.height = W; }
+  const x = cv.getContext('2d'), T = C.TOTAL, k = W / T, pulse = 0.5 + 0.5 * Math.sin(Date.now() / 260);
+  x.drawImage(mapBaseOf(C, W), 0, 0);
+  /* kamera: baktığı nokta ve yön */
+  const tg = C.controls.target, cam = C.camera.position, a = Math.atan2(tg.z - cam.z, tg.x - cam.x), cu = (tg.x + T / 2) * k, cvv = (tg.z + T / 2) * k, R = W / 9;
+  x.fillStyle = 'rgba(255, 255, 255, .16)'; x.beginPath(); x.moveTo(cu, cvv); x.arc(cu, cvv, R, a - 0.5, a + 0.5); x.closePath(); x.fill();
+  x.fillStyle = '#fff'; x.beginPath(); x.arc(cu, cvv, W / 110, 0, 7); x.fill();
+  mapHits = [];
+  for (const p of mapPlaces) {
+    const u = (p.x + T / 2) * k, v = (p.z + T / 2) * k, r = W / 46;
+    if (p.k === 'ev' || p.live) { x.strokeStyle = p.col; x.globalAlpha = 1 - pulse * 0.7; x.lineWidth = W / 220; x.beginPath(); x.arc(u, v, r * (1.4 + pulse * 1.4), 0, 7); x.stroke(); x.globalAlpha = 1; }
+    x.fillStyle = p.col; x.strokeStyle = '#0b0f13'; x.lineWidth = W / 300;
+    x.beginPath(); if (p.k === 'hero') { x.moveTo(u, v - r * 1.2); x.lineTo(u + r, v); x.lineTo(u, v + r * 1.2); x.lineTo(u - r, v); x.closePath(); } else x.arc(u, v, r, 0, 7); x.fill(); x.stroke();
+    if (p.k === 'dev') { x.fillStyle = '#16212b'; x.font = `800 ${Math.round(r * 1.3)}px 'Big Shoulders Display', sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText((P.name || '?').charAt(0), u, v + 1); }
+    mapHits.push({ u: u / W, v: v / W, p });
+  }
+}
+if ($('mapCanvas')) $('mapCanvas').addEventListener('click', e => {
+  const C = city(); if (!C) return;
+  const r = e.currentTarget.getBoundingClientRect(), u = (e.clientX - r.left) / r.width, v = (e.clientY - r.top) / r.height;
+  let best = null, bd = 0.045;
+  for (const h of mapHits) { const d = Math.hypot(h.u - u, h.v - v); if (d < bd) { bd = d; best = h; } }
+  if (best) goTo(C, best.p.go); else goTo(C, () => flyAbove(C, u * C.TOTAL - C.TOTAL / 2, v * C.TOTAL - C.TOTAL / 2));
+});
+if ($('mapList')) $('mapList').addEventListener('click', e => { const b = e.target.closest('[data-go]'), C = city(); if (b && C && mapPlaces[+b.dataset.go]) goTo(C, mapPlaces[+b.dataset.go].go); });
+
+/* ---------- Ajanda: günün programı. Geliştiricinin günü, maçlar (takımlar ve skorla), kedi meclisi (gündemle), trafik zirveleri ---------- */
+const hhmm = h => { h = ((h % 24) + 24) % 24; return pad(Math.floor(h)) + '.' + pad(Math.round((h % 1) * 60) % 60); };
+function peaks(C) {                                               // trafik: saatlik eğrinin sabah ve akşam yoğun aralıkları
+  const out = []; let cur = null;
+  for (let h = 0; h <= 24; h += 0.25) {
+    const key = h < 24 ? (C && C.trafficLevel ? C.trafficLevel(h).key : h >= 6.5 && h < 9.75 ? 'morning' : h >= 16.5 && h < 19.5 ? 'evening' : 'x') : 'x';
+    const pk = key === 'morning' || key === 'evening' ? key : null;
+    if (pk && (!cur || cur.key !== pk)) { cur = { key: pk, t: h }; out.push(cur); } else if (!pk && cur) { cur.end = h; cur = null; }
+  }
+  return out;
+}
+function agendaItems(C) {
+  const it = [], h = C ? C.hour : hourNow(), M = C && C.match;
+  if (C && C.developer && C.developer.plan) {
+    const PL = C.developer.plan;
+    PL.forEach((p, i) => { const end = PL[i + 1] ? PL[i + 1][0] : PL[0][0] + 24; it.push({ cat: 'dev', t: p[0], end, title: p[2], go: p[1] === 'home' ? null : 'dev' }); });
+  }
+  for (const s of [13.5, 19]) {
+    const pv = C && C.matchPreview ? C.matchPreview(s, 0) : null, end = s + 115 / 60;
+    let sub = 'Semt takımları karşı karşıya', live = false;
+    if (pv) sub = pv.teams.join(' – ');
+    if (M && M.on && M.slot === s) { live = true; sub += M.ph === 'pre' ? ' · tribünler doluyor' : M.ph === 'half' ? ' · devre arası ' + M.score.join('-') : ` · ${Math.floor(M.min)}' · ${M.score.join('-')}`; }
+    else if (pv && h >= end) { const last = M && M.last && M.last.slot === s ? M.last : C.matchPreview(s, 90); sub = last.teams.join(' – ') + ' · bitti ' + last.score.join('-'); }
+    it.push({ cat: 'match', t: s, end, title: 'Maç · Ankara Stadı', sub, live, go: C ? 'stadium' : null });
+  }
+  const ag = C && C.cats && C.cats.agenda ? C.cats.agenda().title : null;
+  it.push({ cat: 'cats', t: 21.5, end: 25, title: 'Kedi meclisi toplanıyor', sub: ag ? 'Gündem: ' + ag : 'Merkezdeki parkta, sekiz kulüp kedisi', go: C ? 'cats' : null });
+  for (const p of peaks(C)) it.push({ cat: 'traffic', t: p.t, end: p.end, title: p.key === 'morning' ? 'Sabah trafiği' : 'Akşam trafiği', sub: 'Yollar en kalabalık hâlinde' });
+  it.sort((a, b) => a.t - b.t);
+  return it;
+}
+const CAT_LABEL = { dev: 'Geliştirici', match: 'Maç', cats: 'Kediler', traffic: 'Trafik' };
+function agendaRender() {
+  const C = city(), h = C ? C.hour : hourNow(), it = agendaItems(C), within = x => (h >= x.t && h < x.end) || (x.end > 24 && h < x.end - 24);
+  let now = false, html = '';
+  for (const x of it) {
+    if (!now && x.t > h) { now = true; html += `<li class="now"><span>Şimdi · ${hm(h)}</span></li>`; }
+    const cur = within(x) || x.live;
+    html += `<li class="ag ${x.cat}${cur ? ' cur' : ''}"><time>${hhmm(x.t)}</time><span class="tx"><i>${esc(CAT_LABEL[x.cat])}</i><b>${esc(x.title)}</b>${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</span>` +
+      `${x.go && (cur || x.go !== 'dev') && C && !inGame(C) ? `<button data-ag="${x.go}">Git</button>` : ''}</li>`;
+  }
+  if (!now) html += `<li class="now"><span>Şimdi · ${hm(h)}</span></li>`;
+  const l = $('agendaList'); if (l.dataset.h !== html) { l.dataset.h = html; l.innerHTML = html; }
+  $('agendaNote').textContent = C ? 'Saatler Türkiye saatiyle; maç takımları ve skor, meclis gündemi şehirden canlı gelir.' : 'Takımlar, skor ve meclisin gündemi şehrin içinde görünür.';
+}
+if ($('agendaList')) $('agendaList').addEventListener('click', e => {
+  const b = e.target.closest('[data-ag]'), C = city(); if (!b || !C) return;
+  const p = places(C).find(x => x.k === b.dataset.ag); if (p) goTo(C, p.go);
+});
+
+/* ---------- Kedidex: sevilen kediler (cats.js 'ms.catdex' kaydı). Katalog tüy + ad eşleşmeleri; şu an şehirde olan eşleşmede rozet ---------- */
+const DEX_KEY = 'ms.catdex';
+const catSvg = (e, on) => {
+  const c = on ? e.col : '#3a424b', c2 = e.col2 || c, dark = on && /^#(1|2)/.test(e.col);
+  return `<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M9 20 7 5l12 9M39 20l2-15-12 9" fill="${c}"/><ellipse cx="24" cy="27" rx="17" ry="15" fill="${c}"/>` +
+    (on && e.col2 ? `<path d="M8 22a17 15 0 0 1 14-9c-2 6-7 10-14 9z" fill="${c2}"/>` : '') +
+    (on && e.st ? `<path d="M24 13v6M19 14l1.5 5M29 14l-1.5 5" stroke="rgba(0,0,0,.35)" stroke-width="2" stroke-linecap="round"/>` : '') +
+    (on && e.bib ? `<ellipse cx="24" cy="35" rx="7" ry="5" fill="#f4f1ea"/>` : '') +
+    (on ? `<circle cx="17.5" cy="26" r="2.6" fill="${dark ? '#e8d36a' : '#2a2f35'}"/><circle cx="30.5" cy="26" r="2.6" fill="${dark ? '#e8d36a' : '#2a2f35'}"/><path d="m22 31 2 2 2-2z" fill="#d88b95"/>` : `<text x="24" y="32" text-anchor="middle" font-size="14" font-weight="700" fill="#6b7682">?</text>`) + '</svg>';
+};
+function dexRender() {
+  const C = city(); let d = null;
+  try { d = JSON.parse(localStorage.getItem(DEX_KEY)); } catch (e) {}
+  const cat = (C && C.cats && C.cats.catalog ? C.cats.catalog() : d && d.catalog) || [], seen = (d && d.seen) || {};
+  const here = new Set(C && C.cats ? C.cats.list.map(c => C.cats.dexKey(c)) : []);
+  const n = cat.filter(e => seen[e.key]).length, top = Object.entries(seen).sort((a, b) => b[1].n - a[1].n)[0];
+  $('dexHead').innerHTML = cat.length ? `<div class="bar"><i style="width:${(n / cat.length * 100).toFixed(1)}%"></i></div><p><b>${n} / ${cat.length}</b> <span>kediyle tanıştın</span></p>${top ? `<p class="top">En çok sevilen: ${esc(top[0].split('|')[1])} (${top[1].n} kez)</p>` : ''}`
+    : `<p>Henüz katalog yok: şehre bir kez girince kediler burada listelenir.</p>`;
+  $('dexHow').textContent = C ? 'Vatandaş olarak dolaş, bir kedinin yanında E ile sev; tanıştığın kedi buraya eklenir. "Şehirde" rozetli kediler şu an sokakta.' : 'Kedilerle şehrin içinde tanışılır: Vatandaş olarak dolaş, bir kedinin yanında E ile sev.';
+  const html = cat.map(e => {
+    const s = seen[e.key], live = here.has(e.key);
+    const meta = s ? `${s.n} kez · ${s.place === 'club' ? 'Kedi meclisi' : esc(s.place)}` : 'henüz tanışmadın';
+    return `<li class="${s ? 'met' : ''}${e.reis ? ' reis' : ''}">${catSvg(e, !!s)}<b>${s ? esc(e.name) : '???'}</b><small>${esc(e.coat)}</small><small class="m">${meta}</small>` +
+      `${live ? `<button class="here" data-cat="${esc(e.key)}"${inGame(C) ? ' disabled' : ''}>Şehirde</button>` : ''}</li>`;
+  }).join('');
+  const l = $('dexList'); if (l.dataset.h !== html) { l.dataset.h = html; l.innerHTML = html; }
+}
+if ($('dexList')) $('dexList').addEventListener('click', e => {
+  const b = e.target.closest('[data-cat]'), C = city(); if (!b || !C || !C.cats) return;
+  const c = C.cats.list.find(x => C.cats.dexKey(x) === b.dataset.cat); if (c) goTo(C, () => C.flyTo(V3(c.x + 4, 2.6, c.z + 4), V3(c.x, 0.4, c.z), 2000));
+});
+const LIVE = { city: [cityRender, 2000], map: [mapRender, 400], agenda: [agendaRender, 5000], catdex: [dexRender, 3000] };   // açıkken yenilenen uygulamalar
+window.addEventListener('resize', () => { mapBase = null; });
+
 /* ---------- bildirim: şehirde yeni bir olay olunca üstten Ankara Haber bildirimi ---------- */
 let lastEv, toastT = null;
 function watchEvents() {
@@ -286,7 +465,7 @@ function show(id, from) {
   else v.classList.add('slide');
   v.querySelector('.back').focus({ preventScroll: true });          // kayarken odaklanınca kap kaydırılmasın
   history.replaceState(null, '', '#' + id);
-  clearInterval(cityT); if (id === 'city') { cityRender(); cityT = setInterval(cityRender, 2000); }
+  clearInterval(cityT); const lv = LIVE[id]; if (lv) { lv[0](); cityT = setInterval(lv[0], lv[1]); }
 }
 function home() {
   if (!current) return false;
@@ -311,5 +490,5 @@ document.addEventListener('keydown', e => {
   if (!home()) tell({ type: 'phone-close' });                       // ana ekrandaysa telefonu kapat
 });
 window.addEventListener('message', e => { if (e.data && e.data.type === 'phone-home') home(); });   // telefon kapanınca ana ekrana dön
-const start = location.hash.slice(1); if (['projects', 'about', 'contact', 'city'].includes(start)) show(start); else if (start.startsWith('projects/')) openDetail(start.slice(9));
+const start = location.hash.slice(1); if (['projects', 'about', 'contact', 'city', 'map', 'agenda', 'catdex'].includes(start)) show(start); else if (start.startsWith('projects/')) openDetail(start.slice(9));
 })();

@@ -147,7 +147,7 @@ function startMatch(S) {
   else if (S.el < HT) kickoff(M.kick0, true);
   else if (S.el < HT_END) M.ph = 'half';
   else if (S.el < FT) kickoff(1 - M.kick0, true);
-  else { M.ph = 'end'; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice() }; }
+  else { M.ph = 'end'; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice(), slot: M.slot }; }
   drawBoard();
 }
 function stopMatch() { M.on = false; M.ph = 'off'; M.slot = null; ball.visible = false; drawBoard(); }
@@ -192,7 +192,7 @@ function stepMatch(dt) {
   else if (S.el < HT) { if (M.ph === 'pre') { ball.visible = true; kickoff(M.kick0, false); } }
   else if (S.el < HT_END) { if (M.ph !== 'half') { M.ph = 'half'; holder = null; bv.x = bv.z = 0; ball.visible = false; drawBoard(); } }
   else if (S.el < FT) { if (M.half === 1 || M.ph === 'half' || M.ph === 'pre') { M.half = 2; ball.visible = true; kickoff(1 - M.kick0, true); } }
-  else if (M.ph !== 'end') { M.ph = 'end'; holder = null; bv.x = bv.z = 0; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice() }; drawBoard(); }   // son maç sonucu (telefondaki haberler)
+  else if (M.ph !== 'end') { M.ph = 'end'; holder = null; bv.x = bv.z = 0; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice(), slot: M.slot }; drawBoard(); }   // son maç sonucu (telefondaki haberler ve ajanda)
   /* saat hızlı akınca (Günü ilerlet) atlanan dakikalarda da gol olabilir; gerçek sürede kare başına fark çok küçük, eklenmez */
   const gap = M.min - m0;
   if (gap > 0.05 && gap < 60 && M.ph !== 'end') for (let k = 0; k < 2; k++) if (Math.random() < 1.3 / 90 * gap) { M.score[k]++; M.cheer[k] = 3; }

@@ -501,9 +501,56 @@ L.add({
   "Modern AI sistemlerinin altındaki mekanizmalara ilk ilkelerden bir mühendislik rehberi: embedding, tokenizer (BPE), RAG, bağlam mühendisliği, MCP, ajan korkulukları, değerlendirme, çözümleme ve yapılandırılmış çıktı, VRAM ve nicemleme. Sekiz modül, yalnızca standart kütüphaneli Python; her iddia bir kaynakla ya da çalışan bir assert ile kanıtlanır.": "A first-principles engineering guide to the mechanisms behind modern AI systems: embeddings, tokenizers (BPE), RAG, context engineering, MCP, agent guardrails, evals, decoding and structured output, VRAM and quantization. Eight modules in standard-library Python only; every claim is backed by a source or a running assert.",
   "Eğitim": "Education"
 });
+/* telefon: Harita, Ajanda, Kedidex */
+L.add({
+  "Harita": "Map",
+  "Ajanda": "Agenda",
+  "Kedidex": "Catdex",
+  "Şehrin haritası": "Map of the city",
+  "Git": "Go",
+  "Harita şehrin içinde çalışır": "The map works inside the city",
+  "Geliştiriciyi, olayları, Pijamalı Çocuğu ve kedi meclisini şehirden canlı okur; bir yere dokununca kamera oraya uçar.": "It reads the developer, the events, Underoos and the cat council live from the city; tap a spot and the camera flies there.",
+  "Pijamalı Çocuk": "Underoos",
+  "Hırsızın peşinde": "Chasing a thief",
+  "Çatılarda devriyede": "Patrolling the rooftops",
+  "Tribünler doluyor": "The stands are filling up",
+  "Kedi meclisi": "Cat council",
+  "Bir işarete ya da haritada bir yere dokun: kamera oraya uçar.": "Tap a marker or any spot on the map: the camera flies there.",
+  "Oyundayken kamera karakteri izler; haritadan uçmak için oyundan çık.": "In game mode the camera follows your character; leave the game to fly from the map.",
+  "Geliştirici": "Developer",
+  "Maç": "Match",
+  "Maç · Ankara Stadı": "Match · Ankara Stadium",
+  "Semt takımları karşı karşıya": "District teams face off",
+  "Kedi meclisi toplanıyor": "The cat council meets",
+  "Merkezdeki parkta, sekiz kulüp kedisi": "In the central park, eight club cats",
+  "Sabah trafiği": "Morning traffic",
+  "Akşam trafiği": "Evening traffic",
+  "Yollar en kalabalık hâlinde": "Roads at their busiest",
+  "Saatler Türkiye saatiyle; maç takımları ve skor, meclis gündemi şehirden canlı gelir.": "Times are in Turkish time; match teams and scores and the council agenda come live from the city.",
+  "Takımlar, skor ve meclisin gündemi şehrin içinde görünür.": "Teams, scores and the council agenda show up inside the city.",
+  "kediyle tanıştın": "cats met",
+  "henüz tanışmadın": "not met yet",
+  "Şehirde": "In the city",
+  "Henüz katalog yok: şehre bir kez girince kediler burada listelenir.": "No catalogue yet: enter the city once and the cats will be listed here.",
+  "Vatandaş olarak dolaş, bir kedinin yanında E ile sev; tanıştığın kedi buraya eklenir. \"Şehirde\" rozetli kediler şu an sokakta.": "Walk around as a citizen and press E next to a cat to pet it; every cat you meet is added here. Cats with an \"In the city\" badge are out on the streets right now.",
+  "Kedilerle şehrin içinde tanışılır: Vatandaş olarak dolaş, bir kedinin yanında E ile sev.": "You meet the cats inside the city: walk around as a citizen and press E next to a cat to pet it."
+});
 const R = L.rule;
 R(/^Son güncelleme: (.+)$/, d => `Updated: ${t(d)}`);
 R(/^(\d+) gün önce$/, n => `${n} days ago`);
+/* Harita, Ajanda, Kedidex: değişkenli metinler */
+R(/^Devre arası · (.+)$/, x => `Half time · ${x}`);
+R(/^Maç sürüyor · (\d+)' · (.+)$/, (m, x) => `Match on · ${m}' · ${x}`);
+R(/^Sıradaki maç (yarın )?(\d\d\.\d\d)$/, (y, h) => `Next match ${y ? 'tomorrow ' : ''}${h}`);
+R(/^Şu an toplantıda: (.+)$/, a => `In session now: ${t(a)}`);
+R(/^Bu gece 21\.30, gündem: (.+)$/, a => `Tonight at 21:30, agenda: ${t(a)}`);
+R(/^Gündem: (.+)$/, a => `Agenda: ${t(a)}`);
+R(/^Şimdi · (\d\d:\d\d)$/, h => `Now · ${h}`);
+R(/^(.+ – .+) · tribünler doluyor$/, a => `${a} · stands filling up`);
+R(/^(.+ – .+) · devre arası (\d+-\d+)$/, (a, x) => `${a} · half time ${x}`);
+R(/^(.+ – .+) · bitti (\d+-\d+)$/, (a, x) => `${a} · full time ${x}`);
+R(/^En çok sevilen: (.+) \((\d+) kez\)$/, (n, k) => `Most petted: ${n} (${k} time${k === '1' ? '' : 's'})`);
+R(/^(\d+) kez · (.+)$/, (n, x) => `${n} time${n === '1' ? '' : 's'} · ${t(x)}`);
 R(/^(v\d[\w.-]*) · (.+)$/, (v, d) => `${v} · ${t(d)}`);   // detay sayfasında son sürüm: "v2.4.0 · 10 gün önce"
 R(/^Open-Meteo · (az önce|(\d+) dk önce) güncellendi$/, (a, n) => `Open-Meteo · updated ${n ? n + ' min ago' : 'just now'}`);
 R(/^Ankara · Hava durumu · (.+)$/, h => `Ankara · Weather · ${h}`);

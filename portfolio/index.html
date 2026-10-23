@@ -37,6 +37,9 @@
       <button class="app" data-open="about"><span class="ico" style="--c:#54a0ff" data-icon="user"></span>Hakkımda</button>
       <button class="app" data-open="contact"><span class="ico" style="--c:#1dd1a1" data-icon="chat"></span>İletişim</button>
       <button class="app" data-open="city"><span class="ico" style="--c:#ffb53d" data-icon="news"></span>Ankara Haber</button>
+      <button class="app" data-open="map"><span class="ico" style="--c:#22a699" data-icon="map"></span>Harita</button>
+      <button class="app" data-open="agenda"><span class="ico" style="--c:#ee5a52" data-icon="calendar"></span>Ajanda</button>
+      <button class="app" data-open="catdex"><span class="ico" style="--c:#a06cd5" data-icon="cat"></span>Kedidex</button>
     </nav>
     <div class="dockbar" aria-label="Kısayollar" id="dockbar"></div>
   </section>
@@ -49,6 +52,21 @@
   <section class="screen app-view" id="project" aria-label="Proje" hidden>
     <header><div class="url" data-path="projeler"></div><button class="back" data-to="projects">‹ Projeler</button><h2 id="pjTitle"></h2><div class="sub" id="pjSub"></div></header>
     <div class="body" id="pjBody"></div>
+  </section>
+  <section class="screen app-view" id="map" aria-label="Harita" hidden>
+    <header><div class="url" data-path="harita"></div><button class="back" data-home>‹ Ana ekran</button><h2>Harita</h2><p class="sub" id="mapNote"></p></header>
+    <div class="body">
+      <div class="mapgrid" id="mapWrap"><canvas id="mapCanvas" aria-label="Şehrin haritası"></canvas><ul class="places" id="mapList"></ul></div>
+      <div class="card" id="mapOff" hidden><h4>Harita şehrin içinde çalışır</h4><p>Geliştiriciyi, olayları, Pijamalı Çocuğu ve kedi meclisini şehirden canlı okur; bir yere dokununca kamera oraya uçar.</p><div class="links"><a href="../index.html">Şehre gir</a></div></div>
+    </div>
+  </section>
+  <section class="screen app-view" id="agenda" aria-label="Ajanda" hidden>
+    <header><div class="url" data-path="ajanda"></div><button class="back" data-home>‹ Ana ekran</button><h2>Ajanda</h2><p class="sub" id="agendaNote"></p></header>
+    <div class="body"><ul class="agenda" id="agendaList"></ul></div>
+  </section>
+  <section class="screen app-view" id="catdex" aria-label="Kedidex" hidden>
+    <header><div class="url" data-path="kedidex"></div><button class="back" data-home>‹ Ana ekran</button><h2>Kedidex</h2><p class="sub" id="dexHow"></p></header>
+    <div class="body"><div class="dexhead" id="dexHead"></div><ul class="dex" id="dexList"></ul></div>
   </section>
   <section class="screen app-view" id="about" aria-label="Hakkımda" hidden>
     <header><div class="url" data-path="hakkimda"></div><button class="back" data-home>‹ Ana ekran</button><h2>Hakkımda</h2></header>
