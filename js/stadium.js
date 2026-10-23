@@ -106,7 +106,7 @@ function stepBall(dt) {
     const side = Math.sign(bp.x);
     if (Math.abs(bp.z) < GW && bp.y < GH) {
       M.tries++;
-      if (Math.random() < GOAL_P) { goal(side > 0 ? 0 : 1); return; }
+      if (Math.random() < SIDE_P[side > 0 ? 0 : 1]) { goal(side > 0 ? 0 : 1); return; }
       const gk = P.find(o => o.i === 0 && dirOf(o.k) === -side);                 // kurtarış: kaleci çizgide uzanıp alır
       M.saves++; bp.x = side * (FX - 0.7); bv.x = bv.z = bv.y = 0; if (gk) { gk.x = side * (FX - 0.6); gk.z = C.clamp(bp.z, -GW, GW); holder = gk; holdT = 1.4; }
       return;
@@ -121,6 +121,12 @@ function stepBall(dt) {
 /* maç takvimi (dakika, başlama düdüğüne göre): 10 dk önce tribün dolar, 0-45 ilk yarı, 45-60 devre arası, 60-105 ikinci yarı, 105-115 maç sonu */
 const SLOTS = [13.5, 19], PRE = 10, HT = 45, HT_END = 60, FT = 105, POST = 115;
 const GOAL_P = 0.05;                                            // kaleyi bulan topun gol olma payı (gerçek sürede maç başına ~2-3 gol)
+/* gol oranları gerçek Süper Lig'den: 2021/22-2025/26, 1.750 maç (tools/superlig_stats.py, ESPN). Ev sahibi maç başına 1,59, deplasman 1,26 gol;
+   takımlar kurgusal, yalnızca skor dağılımı ve ev sahibi avantajı gerçek. teams[0] ev sahibi */
+const SUPERLIG = { home: 1.592, away: 1.257, n: 1750, seasons: '2021/22-2025/26' };
+const PER_MIN = [SUPERLIG.home / 90, SUPERLIG.away / 90];             // atlanan ve sayfa açılmadan önceki dakikalarda dakika başına gol olasılığı
+const SIDE_P = [GOAL_P * 2 * SUPERLIG.home / (SUPERLIG.home + SUPERLIG.away), GOAL_P * 2 * SUPERLIG.away / (SUPERLIG.home + SUPERLIG.away)];   // canlı oyunda ev sahibi biraz daha isabetli
+C.superligStats = SUPERLIG;
 const pad = n => String(n).padStart(2, '0');
 const clockState = () => { for (const s of SLOTS) { const el = (C.hour - s) * 60; if (el >= -PRE && el < POST) return { s, el }; } return null; };
 const playedOf = el => el < 0 ? 0 : el < HT ? el : el < HT_END ? 45 : Math.min(90, el - 15);
@@ -132,7 +138,7 @@ C.matchPreview = (s, played, dayOff) => {
   const names = sh(C.DISTRICTS.map(d => d.name)); sh(KITS);
   const teams = [0, 1].map(k => names[k] + ' ' + SUFFIX[Math.floor(r() * SUFFIX.length)]);
   r(); const score = [0, 0];
-  for (let m = 0; m < (played || 0); m++) for (let k = 0; k < 2; k++) if (r() < 1.3 / 90) score[k]++;
+  for (let m = 0; m < (played || 0); m++) for (let k = 0; k < 2; k++) if (r() < PER_MIN[k]) score[k]++;
   return { teams, score };
 };
 C.matchTimes = SLOTS.map(s => pad(Math.floor(s)) + ':' + pad(Math.round(s % 1 * 60)));
@@ -141,7 +147,7 @@ function startMatch(S) {
   M.on = true; M.slot = S.s; M.kick0 = r() < 0.5 ? 0 : 1; M.half = S.el >= HT_END ? 2 : 1;
   /* sonradan açılınca o ana kadarki skor: dakika başına sabit gol olasılığıyla (tohumlu) */
   const played = playedOf(S.el); M.score = [0, 0];
-  for (let m = 0; m < played; m++) for (let k = 0; k < 2; k++) if (r() < 1.3 / 90) M.score[k]++;
+  for (let m = 0; m < played; m++) for (let k = 0; k < 2; k++) if (r() < PER_MIN[k]) M.score[k]++;
   M.min = played; ball.visible = true;
   if (S.el < 0) { M.ph = 'pre'; kickoff(M.kick0, true); M.ph = 'pre'; ball.visible = false; }
   else if (S.el < HT) kickoff(M.kick0, true);
@@ -195,7 +201,7 @@ function stepMatch(dt) {
   else if (M.ph !== 'end') { M.ph = 'end'; holder = null; bv.x = bv.z = 0; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice(), slot: M.slot }; drawBoard(); }   // son maç sonucu (telefondaki haberler ve ajanda)
   /* saat hızlı akınca (Günü ilerlet) atlanan dakikalarda da gol olabilir; gerçek sürede kare başına fark çok küçük, eklenmez */
   const gap = M.min - m0;
-  if (gap > 0.05 && gap < 60 && M.ph !== 'end') for (let k = 0; k < 2; k++) if (Math.random() < 1.3 / 90 * gap) { M.score[k]++; M.cheer[k] = 3; }
+  if (gap > 0.05 && gap < 60 && M.ph !== 'end') for (let k = 0; k < 2; k++) if (Math.random() < PER_MIN[k] * gap) { M.score[k]++; M.cheer[k] = 3; }
   if (Math.floor(m0) !== Math.floor(M.min) || gap > 0.05) drawBoard();
   if (M.ph === 'kick') { if ((M.wait -= dt) <= 0) { M.ph = 'play'; const p = P.filter(o => o.k === M.kickTeam && o.i >= 9)[0]; if (p) { p.x = -dirOf(p.k) * 0.4; p.z = 0; kick(p, -dirOf(p.k) * 6, (Math.random() - 0.5) * 6, 7, 0); } } }
   else if (M.ph === 'goal') { if ((M.wait -= dt) <= 0) kickoff(1 - M.scorer); }

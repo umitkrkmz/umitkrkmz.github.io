@@ -483,6 +483,7 @@ function leagueRender() {
       if (M && M.on && M.teams) html += `<div class="card live-m"><div class="kicker live">Canlı · Ankara Stadı</div><b>${esc(M.teams[0].name)} ${M.score[0]} - ${M.score[1]} ${esc(M.teams[1].name)}</b><small>${M.ph === 'pre' ? 'Başlamak üzere' : M.ph === 'half' ? 'Devre arası' : Math.floor(M.min) + '. dakika'}</small></div>`;
       html += tableHtml(rows, true) + `<h3>Son maçlar</h3><ul class="games">${games.map(g => `<li><time>${g.off === 0 ? 'Bugün' : g.off === -1 ? 'Dün' : -g.off + ' gün önce'} · ${g.s === 19 ? '19.00' : '13.30'}</time><span>${esc(g.a)} <b>${g.x} - ${g.y}</b> ${esc(g.b)}</span></li>`).join('')}</ul>` +
         `<p class="src"><b>Kurgusal veri.</b> <span>Şehirdeki semt takımlarının maçları; gerçek takımlar değil.</span> <span>${esc(dOf(from))} – ${esc(dOf(0))} · ${n} maç</span>. ` +
+        (C.superligStats ? `<span>Skor dağılımı ve ev sahibi avantajı gerçek Süper Lig'den: ${esc(C.superligStats.seasons)}, ${C.superligStats.n.toLocaleString(LOC)} maç.</span> ` : '') +
         `<span>Skorlar tarihten tohumlanır, herkes aynı tabloyu görür; eşleşmeler rastgele olduğu için takımların maç sayısı eşit değil. Galibiyet 3, beraberlik 1 puan.</span></p>`;
     }
   } else {

@@ -575,6 +575,7 @@ R(/^(\d+)\. dakika$/, n => `${n}'`);
 R(/^Canlı · Ankara Stadı$/, () => 'Live · Ankara Stadium');
 R(/^(.+) – (.+) · (\d+) maç$/, (a, b, n) => `${a} – ${b} · ${n} matches`);
 R(/^(\d+)\. haftadan sonra$/, n => `after matchweek ${n}`);
+R(/^Skor dağılımı ve ev sahibi avantajı gerçek Süper Lig'den: (.+), (.+) maç\.$/, (y, n) => `The score distribution and home advantage come from the real Süper Lig: ${y}, ${n} matches.`);
 R(/^ESPN'den alındı: (.+)$/, a => `Fetched from ESPN: ${a}`);
 R(/^Devre arası · (.+)$/, x => `Half time · ${x}`);
 R(/^Maç sürüyor · (\d+)' · (.+)$/, (m, x) => `Match on · ${m}' · ${x}`);
