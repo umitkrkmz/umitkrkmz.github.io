@@ -83,8 +83,11 @@ const coatByName = n => COATS.find(c => c.name === n);
 
 /* ---------- kediler ---------- */
 const cats = [], H = 19.6;                                   // kaldırım halkası (yayaların biraz içi)
+/* yağmurda (ya da karda) kaldırım kedileri saçak altına: halka bina cephesine ve tentelere yanaşır (parseller ±18 m) */
+const EAVES = 18.5;
+const rainy = () => { const w = C.weather && C.weather.cur; return !!w && w.rain + w.snow * 0.6 > 0.3; };
 function ringPos(c) {
-  const side = Math.floor(c.f * 4) & 3, u = (c.f * 4) % 1, h = H;
+  const side = Math.floor(c.f * 4) & 3, u = (c.f * 4) % 1, h = c.h || H;
   if (side === 0) { c.x = c.bx - h + 2 * h * u; c.z = c.bz - h; } else if (side === 1) { c.x = c.bx + h; c.z = c.bz - h + 2 * h * u; }
   else if (side === 2) { c.x = c.bx + h - 2 * h * u; c.z = c.bz + h; } else { c.x = c.bx - h; c.z = c.bz + h - 2 * h * u; }
 }
@@ -131,6 +134,10 @@ const meetingTime = () => C.hour >= 21.5 || C.hour < 1;
 const P = () => C.player;
 function nextState(c) {
   if (c.kind === 'go') { c.st = 'walk'; c.t = 99; return; }    // kaldırımına dönüyor
+  if (rainy()) {                                             // yağmurda: önce saçak altına yürü, sonra çoğunlukla otur ya da yat
+    if (c.kind === 'ring' && (c.h || H) > EAVES + 0.1) { c.st = 'walk'; c.t = 4 + Math.random() * 4; c.df = Math.random() < 0.5 ? -1 : 1; return; }
+    if (Math.random() < 0.75) { c.st = Math.random() < 0.5 ? 'sit' : 'lie'; c.t = 10 + Math.random() * 20; return; }
+  }
   const r = Math.random();
   if (r < 0.42) {                                            // yürü
     c.st = 'walk'; c.t = 3 + Math.random() * 7;
@@ -202,6 +209,7 @@ function step(c, dt) {
   if (c.st !== 'walk') { c.sp = 0; return; }
   c.sp = 0.75; c.ph += dt * 8;
   if (c.kind === 'ring') {
+    const hw = rainy() ? EAVES : H; c.h = (c.h || H) + C.clamp(hw - (c.h || H), -dt * 0.6, dt * 0.6);   // yürürken saçağa yanaşır, yağmur dinince döner
     c.f = (c.f + c.df * c.sp * dt / (8 * H) + 1) % 1;
     const ox = c.x, oz = c.z; ringPos(c);
     if (Math.hypot(c.x - ox, c.z - oz) > 1e-4) c.ry = Math.atan2(-(c.z - oz), c.x - ox);

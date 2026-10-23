@@ -81,6 +81,8 @@ window.MSNews = (function () {
         add('Spor', x + y >= 5 ? one(MK.goals, 'goals') : one(x === y ? MK.draw : MK.win, 'res'), 70, ex);
       }
     }
+    const pps = C && C.matchPostponed ? [13.5, 19].find(s => C.matchPostponed(s)) : null;   // fırtınada ertelenen maç
+    if (pps && MK.postponed) add('Spor', one(MK.postponed, 'pp'), 82, { next: pps === 19 ? '19.00' : '13.30' });
     const next = h < 13.5 ? '13.30' : h < 19 ? '19.00' : null;
     if (next && !(M && M.on)) {
       const pv = C && C.matchPreview ? C.matchPreview(next === '13.30' ? 13.5 : 19, 0) : null;   // sahaya çıkacak takımlar

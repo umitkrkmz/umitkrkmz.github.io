@@ -1,4 +1,4 @@
-/* ===== app.js: telefon arayüzü: ana ekran, uygulamalar (Projeler, Hakkımda, İletişim, Ankara Haber, Harita, Ajanda, Kedidex, Lig), saat.
+/* ===== app.js: telefon arayüzü: ana ekran, uygulamalar (Projeler, Hakkımda, İletişim, Ankara Haber, Harita, Ajanda, Kedidex, Lig; ikinci sayfada GitHub, Kamera, Mesajlar, Ayarlar), saat.
    Uygulama açılınca sayfa tam ekrana geçer (şehirdeysek telefon büyür); içerik content.js'ten, canlı şehir bilgisi şehrin kendisinden (window.parent.C). ===== */
 (function () {
 'use strict';
@@ -283,7 +283,8 @@ function places(C) {
   for (const ev of C.activeEvents || []) out.push({ k: 'ev', type: ev.type, x: ev.x, z: ev.z, col: DOT[ev.type] || '#ffb53d', label: ev.title + ' · ' + ev.place, sub: ev.status, go: () => { const [p, t] = ev.view(); C.flyTo(p, t, 2200); } });
   const st = (C.landmarks || []).find(l => l.type === 'stadium');
   if (st) {
-    const sub = M && M.on ? (M.ph === 'pre' ? 'Tribünler doluyor' : M.ph === 'half' ? 'Devre arası · ' + M.score.join('-') : `Maç sürüyor · ${Math.floor(M.min)}' · ${M.score.join('-')}`) : 'Sıradaki maç ' + (h < 13.5 ? '13.30' : h < 19 ? '19.00' : 'yarın 13.30');
+    const pp = C.matchPostponed && [13.5, 19].find(s => C.matchPostponed(s));
+    const sub = pp ? 'Maç fırtına nedeniyle ertelendi' : M && M.on ? (M.ph === 'pre' ? 'Tribünler doluyor' : M.ph === 'half' ? 'Devre arası · ' + M.score.join('-') : `Maç sürüyor · ${Math.floor(M.min)}' · ${M.score.join('-')}`) : 'Sıradaki maç ' + (h < 13.5 ? '13.30' : h < 19 ? '19.00' : 'yarın 13.30');
     out.push({ k: 'stadium', x: st.bx, z: st.bz, col: '#5ec27a', label: 'Ankara Stadı', sub, live: !!(M && M.on), go: () => { const [p, t] = C.clearView(st); C.flyTo(p, t, 2200); } });
   }
   if (club) {
@@ -372,7 +373,8 @@ function agendaItems(C) {
     const pv = C && C.matchPreview ? C.matchPreview(s, 0) : null, end = s + 115 / 60;
     let sub = 'Semt takımları karşı karşıya', live = false;
     if (pv) sub = pv.teams.join(' – ');
-    if (M && M.on && M.slot === s) { live = true; sub += M.ph === 'pre' ? ' · tribünler doluyor' : M.ph === 'half' ? ' · devre arası ' + M.score.join('-') : ` · ${Math.floor(M.min)}' · ${M.score.join('-')}`; }
+    if (C && C.matchPostponed && C.matchPostponed(s)) sub = (pv ? pv.teams.join(' – ') + ' · ' : '') + 'fırtına nedeniyle ertelendi';
+    else if (M && M.on && M.slot === s) { live = true; sub += M.ph === 'pre' ? ' · tribünler doluyor' : M.ph === 'half' ? ' · devre arası ' + M.score.join('-') : ` · ${Math.floor(M.min)}' · ${M.score.join('-')}`; }
     else if (pv && h >= end) { const last = M && M.last && M.last.slot === s ? M.last : C.matchPreview(s, 90); sub = last.teams.join(' – ') + ' · bitti ' + last.score.join('-'); }
     it.push({ cat: 'match', t: s, end, title: 'Maç · Ankara Stadı', sub, live, go: C ? 'stadium' : null });
   }
@@ -447,7 +449,7 @@ function semtTable(C) {
   const club = n => (C.DISTRICTS.find(d => n === d.name || n.startsWith(d.name + ' ')) || { name: n }).name;
   for (const d of C.DISTRICTS) T[d.name] = { name: d.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, form: [] };
   for (let off = 1 - day; off <= 0; off++) for (const s of [13.5, 19]) {
-    if (off === 0 && h < s + 115 / 60) continue;                       // bugün henüz bitmemiş maç sayılmaz
+    if (off === 0 && (h < s + 115 / 60 || (C.matchPostponed && C.matchPostponed(s)))) continue;   // bugün henüz bitmemiş ya da ertelenmiş maç sayılmaz
     const m = off === 0 && M && M.last && M.last.slot === s ? M.last : C.matchPreview(s, 90, off);
     const [a, b] = m.teams.map(club), [x, y] = m.score;
     games.push({ off, s, a, b, x, y });
@@ -499,7 +501,225 @@ function leagueRender() {
   if (box.dataset.h !== html) { box.dataset.h = html; box.innerHTML = html; }
 }
 if ($('league')) $('league').addEventListener('click', e => { const b = e.target.closest('.tabs [data-tab]'); if (b) { leagueTab = b.dataset.tab; leagueRender(); } });
-const LIVE = { city: [cityRender, 2000], map: [mapRender, 400], agenda: [agendaRender, 5000], catdex: [dexRender, 3000], league: [leagueRender, 5000] };   // açıkken yenilenen uygulamalar
+/* ---------- ana ekran sayfaları: yana kaydırılır (dokunmatik, iz paneli), altta noktalar; noktaya tıklayınca o sayfaya geçer ---------- */
+const pagesEl = $('pages'), dotsEl = $('dots');
+if (pagesEl && dotsEl) {
+  const pageN = pagesEl.children.length;
+  dotsEl.innerHTML = Array.from({ length: pageN }, (_, i) => `<button type="button" aria-label="Sayfa ${i + 1}"${i ? '' : ' class="on" aria-current="true"'}></button>`).join('');
+  const cur = () => Math.round(pagesEl.scrollLeft / Math.max(1, pagesEl.clientWidth));
+  pagesEl.addEventListener('scroll', () => { const k = cur(); [...dotsEl.children].forEach((b, i) => { b.classList.toggle('on', i === k); if (i === k) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); }); }, { passive: true });
+  dotsEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pagesEl.scrollTo({ left: [...dotsEl.children].indexOf(b) * pagesEl.clientWidth, behavior: 'smooth' }); });
+  /* fareyle sürükleyerek de kaydırılır (masaüstü) */
+  let drag = null;
+  pagesEl.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse') drag = { x: e.clientX, s: pagesEl.scrollLeft, moved: false }; });
+  window.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x; if (Math.abs(dx) > 6) drag.moved = true; pagesEl.scrollLeft = drag.s - dx; });
+  window.addEventListener('pointerup', e => {
+    if (!drag) return; const d = drag; drag = null; if (!d.moved) return;
+    const k = Math.max(0, Math.min(pageN - 1, Math.round((d.s - (e.clientX - d.x) * 2.2) / pagesEl.clientWidth)));
+    pagesEl.scrollTo({ left: k * pagesEl.clientWidth, behavior: 'smooth' });
+    const stop = ev => { ev.stopPropagation(); ev.preventDefault(); }; pagesEl.addEventListener('click', stop, { capture: true, once: true });   // sürükleme bir uygulamayı açmasın
+  });
+}
+
+/* ---------- GitHub etkinliği: herkese açık son olaylar (anahtarsız, tek istek, 15 dk saklanır). GitHub push olayında artık commit listesi
+   vermiyor (yalnızca depo ve zaman), bu yüzden gönderimler depo başına toplanır; sürüm, etiket, yeni depo ayrı satır ---------- */
+const GHEV_KEY = 'ms.ghev';
+let ghev = null, ghevBusy = false, ghevFail = 0;
+try { const c = JSON.parse(localStorage.getItem(GHEV_KEY)); if (c && c.list && c.v === 2) ghev = c; } catch (e) {}
+function ghRender() {
+  const box = $('ghBody');
+  if (P.github && !ghevBusy && !(ghev && Date.now() - ghev.t < 9e5) && Date.now() - ghevFail > 12e4) {
+    ghevBusy = true;
+    fetch('https://api.github.com/users/' + encodeURIComponent(P.github) + '/events/public?per_page=40').then(r => r.ok ? r.json() : Promise.reject(r.status)).then(list => {
+      const out = [];
+      for (const e of list) {
+        const repo = e.repo.name.split('/')[1], t = e.created_at;
+        if (e.type === 'PushEvent') { const g = out.find(x => x.k === 'push' && x.repo === repo); if (g) g.n++; else out.push({ k: 'push', repo, t, n: 1, since: t }); if (g) g.since = t; }
+        else if (e.type === 'ReleaseEvent' && e.payload.action === 'published') out.push({ k: 'release', repo, t, tag: e.payload.release.tag_name });
+        else if (e.type === 'CreateEvent' && e.payload.ref_type === 'repository') out.push({ k: 'repo', repo, t });
+        else if (e.type === 'CreateEvent' && e.payload.ref_type === 'tag') out.push({ k: 'tag', repo, t, tag: e.payload.ref });
+      }
+      ghev = { t: Date.now(), v: 2, list: out.slice(0, 20), from: list.length ? list[list.length - 1].created_at : null }; try { localStorage.setItem(GHEV_KEY, JSON.stringify(ghev)); } catch (e) {}
+    }).catch(() => { ghevFail = Date.now(); }).finally(() => { ghevBusy = false; if (current && current.id === 'gh') ghRender(); });
+  }
+  let html = '';
+  if (!ghev) html = `<p class="empty">${ghevBusy ? 'Yükleniyor…' : 'GitHub şu an yanıt vermiyor.'}</p>`;
+  else {
+    const pushes = ghev.list.filter(x => x.k === 'push'), n = pushes.reduce((k, x) => k + x.n, 0), rel = ghev.list.filter(x => x.k === 'release' || x.k === 'tag').length;
+    html = `<p class="badge real">Gerçek veri</p><div class="stats gh-sum"><div><b>${n}</b><small>gönderim</small></div><div><b>${pushes.length}</b><small>depo</small></div><div><b>${rel}</b><small>sürüm</small></div></div><ul class="ghlist">` +
+      ghev.list.map(x => `<li class="${x.k}"><time>${esc(ago(x.t))}</time><b><a href="https://github.com/${esc(P.github)}/${esc(x.repo)}" target="_blank" rel="noopener">${esc(x.repo)}</a></b>` +
+        (x.k === 'push' ? `<span>${x.n} kez güncellendi</span>` : x.k === 'release' ? `<span>Sürüm yayımlandı: ${esc(x.tag)}</span>` : x.k === 'tag' ? `<span>Etiket: ${esc(x.tag)}</span>` : `<span>Yeni depo açıldı</span>`) + '</li>').join('') +
+      `</ul><p class="src"><b>Gerçek veri.</b> <span>GitHub'ın herkese açık etkinlik akışı (son 90 gün, en çok 40 olay)</span>${ghev.from ? `, <span>${esc(ago(ghev.from))} itibarıyla</span>` : ''}. <span>Alındı: ${esc(new Date(ghev.t).toLocaleString(LOC, { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }))}</span>.</p>`;
+  }
+  if (box.dataset.h !== html) { box.dataset.h = html; box.innerHTML = html; }
+}
+
+/* ---------- Mesajlar: SMS gibi; gelen kutusu, dokununca sohbet. Mesajlar şehrin saatine ve olaylarına göre gelir:
+   geliştirici yalnızca canlı konum paylaşır; Reis toplantıdan önce ve sonra; Pijamalı Çocuk sabah devriyede ve şehirde hırsızlık çıkınca;
+   Maç Bülteni maç başlarken, devre arasında ve maç sonunda (ertelenirse o). Okunanlar localStorage['ms.msgseen'] (sohbet başına sayı) ---------- */
+const MSG_SEEN = 'ms.msgseen';
+let msgSeen = {}; try { msgSeen = JSON.parse(localStorage.getItem(MSG_SEEN)) || {}; } catch (e) {}
+let msgOpen = null, msgLastN;
+const hhm = h => hm(((h % 24) + 24) % 24);
+function threads() {
+  const C = city(), h = C ? C.hour : hourNow(), out = [], key = t => (h < 12 && t >= 12 ? t - 24 : t);   // öğleden önce, dün akşamki mesajlar önce gelir
+  const D = C && C.developer;
+  out.push({ id: 'dev', who: P.name || 'Geliştirici', ico: (P.name || '?').charAt(0), col: '#ffb53d', msgs: [{ t: h, loc: true, text: D && D.where ? D.where() : '' }] });
+  if (C) {
+    const ag = C.cats && C.cats.agenda ? C.cats.agenda().title : '', W = C.weather && C.weather.cur, wet = !!W && W.rain + W.snow * 0.6 > 0.3, rm = [];
+    if (h >= 18 || h < 12) rm.push({ t: 18, text: "Bu gece 21.30'da meclis var, unutma." });
+    if (h >= 21 || h < 12) rm.push({ t: 21, text: 'Yarım saat sonra toplanıyoruz. Gündem: ' + ag + '.' });
+    if (h >= 21.5 || h < 12) rm.push({ t: 21.5, text: wet ? 'Toplantı başladı. Yağmur var, saçak altındayız.' : 'Toplantı başladı, nerede kaldın?' });
+    if (h >= 1 && h < 12) rm.push({ t: 1, text: 'Toplantı bitti, kararlar yarın panoda. İyi geceler.' });
+    out.push({ id: 'reis', who: 'Reis', svg: 'cat', col: '#a06cd5', msgs: rm });
+    const hm2 = [];
+    if (h >= 9) hm2.push({ t: 9, text: 'Günaydın! Çatılara çıkıyorum, devriye başladı.' });
+    for (const ev of (C.eventLog || []).filter(e => e.type === 'crime' && e.hour !== undefined).slice().reverse()) {
+      hm2.push({ t: ev.hour, text: ev.place + ' tarafında hırsızlık var, peşindeyim!' });
+      if (ev.done) hm2.push({ t: ev.doneHour !== undefined ? ev.doneHour : ev.hour, text: 'Olay kapandı: ' + ev.status + '.' });
+    }
+    const n = C.cityStats ? C.cityStats.hero : 0;
+    if (n && h >= 20) hm2.push({ t: 20, text: `Bugün ${n} hırsız yakaladım. Şehir güvende.` });
+    out.push({ id: 'hero', who: 'Pijamalı Çocuk', svg: 'user', col: '#d23b3b', msgs: hm2 });
+    const M = C.match, mm = [];
+    if (C.matchPreview) {
+      if (h >= 9) mm.push({ t: 9, text: "Bugün 13.30 ve 19.00'da Ankara Stadı'nda maç var." });
+      for (const s of [13.5, 19]) {
+        if (h < s - 10 / 60) continue;
+        const pv = C.matchPreview(s, 0), [a, b] = pv.teams, pp = C.matchPostponed && C.matchPostponed(s);
+        if (pp) { mm.push({ t: s - 10 / 60, text: `${hhmm(s)} maçı fırtına nedeniyle ertelendi.` }); continue; }
+        mm.push({ t: s - 10 / 60, text: `Maç başlıyor (${hhmm(s)}): ${a} – ${b}.` });
+        if (h >= s + 45 / 60) { const sc = M && M.ht && M.ht.slot === s ? M.ht.score : C.matchPreview(s, 45).score; mm.push({ t: s + 45 / 60, text: `Devre arası: ${a} ${sc[0]}-${sc[1]} ${b}.` }); }
+        if (h >= s + 105 / 60) { const l = M && M.last && M.last.slot === s ? M.last : C.matchPreview(s, 90); mm.push({ t: s + 105 / 60, text: `Maç sonu: ${a} ${l.score[0]}-${l.score[1]} ${b}.` }); }
+      }
+    }
+    out.push({ id: 'match', who: 'Maç Bülteni', svg: 'trophy', col: '#3b8b4a', msgs: mm });
+  }
+  for (const th of out) { th.msgs.sort((p, q) => key(p.t) - key(q.t)); th.last = th.msgs[th.msgs.length - 1]; th.k = th.last ? key(th.last.t) : -99; th.unread = Math.max(0, th.msgs.length - (msgSeen[th.id] || 0)); }
+  return out.filter(t => t.msgs.length).sort((p, q) => q.k - p.k);
+}
+const avOf = t => `<span class="av" style="--c:${t.col}">${t.svg ? SV(t.svg) : esc(t.ico)}</span>`;
+const prevOf = m => m.loc ? 'Canlı konum paylaştı' : m.text;
+function msgRender() {
+  const C = city(), th = threads(), list = $('msgList'), view = $('msgThread');
+  const open = msgOpen && th.find(t => t.id === msgOpen);
+  list.hidden = !!open; view.hidden = !open;
+  if (open) {
+    if ((msgSeen[open.id] || 0) !== open.msgs.length) { msgSeen[open.id] = open.msgs.length; try { localStorage.setItem(MSG_SEEN, JSON.stringify(msgSeen)); } catch (e) {} }
+    const bub = m => m.loc
+      ? `<div class="bub loc"><span class="li">${SV('map')}</span><b>Canlı konum</b><p>${esc(m.text || 'Konumum şehrin içinde görünür.')}</p>${C ? `<button type="button" data-msg="finddev">Haritada göster</button>` : '<a href="../index.html">Şehre gir</a>'}<time>şimdi</time></div>`
+      : `<div class="bub"><p>${esc(m.text)}</p><time>${esc(hhm(m.t))}</time></div>`;
+    const html = `<div class="thead"><button type="button" class="tback" data-msg="inbox">‹ Mesajlar</button>${avOf(open)}<b>${esc(open.who)}</b></div><div class="bubs">${open.msgs.map(bub).join('')}</div>`;
+    if (view.dataset.h !== html) { view.dataset.h = html; view.innerHTML = html; const b = view.querySelector('.bubs'); if (b) b.scrollTop = b.scrollHeight; }
+  } else {
+    const html = th.map(t => `<li><button type="button" data-th="${t.id}">${avOf(t)}<span class="tx"><b>${esc(t.who)}</b><small>${esc(prevOf(t.last))}</small></span>` +
+      `<span class="meta"><time>${t.last.loc ? 'şimdi' : esc(hhm(t.last.t))}</time>${t.unread ? `<i class="un">${t.unread}</i>` : ''}</span></button></li>`).join('') + (C ? '' : '<li class="note">Diğer sohbetler şehrin içinde açılır.</li>');
+    if (list.dataset.h !== html) { list.dataset.h = html; list.innerHTML = html; }
+  }
+}
+if ($('msgs')) $('msgs').addEventListener('click', e => {
+  const t = e.target.closest('[data-th]'), a = e.target.closest('[data-msg]'), C = city();
+  if (t) { msgOpen = t.dataset.th; msgRender(); return; }
+  if (a && a.dataset.msg === 'inbox') { msgOpen = null; msgRender(); return; }
+  if (a && a.dataset.msg === 'finddev' && C) { if (C.phone) C.phone.close(); setTimeout(() => C.findDeveloper && C.findDeveloper(), 60); }
+});
+/* ana ekran: Mesajlar simgesinde okunmamış sayısı; yeni mesaj gelince üstten bildirim (dokununca o sohbet açılır) */
+function msgTick() {
+  const th = threads(), n = th.reduce((k, t) => k + t.msgs.length, 0), un = th.reduce((k, t) => k + t.unread, 0);
+  const ico = document.querySelector('[data-open="msgs"] .ico');
+  if (ico) { let b = ico.querySelector('.nb'); if (!b) { b = document.createElement('i'); b.className = 'nb'; ico.appendChild(b); } b.textContent = un > 9 ? '9+' : un; b.hidden = !un; }
+  const pg = $('pages'), dots = $('dots'), app = document.querySelector('[data-open="msgs"]');   // Mesajlar başka sayfadaysa o sayfanın noktası kırmızı
+  if (pg && dots && app) { const k = [...pg.children].indexOf(app.closest('.apps')); [...dots.children].forEach((d, i) => d.classList.toggle('new', i === k && un > 0 && !d.classList.contains('on'))); }
+  if (msgLastN !== undefined && n > msgLastN && !(current && current.id === 'msgs')) {
+    const t = th.slice().sort((p, q) => q.k - p.k).find(x => x.unread && !x.last.loc), tt = $('toast');
+    if (t && tt) {
+      tt.innerHTML = `<span class="ti" style="background:${t.col};color:#fff">${t.svg ? SV(t.svg) : esc(t.ico)}</span><span class="tx"><b>${esc(t.who)} <i>şimdi</i></b><span>${esc(t.last.text)}</span></span>`;
+      tt.dataset.go = 'msgs:' + t.id; tt.hidden = false; tt.classList.remove('in'); void tt.offsetWidth; tt.classList.add('in');
+      clearTimeout(toastT); toastT = setTimeout(() => { tt.classList.remove('in'); setTimeout(() => { if (!tt.classList.contains('in')) tt.hidden = true; }, 300); }, 5000);
+    }
+  }
+  msgLastN = n;
+}
+
+/* ---------- Ayarlar: dil (her yerde), şehirde grafik kalitesi, canlı saat, canlı hava, saate göre trafik, rastgele olaylar; Kedidex'i sıfırla ---------- */
+function setRender() {
+  const C = city(), pd = C ? window.parent.document : null, q = pd && pd.getElementById('quality');
+  const row = (label, ctrl, note) => `<li><span class="tx"><b>${label}</b>${note ? `<small>${note}</small>` : ''}</span>${ctrl}</li>`;
+  const tog = (id, on) => `<button type="button" class="sw${on ? ' on' : ''}" data-set="${id}" aria-pressed="${on}">${on ? (LG === 'en' ? 'On' : 'Açık') : (LG === 'en' ? 'Off' : 'Kapalı')}</button>`;   // sözlükten geçmez: 'Açık' havada 'Clear' demek
+  const en = window.MSLang && MSLang.en;
+  let html = row('Dil', `<span class="seg"><button type="button" data-set="lang-tr"${en ? '' : ' class="on"'}>TR</button><button type="button" data-set="lang-en"${en ? ' class="on"' : ''}>EN</button></span>`);
+  if (C) {
+    html += row('Grafik kalitesi', `<select data-set="quality">${q ? [...q.options].map(o => `<option value="${esc(o.value)}"${o.value === q.value ? ' selected' : ''}>${esc(o.textContent)}</option>`).join('') : ''}</select>`, 'Değişince şehir yeniden yüklenir.') +
+      row('Canlı saat', tog('clock', !!C.liveClock), 'Gerçek Türkiye saati') + row('Canlı hava', tog('wx', !!(C.weather && C.weather.live)), 'Ankara\'nın şu anki havası') +
+      row('Saate göre trafik', tog('traffic', !!C.trafficAuto), 'Ankara\'nın 2025 ortalaması') + row('Rastgele olaylar', tog('events', !!C.eventsOn), 'Yangın, kaza, hırsızlık');
+  }
+  html += row('Kedidex', `<button type="button" class="sw danger" data-set="dex">${dexArm ? 'Emin misin?' : 'Sıfırla'}</button>`, 'Tanıştığın kediler silinir.');
+  const l = $('setList'); if (l.dataset.h !== html) { l.dataset.h = html; l.innerHTML = html; }
+}
+let dexArm = false;
+if ($('setList')) {
+  $('setList').addEventListener('click', e => {
+    const b = e.target.closest('button[data-set]'); if (!b) return;
+    const C = city(), k = b.dataset.set;
+    if (k === 'lang-tr' || k === 'lang-en') { const L = C && window.parent.MSLang ? window.parent.MSLang : window.MSLang; if (L) L.set(k.slice(5)); return; }   // şehirdeysek bütün sayfa dil değiştirir
+    if (k === 'clock' && C) C.setLiveClock(!C.liveClock);
+    if (k === 'wx' && C && C.weather) { if (C.weather.live) C.weather.set(C.weather.pick || 'clear'); else C.weather.setLive(true); }
+    if (k === 'traffic' && C) { if (C.trafficAuto) { const v = C.trafficPeak * C.trafficLevel().v; C.trafficAuto = false; C.setDensity(v); } else C.setTrafficAuto(true); if (C.syncTraffic) C.syncTraffic(); }
+    if (k === 'events' && C) { const chk = window.parent.document.getElementById('eventsChk'); if (chk) chk.click(); else C.eventsOn = !C.eventsOn; }
+    if (k === 'dex') { if (!dexArm) { dexArm = true; setTimeout(() => { dexArm = false; setRender(); }, 3000); } else { dexArm = false; try { const d = JSON.parse(localStorage.getItem(DEX_KEY)) || {}; d.seen = {}; localStorage.setItem(DEX_KEY, JSON.stringify(d)); } catch (er) {} } }
+    setRender();
+  });
+  $('setList').addEventListener('change', e => {
+    const s = e.target.closest('select[data-set="quality"]'), C = city(); if (!s || !C) return;
+    const q = window.parent.document.getElementById('quality'); if (q) { q.value = s.value; q.dispatchEvent(new Event('change', { bubbles: true })); }
+  });
+}
+
+/* ---------- Kamera ve galeri: şehrin o anki görüntüsü (yalnızca 3B sahne, arayüz yok), tarayıcıda IndexedDB'de saklanır (en çok 24) ---------- */
+const GAL_MAX = 24;
+const galDb = () => new Promise((res, rej) => { const r = indexedDB.open('ms-gallery', 1); r.onupgradeneeded = () => r.result.createObjectStore('photos', { keyPath: 'id' }); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+const galTx = (mode, f) => galDb().then(db => new Promise((res, rej) => { const tx = db.transaction('photos', mode), st = tx.objectStore('photos'); const out = f(st); tx.oncomplete = () => res(out && out.result !== undefined ? out.result : out); tx.onerror = () => rej(tx.error); }));
+const galAll = () => galTx('readonly', st => st.getAll()).then(a => (a || []).sort((p, q) => q.id - p.id));
+let galUrls = [], galView = null, galBusy = false;
+function galRender() {
+  const C = city();
+  $('camShoot').hidden = !C; $('camNote').textContent = C ? 'Şehrin şu anki görüntüsünü çeker; arayüz görünmez. Fotoğraflar yalnızca bu tarayıcıda saklanır.' : 'Fotoğraf şehrin içinde çekilir; çektiklerin burada görünür.';
+  galAll().then(list => {
+    galUrls.forEach(u => URL.revokeObjectURL(u)); galUrls = [];
+    const html = list.length ? list.map(p => { const u = URL.createObjectURL(p.blob); galUrls.push(u); return `<li><button type="button" data-ph="${p.id}"><img src="${u}" alt="${esc(p.place)}"></button><small>${esc(p.place)} · ${esc(new Date(p.id).toLocaleString(LOC, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }))}</small></li>`; }).join('') : '<li class="empty">Henüz fotoğraf yok.</li>';
+    $('galList').innerHTML = html;
+  }).catch(() => { $('galList').innerHTML = '<li class="empty">Bu tarayıcıda galeri açılamadı.</li>'; });
+}
+function shoot() {
+  const C = city(); if (!C || galBusy) return; galBusy = true;
+  const pd = window.parent.document;
+  if (C.phone) C.phone.close();
+  setTimeout(() => {
+    C.renderer.render(C.scene, C.camera);                             // çizimden hemen sonra okunur (preserveDrawingBuffer gerekmez)
+    const src = C.renderer.domElement, W = Math.min(1280, src.width), H = Math.round(src.height * W / src.width), cv = document.createElement('canvas');
+    cv.width = W; cv.height = H; cv.getContext('2d').drawImage(src, 0, 0, W, H);
+    const flash = pd.createElement('div'); flash.style.cssText = 'position:fixed;inset:0;background:#fff;z-index:99;pointer-events:none;transition:opacity .45s'; pd.body.appendChild(flash);
+    requestAnimationFrame(() => { flash.style.opacity = '0'; setTimeout(() => flash.remove(), 500); });
+    const tg = C.controls.target, place = (C.districtAt ? C.districtAt(tg.x, tg.z).name : 'Ankara');
+    cv.toBlob(blob => {
+      galTx('readwrite', st => st.put({ id: Date.now(), place, blob }))
+        .then(() => galAll()).then(list => galTx('readwrite', st => { for (const p of list.slice(GAL_MAX)) st.delete(p.id); }))
+        .catch(() => {}).finally(() => { galBusy = false; setTimeout(() => { if (C.phone) C.phone.open(); setTimeout(() => show('camera'), 350); }, 700); });
+    }, 'image/jpeg', 0.86);
+  }, 650);
+}
+if ($('camShoot')) $('camShoot').addEventListener('click', shoot);
+if ($('galList')) $('galList').addEventListener('click', e => {
+  const b = e.target.closest('[data-ph]'); if (!b) return;
+  galAll().then(list => { const p = list.find(x => x.id === +b.dataset.ph); if (!p) return; galView = p; const u = URL.createObjectURL(p.blob); galUrls.push(u);
+    $('galBig').src = u; $('galDl').href = u; $('galDl').download = 'mikro-sehir-' + new Date(p.id).toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.jpg'; $('galView').hidden = false; });
+});
+if ($('galView')) $('galView').addEventListener('click', e => {
+  if (e.target.closest('#galDel') && galView) { const id = galView.id; galView = null; $('galView').hidden = true; galTx('readwrite', st => st.delete(id)).finally(galRender); }
+  else if (e.target.closest('#galClose') || e.target === $('galView')) { galView = null; $('galView').hidden = true; }
+});
+const LIVE = { city: [cityRender, 2000], map: [mapRender, 400], agenda: [agendaRender, 5000], catdex: [dexRender, 3000], league: [leagueRender, 5000],
+  gh: [ghRender, 30000], msgs: [msgRender, 3000], settings: [setRender, 2000], camera: [galRender, 60000] };   // açıkken yenilenen uygulamalar
 window.addEventListener('resize', () => { mapBase = null; });
 
 /* ---------- bildirim: şehirde yeni bir olay olunca üstten Ankara Haber bildirimi ---------- */
@@ -510,12 +730,13 @@ function watchEvents() {
   if (!ev || ev.id === lastEv) return;
   lastEv = ev.id;
   const t = $('toast'); if (!t) return;
+  t.dataset.go = '';
   t.innerHTML = `<span class="ti">${SV('news')}</span><span class="tx"><b>Ankara Haber <i>şimdi</i></b><span>${esc(ev.title)} · ${esc(ev.place)}</span></span>`;
   t.hidden = false; t.classList.remove('in'); void t.offsetWidth; t.classList.add('in');
   clearTimeout(toastT); toastT = setTimeout(() => { t.classList.remove('in'); setTimeout(() => { if (!t.classList.contains('in')) t.hidden = true; }, 300); }, 5000);
 }
-if ($('toast')) $('toast').addEventListener('click', () => { $('toast').hidden = true; show('city'); });
-function homeTick() { paintWall(); paintMinis(); watchEvents(); }
+if ($('toast')) $('toast').addEventListener('click', () => { const t = $('toast'), g = t.dataset.go || ''; t.hidden = true; t.dataset.go = ''; if (g.startsWith('msgs:')) { msgOpen = g.slice(5); show('msgs'); } else show('city'); });
+function homeTick() { paintWall(); paintMinis(); watchEvents(); msgTick(); }
 homeTick(); setInterval(homeTick, 1000);
 
 /* ---------- gezinme: uygulama açılır, geri ya da Esc ana ekrana döner. Tam ekran yalnızca elle (şehirde telefonun ⤢ düğmesi, tek başınayken sayfadaki düğme) ---------- */
@@ -544,7 +765,7 @@ function home() {
   return true;
 }
 document.addEventListener('click', e => {
-  const o = e.target.closest('[data-open]'); if (o) { show(o.dataset.open, o); return; }
+  const o = e.target.closest('[data-open]'); if (o) { if (o.dataset.open === 'msgs') msgOpen = null; show(o.dataset.open, o); return; }
   const dt = e.target.closest('[data-detail]'); if (dt) { openDetail(dt.dataset.detail, dt); return; }
   const to = e.target.closest('[data-to]'); if (to) { show(to.dataset.to); return; }
   const cp = e.target.closest('.copy');
@@ -557,5 +778,5 @@ document.addEventListener('keydown', e => {
   if (!home()) tell({ type: 'phone-close' });                       // ana ekrandaysa telefonu kapat
 });
 window.addEventListener('message', e => { if (e.data && e.data.type === 'phone-home') home(); });   // telefon kapanınca ana ekrana dön
-const start = location.hash.slice(1); if (['projects', 'about', 'contact', 'city', 'map', 'agenda', 'catdex', 'league'].includes(start)) show(start); else if (start.startsWith('projects/')) openDetail(start.slice(9));
+const start = location.hash.slice(1); if (['projects', 'about', 'contact', 'city', 'map', 'agenda', 'catdex', 'league', 'gh', 'msgs', 'settings', 'camera'].includes(start)) show(start); else if (start.startsWith('projects/')) openDetail(start.slice(9));
 })();

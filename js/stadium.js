@@ -189,14 +189,25 @@ function stepPlayers(dt) {
   }
   if (holder && (holdT -= dt) <= 0) decide(holder);
 }
+/* fırtına: başlama düdüğünden önce fırtına varsa maç ertelenir (o gün o saat için; fırtına dinse de oynanmaz). Maç başladıktan sonra
+   çıkan fırtına maçı durdurmaz. M.postponed = { slot, day }: telefon (Ajanda, Lig, Harita) ve Ankara Haber okur */
+const dayKey = () => { const d = new Date(Date.now() + 3 * 3600e3); return d.getUTCFullYear() + '-' + d.getUTCMonth() + '-' + d.getUTCDate(); };
+const stormy = () => { const w = C.weather && C.weather.cur; return !!w && w.storm > 0.5; };
+function postponedNow(S) {
+  if (M.postponed && M.postponed.slot === S.s && M.postponed.day === dayKey()) return true;
+  if (S.el < HT && stormy()) { M.postponed = { slot: S.s, day: dayKey() }; drawBoard(); return true; }   // düdükten önce ya da ilk yarıda açılan sayfada fırtına
+  return false;
+}
+C.matchPostponed = s => !!(M.postponed && M.postponed.slot === s && M.postponed.day === dayKey());
 function stepMatch(dt) {
   /* saate göre evre: devre arası, ikinci yarı, maç sonu; saat ileri sarılırsa da tutarlı */
   const S = clockState();
   if (!S || S.s !== M.slot) { stopMatch(); return; }
+  if (S.el < 0 && stormy()) { M.postponed = { slot: S.s, day: dayKey() }; stopMatch(); return; }   // tribünler dolarken fırtına çıktı
   const m0 = M.min; M.min = playedOf(S.el);
   if (S.el < 0) { M.ph = 'pre'; }
   else if (S.el < HT) { if (M.ph === 'pre') { ball.visible = true; kickoff(M.kick0, false); } }
-  else if (S.el < HT_END) { if (M.ph !== 'half') { M.ph = 'half'; holder = null; bv.x = bv.z = 0; ball.visible = false; drawBoard(); } }
+  else if (S.el < HT_END) { if (M.ph !== 'half') { M.ph = 'half'; M.ht = { slot: M.slot, score: M.score.slice() }; holder = null; bv.x = bv.z = 0; ball.visible = false; drawBoard(); } }   // ilk yarı skoru (telefondaki Maç Bülteni)
   else if (S.el < FT) { if (M.half === 1 || M.ph === 'half' || M.ph === 'pre') { M.half = 2; ball.visible = true; kickoff(1 - M.kick0, true); } }
   else if (M.ph !== 'end') { M.ph = 'end'; holder = null; bv.x = bv.z = 0; M.last = { teams: M.teams.map(t => t.name), score: M.score.slice(), slot: M.slot }; drawBoard(); }   // son maç sonucu (telefondaki haberler ve ajanda)
   /* saat hızlı akınca (Günü ilerlet) atlanan dakikalarda da gol olabilir; gerçek sürede kare başına fark çok küçük, eklenmez */
@@ -214,7 +225,11 @@ function drawBoard() {
   x.fillStyle = '#10161c'; x.fillRect(0, 0, w, h);
   x.textAlign = 'center'; x.textBaseline = 'middle';
   const f = (s, wt) => `${wt || 800} ${s}px "Big Shoulders Display","Arial Narrow",sans-serif`;
-  if (!M.teams || (!M.on && M.ph === 'off')) { x.fillStyle = '#ffb53d'; x.font = f(56); x.fillText('ANKARA STADI', w / 2, h / 2 - 14); x.fillStyle = '#9aa7b3'; x.font = f(30, 600); x.fillText('Maçlar ' + C.matchTimes.join(' ve '), w / 2, h / 2 + 34); sbTex.needsUpdate = true; return; }
+  if (!M.teams || (!M.on && M.ph === 'off')) {
+    const pp = M.postponed && M.postponed.day === dayKey();
+    x.fillStyle = '#ffb53d'; x.font = f(56); x.fillText(pp ? 'MAÇ ERTELENDİ' : 'ANKARA STADI', w / 2, h / 2 - 14); x.fillStyle = '#9aa7b3'; x.font = f(30, 600);
+    x.fillText(pp ? 'FIRTINA NEDENİYLE · ' + C.matchTimes[SLOTS.indexOf(M.postponed.slot)] : 'Maçlar ' + C.matchTimes.join(' ve '), w / 2, h / 2 + 34); sbTex.needsUpdate = true; return;
+  }
   const [a, b] = M.teams;
   x.fillStyle = a.kit[0]; x.fillRect(18, 24, 14, 72); x.fillStyle = b.kit[0]; x.fillRect(w - 32, 24, 14, 72);
   x.fillStyle = '#f2f2ee'; x.font = f(62); x.fillText(a.short, 110, 60); x.fillText(b.short, w - 110, 60);
@@ -226,7 +241,7 @@ function drawBoard() {
 drawBoard();
 C.nightListeners.push(n => { sbMat.emissiveIntensity = 0.6 + n * 0.5; });
 /* kart satırı */
-L.rows.push(['Maç', () => M.on ? `${team(0).name} ${M.score[0]} - ${M.score[1]} ${team(1).name} · ${M.ph === 'pre' ? 'birazdan' : M.ph === 'half' ? 'devre arası' : M.ph === 'end' ? 'maç sonu' : Math.floor(M.min) + "'"}` : 'Bugün ' + C.matchTimes.join(' ve ')]);
+L.rows.push(['Maç', () => !M.on && C.matchPostponed(M.postponed ? M.postponed.slot : -1) ? 'Fırtına nedeniyle ertelendi' : M.on ? `${team(0).name} ${M.score[0]} - ${M.score[1]} ${team(1).name} · ${M.ph === 'pre' ? 'birazdan' : M.ph === 'half' ? 'devre arası' : M.ph === 'end' ? 'maç sonu' : Math.floor(M.min) + "'"}` : 'Bugün ' + C.matchTimes.join(' ve ')]);
 C.match = M;
 
 /* ---------- tribün yerleri ---------- */
@@ -240,7 +255,7 @@ const devSeat = fanSeats.reduce((b, s) => s.z < 0 && Math.abs(s.x) < 1 && (!b ||
 M.seat = devSeat ? { x: OX + devSeat.x, y: devSeat.y, z: OZ + devSeat.z, ry: devSeat.ry, team: devSeat.x < 0 ? 0 : 1, ref: devSeat } : null;
 
 return function (dt, t, D) {
-  if (!M.on) { if ((M.wait -= dt) <= 0) { M.wait = 1; const S = clockState(); if (S) startMatch(S); } }   // saniyede bir takvime bakar
+  if (!M.on) { if ((M.wait -= dt) <= 0) { M.wait = 1; const S = clockState(); if (S && !postponedNow(S)) startMatch(S); } }   // saniyede bir takvime bakar
   else stepMatch(dt);
   const vis = M.on && D <= 130 && Math.hypot(C.camera.position.x - OX, C.camera.position.z - OZ) < 260;
   players.group.visible = fans.group.visible = vis;

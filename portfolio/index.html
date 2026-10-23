@@ -32,6 +32,7 @@
       <span class="pill" id="status"></span>
     </div>
     <div class="minis" id="minis" aria-label="Araçlar"></div>
+    <div class="pages" id="pages">
     <nav class="apps" aria-label="Uygulamalar">
       <button class="app" data-open="projects"><span class="ico" style="--c:#ff9f43" data-icon="folder"></span>Projeler</button>
       <button class="app" data-open="about"><span class="ico" style="--c:#54a0ff" data-icon="user"></span>Hakkımda</button>
@@ -42,6 +43,14 @@
       <button class="app" data-open="catdex"><span class="ico" style="--c:#a06cd5" data-icon="cat"></span>Kedidex</button>
       <button class="app" data-open="league"><span class="ico" style="--c:#3b8b4a" data-icon="trophy"></span>Lig</button>
     </nav>
+    <nav class="apps" aria-label="Uygulamalar, ikinci sayfa">
+      <button class="app" data-open="gh"><span class="ico" style="--c:#2b3036" data-icon="github"></span>GitHub</button>
+      <button class="app" data-open="camera"><span class="ico" style="--c:#4a5a6b" data-icon="camera"></span>Kamera</button>
+      <button class="app" data-open="msgs"><span class="ico" style="--c:#2e9e5b" data-icon="message"></span>Mesajlar</button>
+      <button class="app" data-open="settings"><span class="ico" style="--c:#6b7480" data-icon="gear"></span>Ayarlar</button>
+    </nav>
+    </div>
+    <div class="dots" id="dots" aria-label="Sayfalar"></div>
     <div class="dockbar" aria-label="Kısayollar" id="dockbar"></div>
   </section>
 
@@ -73,6 +82,23 @@
     <header><div class="url" data-path="lig"></div><button class="back" data-home>‹ Ana ekran</button><h2>Lig</h2>
       <div class="tabs" role="tablist"><button role="tab" data-tab="semt">Semt Ligi</button><button role="tab" data-tab="super">Süper Lig</button></div></header>
     <div class="body" id="leagueBody"></div>
+  </section>
+  <section class="screen app-view" id="gh" aria-label="GitHub" hidden>
+    <header><div class="url" data-path="github"></div><button class="back" data-home>‹ Ana ekran</button><h2>GitHub</h2><p class="sub">Son çalışmalar</p></header>
+    <div class="body" id="ghBody"></div>
+  </section>
+  <section class="screen app-view" id="msgs" aria-label="Mesajlar" hidden>
+    <header><div class="url" data-path="mesajlar"></div><button class="back" data-home>‹ Ana ekran</button><h2>Mesajlar</h2></header>
+    <div class="body msgbody"><ul class="inbox" id="msgList"></ul><div class="thread" id="msgThread" hidden></div></div>
+  </section>
+  <section class="screen app-view" id="settings" aria-label="Ayarlar" hidden>
+    <header><div class="url" data-path="ayarlar"></div><button class="back" data-home>‹ Ana ekran</button><h2>Ayarlar</h2></header>
+    <div class="body"><ul class="setlist" id="setList"></ul></div>
+  </section>
+  <section class="screen app-view" id="camera" aria-label="Kamera" hidden>
+    <header><div class="url" data-path="kamera"></div><button class="back" data-home>‹ Ana ekran</button><h2>Kamera</h2><p class="sub" id="camNote"></p></header>
+    <div class="body"><button type="button" class="shoot" id="camShoot">Fotoğraf çek</button><ul class="gal" id="galList"></ul></div>
+    <div class="galview" id="galView" hidden><img id="galBig" alt=""><div class="links"><a id="galDl" href="#">İndir</a><button type="button" id="galDel" class="ghost">Sil</button><button type="button" id="galClose" class="ghost">Kapat</button></div></div>
   </section>
   <section class="screen app-view" id="about" aria-label="Hakkımda" hidden>
     <header><div class="url" data-path="hakkimda"></div><button class="back" data-home>‹ Ana ekran</button><h2>Hakkımda</h2></header>

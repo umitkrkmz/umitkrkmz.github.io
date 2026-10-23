@@ -564,6 +564,86 @@ L.add({
   "Skorlar tarihten tohumlanır, herkes aynı tabloyu görür; eşleşmeler rastgele olduğu için takımların maç sayısı eşit değil. Galibiyet 3, beraberlik 1 puan.": "Scores are seeded from the date, so everyone sees the same table; pairings are random, so teams have not played the same number of matches. 3 points for a win, 1 for a draw.",
   "Resmî olmayan bir uç nokta; 30 dakikada bir yenilenir. Ankara'nın takımı vurgulu.": "An unofficial endpoint, refreshed every 30 minutes. Ankara's team is highlighted."
 });
+/* fırtınada ertelenen maç */
+L.add({
+  "Maç fırtına nedeniyle ertelendi": "Match postponed because of the storm",
+  "fırtına nedeniyle ertelendi": "postponed because of the storm",
+  "Fırtına maçı erteledi": "The storm postponed the match",
+  "Saat {next} maçı şiddetli fırtına nedeniyle ertelendi. Taraftarlar stadyumun saçak altında bekledi.": "The {next} match was postponed because of a severe storm. Fans waited under the stadium roof.",
+  "Ankara Stadı'nda maç yok": "No match at Ankara Stadium",
+  "Hakem kurulu yıldırım riski yüzünden {next} karşılaşmasını erteledi. Yeni tarih daha sonra açıklanacak.": "The referees postponed the {next} match because of the risk of lightning. A new date will be announced later."
+});
+/* telefon: ikinci sayfa (GitHub, Kamera, Mesajlar, Ayarlar) */
+L.add({
+  "GitHub": "GitHub",
+  "Kamera": "Camera",
+  "Mesajlar": "Messages",
+  "Ayarlar": "Settings",
+  "Son çalışmalar": "Recent work",
+  "Yükleniyor…": "Loading…",
+  "GitHub şu an yanıt vermiyor.": "GitHub isn't responding right now.",
+  "gönderim": "pushes",
+  "sürüm": "releases",
+  "depo": "repos",
+  "etkinlik": "events",
+  "Yeni depo açıldı": "New repository created",
+  "GitHub'ın herkese açık etkinlik akışı (son 90 gün, en çok 40 olay)": "GitHub's public activity feed (last 90 days, up to 40 events)",
+  "Merhaba! Telefonuma hoş geldin.": "Hi! Welcome to my phone.",
+  "Projelerime göz attın mı? Bir sorun ya da fikrin olursa yaz.": "Have you looked at my projects? If you have a question or an idea, write to me.",
+  "E-posta gönder": "Send an email",
+  "Reis": "Reis",
+  "Toplantı başladı, nerede kaldın?": "The meeting has started, where are you?",
+  "Bu gece 21.30'da meclis toplanıyor.": "The council meets tonight at 21:30.",
+  "Yağmur var, saçak altında buluşuyoruz.": "It's raining, we're meeting under the eaves.",
+  "Mama getirirsen sıra sende.": "Bring food and you get the floor.",
+  "Şu an bir hırsızın peşindeyim, sonra yazarım!": "I'm chasing a thief right now, I'll write later!",
+  "Çatılar sakin, devriyedeyim.": "The rooftops are quiet, I'm on patrol.",
+  "Bugün henüz kimseyi yakalamadım.": "I haven't caught anyone yet today.",
+  "Kediler ağıma dokunmasın lütfen.": "Please tell the cats to stay off my webs.",
+  "Maç fırtına nedeniyle ertelendi.": "The match was postponed because of the storm.",
+  "Bugünkü maçlar bitti, yarın 13.30'da görüşürüz.": "Today's matches are over, see you tomorrow at 13:30.",
+  "Biletler gişede, tribünde yer var.": "Tickets at the box office, there are seats in the stands.",
+  "Diğer sohbetler şehrin içinde açılır.": "The other chats open inside the city.",
+  "Dil": "Language",
+  "Grafik kalitesi": "Graphics quality",
+  "Değişince şehir yeniden yüklenir.": "The city reloads when you change it.",
+  "Canlı saat": "Live clock",
+  "Gerçek Türkiye saati": "Real Turkish time",
+  "Canlı hava": "Live weather",
+  "Ankara'nın şu anki havası": "Ankara's current weather",
+  "Saate göre trafik": "Traffic by hour",
+  "Ankara'nın 2025 ortalaması": "Ankara's 2025 average",
+  "Rastgele olaylar": "Random events",
+  "Yangın, kaza, hırsızlık": "Fires, accidents, thefts",
+  "Sıfırla": "Reset",
+  "Emin misin?": "Are you sure?",
+  "Tanıştığın kediler silinir.": "The cats you have met are erased.",
+  "Fotoğraf çek": "Take a photo",
+  "Henüz fotoğraf yok.": "No photos yet.",
+  "Bu tarayıcıda galeri açılamadı.": "The gallery couldn't open in this browser.",
+  "Şehrin şu anki görüntüsünü çeker; arayüz görünmez. Fotoğraflar yalnızca bu tarayıcıda saklanır.": "Captures the city as it is right now, without the interface. Photos are stored only in this browser.",
+  "Fotoğraf şehrin içinde çekilir; çektiklerin burada görünür.": "Photos are taken inside the city; the ones you take appear here.",
+  "İndir": "Download",
+  "Sil": "Delete",
+  "Kapat": "Close",
+  "Uygulamalar, ikinci sayfa": "Apps, second page",
+  "Sayfalar": "Pages"
+});
+/* Mesajlar (sohbetler) */
+L.add({
+  "Bu gece 21.30'da meclis var, unutma.": "Council meeting tonight at 21:30, don't forget.",
+  "Toplantı başladı. Yağmur var, saçak altındayız.": "The meeting has started. It's raining, we're under the eaves.",
+  "Toplantı bitti, kararlar yarın panoda. İyi geceler.": "The meeting is over; the decisions go on the board tomorrow. Good night.",
+  "Günaydın! Çatılara çıkıyorum, devriye başladı.": "Good morning! I'm heading up to the rooftops, patrol has started.",
+  "Bugün 13.30 ve 19.00'da Ankara Stadı'nda maç var.": "There are matches at Ankara Stadium today at 13:30 and 19:00.",
+  "Maç Bülteni": "Match Bulletin",
+  "Canlı konum paylaştı": "Shared a live location",
+  "Canlı konum": "Live location",
+  "Konumum şehrin içinde görünür.": "My location shows up inside the city.",
+  "Haritada göster": "Show on map",
+  "‹ Mesajlar": "‹ Messages",
+  "şimdi": "now"
+});
 const R = L.rule;
 R(/^Son güncelleme: (.+)$/, d => `Updated: ${t(d)}`);
 R(/^(\d+) gün önce$/, n => `${n} days ago`);
@@ -577,6 +657,27 @@ R(/^(.+) – (.+) · (\d+) maç$/, (a, b, n) => `${a} – ${b} · ${n} matches`)
 R(/^(\d+)\. haftadan sonra$/, n => `after matchweek ${n}`);
 R(/^Skor dağılımı ve ev sahibi avantajı gerçek Süper Lig'den: (.+), (.+) maç\.$/, (y, n) => `The score distribution and home advantage come from the real Süper Lig: ${y}, ${n} matches.`);
 R(/^ESPN'den alındı: (.+)$/, a => `Fetched from ESPN: ${a}`);
+/* ikinci sayfa: değişkenli metinler */
+R(/^(\d+) kez güncellendi$/, n => `updated ${n} time${n === '1' ? '' : 's'}`);
+R(/^(.+) itibarıyla$/, a => `since ${t(a)}`);
+R(/^Sürüm yayımlandı: (.+)$/, a => `Release published: ${a}`);
+R(/^Etiket: (.+)$/, a => `Tag: ${a}`);
+R(/^Alındı: (.+)$/, a => `Fetched: ${a}`);
+R(/^Şu an: (.+)$/, a => `Right now: ${t(a)}`);
+R(/^Gündem: (.+)\.$/, a => `Agenda: ${t(a)}.`);
+R(/^Bugün (\d+) hırsız yakaladım\.$/, n => `I caught ${n} thie${n === '1' ? 'f' : 'ves'} today.`);
+R(/^Maç sürüyor: (.+)\.$/, a => `Match on: ${a}.`);
+R(/^Sıradaki maç (\d\d\.\d\d): (.+)\.$/, (h, a) => `Next match ${h}: ${a}.`);
+R(/^Sayfa (\d+)$/, n => `Page ${n}`);
+/* Mesajlar: değişkenli */
+R(/^Yarım saat sonra toplanıyoruz\. Gündem: (.+)\.$/, a => `We meet in half an hour. Agenda: ${t(a)}.`);
+R(/^(.+) tarafında hırsızlık var, peşindeyim!$/, p => `There's a theft near ${p}, I'm on it!`);
+R(/^Olay kapandı: (.+)\.$/, a => `Case closed: ${t(a)}.`);
+R(/^Bugün (\d+) hırsız yakaladım\. Şehir güvende\.$/, n => `I caught ${n} thie${n === '1' ? 'f' : 'ves'} today. The city is safe.`);
+R(/^(\d\d\.\d\d) maçı fırtına nedeniyle ertelendi\.$/, h => `The ${h} match was postponed because of the storm.`);
+R(/^Maç başlıyor \((\d\d\.\d\d)\): (.+)\.$/, (h, a) => `Kick-off (${h}): ${a}.`);
+R(/^Devre arası: (.+)\.$/, a => `Half time: ${a}.`);
+R(/^Maç sonu: (.+)\.$/, a => `Full time: ${a}.`);
 R(/^Devre arası · (.+)$/, x => `Half time · ${x}`);
 R(/^Maç sürüyor · (\d+)' · (.+)$/, (m, x) => `Match on · ${m}' · ${x}`);
 R(/^Sıradaki maç (yarın )?(\d\d\.\d\d)$/, (y, h) => `Next match ${y ? 'tomorrow ' : ''}${h}`);
@@ -586,6 +687,7 @@ R(/^Gündem: (.+)$/, a => `Agenda: ${t(a)}`);
 R(/^Şimdi · (\d\d:\d\d)$/, h => `Now · ${h}`);
 R(/^(.+ – .+) · tribünler doluyor$/, a => `${a} · stands filling up`);
 R(/^(.+ – .+) · devre arası (\d+-\d+)$/, (a, x) => `${a} · half time ${x}`);
+R(/^(.+ – .+) · fırtına nedeniyle ertelendi$/, a => `${a} · postponed because of the storm`);
 R(/^(.+ – .+) · bitti (\d+-\d+)$/, (a, x) => `${a} · full time ${x}`);
 R(/^En çok sevilen: (.+) \((\d+) kez\)$/, (n, k) => `Most petted: ${n} (${k} time${k === '1' ? '' : 's'})`);
 R(/^(\d+) kez · (.+)$/, (n, x) => `${n} time${n === '1' ? '' : 's'} · ${t(x)}`);

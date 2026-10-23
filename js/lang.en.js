@@ -255,6 +255,7 @@ L.add({
 });
 /* değişkenli metinler */
 L.rule(/^(.+) · yağış$/, n => `${t(n)} · rain`);
+L.add({ 'Fırtına nedeniyle ertelendi': 'Postponed because of the storm' });
 L.rule(/^(.+) · Ankara ortalaması %(\d+)$/, (a, n) => `${t(a)} · Ankara average ${n}%`);
 const R = L.rule;
 R(/^E: Kediyi sev \((.+?), (.+)\) · Q: Kucağına al$/, (n, c) => `E: Pet the cat (${n}, ${t(c)}) · Q: Pick up`);

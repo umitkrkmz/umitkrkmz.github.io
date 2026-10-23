@@ -199,11 +199,11 @@ const near = (x, z) => { const t = C.controls ? C.controls.target : { x: 0, z: 0
 const prefer = list => { const close = list.filter(o => near(o.x, o.z) < 260); return pick(close.length && Math.random() < 0.7 ? close : list); };
 function addEvent(ev) {
   C.cityStats[ev.type] = (C.cityStats[ev.type] || 0) + 1;
-  ev.id = nextId++; ev.time = clock(); ev.done = false; ev.age = 0; active.push(ev); log.unshift(ev);
+  ev.id = nextId++; ev.time = clock(); ev.hour = C.hour; ev.done = false; ev.age = 0; active.push(ev); log.unshift(ev);
   if (log.length > 6) log.length = 6;
   renderFeed(ev.id);
 }
-function setStatus(ev, text, done) { ev.status = text; if (done && !ev.done) { ev.done = true; ev.doneAge = ev.age; } renderFeed(); }
+function setStatus(ev, text, done) { ev.status = text; if (done && !ev.done) { ev.done = true; ev.doneAge = ev.age; ev.doneHour = C.hour; } renderFeed(); }   // doneHour: telefondaki mesajlar
 const cocoonMat = new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: 0.9, transparent: true, opacity: 0.8 });
 
 function startFire() {
@@ -458,7 +458,8 @@ const tkey = () => C.trafficLevel ? C.trafficLevel().key : 'day';
 const nextGap = () => (240 + Math.random() * 240) * (tkey() === 'night' ? 1.5 : 1);
 function randomType() {
   const k = tkey(), rush = k === 'morning' || k === 'evening', night = k === 'night';
-  const w = { fire: 0.3, accident: rush ? 0.5 : 0.3, crime: night ? 0.45 : 0.2, pedestrian: rush ? 0.25 : night ? 0.08 : 0.2 };
+  const W = C.weather && C.weather.cur, wet = W ? Math.min(1, W.rain + W.snow) : 0;   // ıslak ya da karlı yolda kaza biraz daha olası (varsayım)
+  const w = { fire: 0.3 - wet * 0.1, accident: (rush ? 0.5 : 0.3) + wet * 0.25, crime: night ? 0.45 : 0.2, pedestrian: rush ? 0.25 : night ? 0.08 : 0.2 };
   let r = Math.random() * (w.fire + w.accident + w.crime + w.pedestrian);
   for (const t in w) if ((r -= w[t]) < 0) return t;
   return 'fire';

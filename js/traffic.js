@@ -464,13 +464,28 @@ C.buildPeople = function () {
   const r = C.rng(77);
   for (const blk of C.blocks) {
     const n = Math.max(1, Math.round((blk.kind === 'plaza' ? 6 : blk.kind === 'park' ? 3 : 2 + Math.floor(r() * 3)) * C.Q.crowd));
-    for (let k = 0; k < n; k++) people.push({ blk, f: r(), dir: r() < 0.5 ? 1 : -1, sp: 1.1 + r() * 0.6, lat: (r() - 0.5) * 1.4, ph: r() * 6.28 });
+    for (let k = 0; k < n; k++) people.push({ blk, f: r(), dir: r() < 0.5 ? 1 : -1, sp: 1.1 + r() * 0.6, lat: (r() - 0.5) * 1.4, ph: r() * 6.28, umb: r(), ucol: UMB_COLORS[(r() * UMB_COLORS.length) | 0] });
   }
   crowd = new C.Crowd(people.length);
   people.forEach((p, k) => crowd.look(k, C.randomLook(r)));
   crowd.group.visible = false; scene.add(crowd.group); C.peopleLayers.push(crowd.group);
+  /* şemsiyeler: kubbe ve sap, yalnızca açanlar sırayla yazılır (renk sıraya göre her karede) */
+  const canopy = new THREE.ConeGeometry(0.62, 0.3, 8, 1, true).translate(0, 2.08, 0), pole = new THREE.CylinderGeometry(0.014, 0.014, 1.0, 4).translate(0, 1.55, 0);
+  umbs = [C.inst(canopy, new THREE.MeshStandardMaterial({ roughness: 0.55, side: THREE.DoubleSide }), people.length), C.inst(pole, new THREE.MeshStandardMaterial({ color: C.col('#26292d'), roughness: 0.5 }), people.length)];
+  umbs[0].instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(people.length * 3).fill(1), 3);
+  umbs.forEach(m => { m.count = 0; m.castShadow = false; scene.add(m); C.peopleLayers.push(m); });
 };
-let crowd = null;
+const UMB_COLORS = ['#1f2a44', '#2b2d31', '#b3262e', '#1d5fa8', '#e9b10c', '#2f7d57', '#6b3fa0', '#d9d4c7'].map(c => C.col(c));
+let crowd = null, umbs = null, nUmb = 0;
+const umbM = new THREE.Object3D();
+/* yağmurda yayaların bir kısmı şemsiye açar: oran yağışla artar (karda daha az) */
+function umbrella(p, x, z, ry) {
+  const w = C.weather && C.weather.cur, share = w ? Math.min(0.85, w.rain * 1.3 + w.snow * 0.5) : 0;
+  if (!umbs || p.umb >= share) return;
+  const fx = Math.cos(ry), fz = -Math.sin(ry);                       // yürüme yönü; şemsiye biraz önde ve sağda
+  umbM.position.set(x + fx * 0.12 + fz * 0.18, C.SW, z + fz * 0.12 - fx * 0.18); umbM.rotation.set(0, 0, 0); umbM.updateMatrix();
+  umbs[0].setMatrixAt(nUmb, umbM.matrix); umbs[1].setMatrixAt(nUmb, umbM.matrix); umbs[0].setColorAt(nUmb, p.ucol); nUmb++;
+}
 const pp = {};
 /* karşıya geçiş: köşede, yürüme yönündeki yolun araçlarına kırmızı yanıyor ve kalan süre yetiyorsa */
 const SIDE_D = [[1, 0], [0, 1], [-1, 0], [0, -1]];
@@ -490,7 +505,7 @@ function tryCross(p, k, h) {
 }
 C.updatePeople = function (dt) {
   const cam = C.camera.position;
-  crowd.begin();
+  crowd.begin(); nUmb = 0;
   for (let i = 0; i < people.length; i++) {
     const p = people[i], h = 20.5 + p.lat;
     let x, z, ry, moving = true;
@@ -524,7 +539,9 @@ C.updatePeople = function (dt) {
     if (dx * dx + dz * dz > 160 * 160) { p.hid = true; continue; }
     p.hid = false;
     crowd.put(i, x, C.SW, z, ry, moving ? C.pose('walk', p.ph, pp) : C.pose('stand', p.ph + i, pp));
+    umbrella(p, x, z, ry);
   }
   crowd.end();
+  if (umbs) { for (const m of umbs) { m.count = nUmb; m.instanceMatrix.needsUpdate = true; } if (nUmb) umbs[0].instanceColor.needsUpdate = true; }
 };
 })();

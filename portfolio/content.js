@@ -361,6 +361,10 @@ window.PORTFOLIO = {
         ['Ankara Stadı\'nda nefesler tutuldu', 'Skor {x}-{y}. {a} ile {b} arasındaki mücadele tüm hızıyla sürüyor.'],
         ['Tribünler ayakta', '{a} ile {b} karşılaşıyor; skor şu an {x}-{y}.']
       ],
+      postponed: [
+        ['Fırtına maçı erteledi', 'Saat {next} maçı şiddetli fırtına nedeniyle ertelendi. Taraftarlar stadyumun saçak altında bekledi.'],
+        ["Ankara Stadı'nda maç yok", 'Hakem kurulu yıldırım riski yüzünden {next} karşılaşmasını erteledi. Yeni tarih daha sonra açıklanacak.']
+      ],
       upcomingTeams: [
         ['{a} ile {b} sahaya çıkıyor', 'Semt derbisi saat {next} itibarıyla Ankara Stadı\'nda. Biletler tükenmek üzere.'],
         ['Günün maçı: {a} - {b}', 'İki takım saat {next} itibarıyla karşı karşıya. Taraftarlar şimdiden stada yürüyor.'],
