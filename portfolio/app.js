@@ -1,4 +1,4 @@
-/* ===== app.js: telefon arayüzü: ana ekran, uygulamalar (Projeler, Hakkımda, İletişim, Ankara Haber, Harita, Ajanda, Kedidex), saat.
+/* ===== app.js: telefon arayüzü: ana ekran, uygulamalar (Projeler, Hakkımda, İletişim, Ankara Haber, Harita, Ajanda, Kedidex, Lig), saat.
    Uygulama açılınca sayfa tam ekrana geçer (şehirdeysek telefon büyür); içerik content.js'ten, canlı şehir bilgisi şehrin kendisinden (window.parent.C). ===== */
 (function () {
 'use strict';
@@ -432,7 +432,73 @@ if ($('dexList')) $('dexList').addEventListener('click', e => {
   const b = e.target.closest('[data-cat]'), C = city(); if (!b || !C || !C.cats) return;
   const c = C.cats.list.find(x => C.cats.dexKey(x) === b.dataset.cat); if (c) goTo(C, () => C.flyTo(V3(c.x + 4, 2.6, c.z + 4), V3(c.x, 0.4, c.z), 2000));
 });
-const LIVE = { city: [cityRender, 2000], map: [mapRender, 400], agenda: [agendaRender, 5000], catdex: [dexRender, 3000] };   // açıkken yenilenen uygulamalar
+/* ---------- Lig: Semt Ligi (şehrin tohumlu maçlarından, ayın 1'inden bugüne; herkes aynı tabloyu görür) ve Süper Lig (ESPN'in anahtarsız,
+   resmî olmayan uç noktası; 30 dk saklanır, gelmezse yalnızca Semt Ligi). ESPN adları Türkçe karaktersiz gelir, TR_TEAM düzeltir ---------- */
+/* site.web.api.espn.com: site.api.espn.com tarayıcıdan (Chrome) engelleniyor, aynı veri bu adreste CORS ile geliyor */
+const LEAGUE_KEY = 'ms.league', ESPN_URL = 'https://site.web.api.espn.com/apis/v2/sports/soccer/tur.1/standings';
+const TR_TEAM = { Besiktas: 'Beşiktaş', Fenerbahce: 'Fenerbahçe', Genclerbirligi: 'Gençlerbirliği', Goztepe: 'Göztepe', Kasimpasa: 'Kasımpaşa', Eyupspor: 'Eyüpspor',
+  'Istanbul Basaksehir': 'Başakşehir', 'Caykur Rizespor': 'Çaykur Rizespor', 'Amed SFK': 'Amed Sportif', 'Erzurum BB': 'Erzurumspor FK', Ankaragucu: 'Ankaragücü', Keciorengucu: 'Keçiörengücü' };
+const trTeam = n => TR_TEAM[n] || (/orum FK$/.test(n) ? 'Çorum FK' : n);
+const ANKARA = /^(Gençlerbirliği|Ankaragücü|Keçiörengücü)$/;
+let leagueTab = 'semt', espn = null, espnBusy = false, espnFail = 0;
+try { const c = JSON.parse(localStorage.getItem(LEAGUE_KEY)); if (c && c.rows) espn = c; } catch (e) {}
+function semtTable(C) {
+  const day = new Date(Date.now() + 3 * 3600e3).getUTCDate(), h = C.hour, M = C.match, T = {}, games = [];
+  const club = n => (C.DISTRICTS.find(d => n === d.name || n.startsWith(d.name + ' ')) || { name: n }).name;
+  for (const d of C.DISTRICTS) T[d.name] = { name: d.name, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0, form: [] };
+  for (let off = 1 - day; off <= 0; off++) for (const s of [13.5, 19]) {
+    if (off === 0 && h < s + 115 / 60) continue;                       // bugün henüz bitmemiş maç sayılmaz
+    const m = off === 0 && M && M.last && M.last.slot === s ? M.last : C.matchPreview(s, 90, off);
+    const [a, b] = m.teams.map(club), [x, y] = m.score;
+    games.push({ off, s, a, b, x, y });
+    for (const [t, f, g] of [[a, x, y], [b, y, x]]) { const r = T[t]; if (!r) continue; r.p++; r.gf += f; r.ga += g; const k = f > g ? 'w' : f < g ? 'l' : 'd'; r[k]++; r.pts += k === 'w' ? 3 : k === 'd' ? 1 : 0; r.form.push(k); }
+  }
+  const rows = Object.values(T).sort((p, q) => q.pts - p.pts || (q.gf - q.ga) - (p.gf - p.ga) || q.gf - p.gf || p.name.localeCompare(q.name, 'tr'));
+  return { rows, games: games.slice(-6).reverse(), n: games.length, from: 1 - day };
+}
+const tableHtml = (rows, form) => `<table class="lg"><thead><tr><th>#</th><th class="t">Takım</th><th>O</th><th>G</th><th>B</th><th>M</th><th>Av</th><th>P</th></tr></thead><tbody>` +
+  rows.map((r, i) => `<tr class="${ANKARA.test(r.name) ? 'ank' : ''}"><td>${r.rank || i + 1}</td><td class="t">${esc(r.name)}${form && r.form ? `<span class="form">${r.form.slice(-5).map(k => `<i class="${k}"></i>`).join('')}</span>` : ''}</td>` +
+    `<td>${r.p}</td><td>${r.w}</td><td>${r.d}</td><td>${r.l}</td><td>${(r.gd !== undefined ? r.gd : r.gf - r.ga) > 0 ? '+' : ''}${r.gd !== undefined ? r.gd : r.gf - r.ga}</td><td><b>${r.pts}</b></td></tr>`).join('') + '</tbody></table>';
+function fetchEspn() {
+  if (espnBusy || (espn && Date.now() - espn.t < 18e5) || Date.now() - espnFail < 12e4) return;   // olmazsa 2 dk sonra yeniden
+  espnBusy = true;
+  fetch(ESPN_URL).then(r => r.ok ? r.json() : Promise.reject(r.status)).then(d => {
+    const ch = d.children && d.children[0], e = ch && ch.standings && ch.standings.entries; if (!e || !e.length) throw new Error('boş');
+    const st = x => { const o = {}; for (const k of x.stats) o[k.name] = k.value !== undefined ? k.value : +k.displayValue; return o; };
+    const rows = e.map(x => { const s = st(x); return { name: trTeam(x.team.displayName), rank: s.rank, p: s.gamesPlayed, w: s.wins, d: s.ties, l: s.losses, gd: s.pointDifferential, pts: s.points }; }).sort((p, q) => p.rank - q.rank);
+    espn = { t: Date.now(), season: (ch.abbreviation || '').replace(/^(\d{4})-\d\d(\d\d)$/, '$1/$2'), rows };
+    try { localStorage.setItem(LEAGUE_KEY, JSON.stringify(espn)); } catch (e) {}
+  }).catch(() => { espnFail = Date.now(); }).finally(() => { espnBusy = false; leagueRender(); });
+}
+function leagueRender() {
+  const C = city(), box = $('leagueBody');
+  document.querySelectorAll('#league .tabs button').forEach(b => { const on = b.dataset.tab === leagueTab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+  let html = '';
+  if (leagueTab === 'semt') {
+    if (!C || !C.matchPreview || !C.DISTRICTS) html = `<p class="empty">Semt Ligi şehrin içinde oynanır: maçlar 13.30 ve 19.00'da Ankara Stadı'nda.</p>`;
+    else {
+      const { rows, games, n, from } = semtTable(C), M = C.match;
+      const dOf = off => { const d = new Date(); d.setDate(d.getDate() + off); return d.toLocaleDateString(LOC, { day: 'numeric', month: 'long' }); };
+      html += `<p class="badge fake">Kurgusal</p>`;
+      if (M && M.on && M.teams) html += `<div class="card live-m"><div class="kicker live">Canlı · Ankara Stadı</div><b>${esc(M.teams[0].name)} ${M.score[0]} - ${M.score[1]} ${esc(M.teams[1].name)}</b><small>${M.ph === 'pre' ? 'Başlamak üzere' : M.ph === 'half' ? 'Devre arası' : Math.floor(M.min) + '. dakika'}</small></div>`;
+      html += tableHtml(rows, true) + `<h3>Son maçlar</h3><ul class="games">${games.map(g => `<li><time>${g.off === 0 ? 'Bugün' : g.off === -1 ? 'Dün' : -g.off + ' gün önce'} · ${g.s === 19 ? '19.00' : '13.30'}</time><span>${esc(g.a)} <b>${g.x} - ${g.y}</b> ${esc(g.b)}</span></li>`).join('')}</ul>` +
+        `<p class="src"><b>Kurgusal veri.</b> <span>Şehirdeki semt takımlarının maçları; gerçek takımlar değil.</span> <span>${esc(dOf(from))} – ${esc(dOf(0))} · ${n} maç</span>. ` +
+        `<span>Skorlar tarihten tohumlanır, herkes aynı tabloyu görür; eşleşmeler rastgele olduğu için takımların maç sayısı eşit değil. Galibiyet 3, beraberlik 1 puan.</span></p>`;
+    }
+  } else {
+    fetchEspn();
+    if (!espn) html = `<p class="empty">${espnBusy ? 'Puan durumu yükleniyor…' : 'Puan durumu şu an alınamadı.'}</p>`;
+    else {
+      const wk = Math.max(...espn.rows.map(r => r.p || 0)), at = new Date(espn.t).toLocaleString(LOC, { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      html = `<p class="badge real">Gerçek veri</p>` + tableHtml(espn.rows, false) +
+        `<p class="src"><b>Gerçek veri.</b> <span>Trendyol Süper Lig ${esc(espn.season)}</span>, <span>${wk}. haftadan sonra</span>. <span>ESPN'den alındı: ${esc(at)}</span>. ` +
+        `<span>Resmî olmayan bir uç nokta; 30 dakikada bir yenilenir. Ankara'nın takımı vurgulu.</span></p>`;
+    }
+  }
+  if (box.dataset.h !== html) { box.dataset.h = html; box.innerHTML = html; }
+}
+if ($('league')) $('league').addEventListener('click', e => { const b = e.target.closest('.tabs [data-tab]'); if (b) { leagueTab = b.dataset.tab; leagueRender(); } });
+const LIVE = { city: [cityRender, 2000], map: [mapRender, 400], agenda: [agendaRender, 5000], catdex: [dexRender, 3000], league: [leagueRender, 5000] };   // açıkken yenilenen uygulamalar
 window.addEventListener('resize', () => { mapBase = null; });
 
 /* ---------- bildirim: şehirde yeni bir olay olunca üstten Ankara Haber bildirimi ---------- */
@@ -490,5 +556,5 @@ document.addEventListener('keydown', e => {
   if (!home()) tell({ type: 'phone-close' });                       // ana ekrandaysa telefonu kapat
 });
 window.addEventListener('message', e => { if (e.data && e.data.type === 'phone-home') home(); });   // telefon kapanınca ana ekrana dön
-const start = location.hash.slice(1); if (['projects', 'about', 'contact', 'city', 'map', 'agenda', 'catdex'].includes(start)) show(start); else if (start.startsWith('projects/')) openDetail(start.slice(9));
+const start = location.hash.slice(1); if (['projects', 'about', 'contact', 'city', 'map', 'agenda', 'catdex', 'league'].includes(start)) show(start); else if (start.startsWith('projects/')) openDetail(start.slice(9));
 })();

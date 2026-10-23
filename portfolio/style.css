@@ -319,6 +319,32 @@ details.card p { margin-top: 8px; }
 .dex .here { margin-top: 6px; padding: 3px 9px; font-size: 12px; }
 .dex .here:disabled { opacity: .5; cursor: default; }
 
+/* Lig: sekmeler, puan tablosu (Ankara takımı vurgulu), son maçlar */
+.tabs { display: flex; gap: 6px; margin-top: 10px; }
+.tabs button { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--muted); font: 600 13px var(--f-body); cursor: pointer; }
+.tabs button.on { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.lg { width: 100%; max-width: 720px; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; }
+.lg th { font: 500 11px var(--f-mono); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 6px 4px; text-align: center; border-bottom: 1px solid var(--line); }
+.lg td { padding: 8px 4px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, .06); }
+.lg .t { text-align: left; width: 100%; }
+.lg td.t { font-weight: 600; }
+.lg tr.ank td { background: rgba(255, 181, 61, .1); }
+.lg tr.ank td.t { color: var(--accent); }
+.lg .form { display: inline-flex; gap: 3px; margin-left: 8px; vertical-align: 1px; }
+.lg .form i { width: 7px; height: 7px; border-radius: 50%; background: #8a95a0; }
+.lg .form i.w { background: #5ec27a; } .lg .form i.l { background: #e2452b; }
+.games { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; max-width: 720px; }
+.games li { display: grid; gap: 2px; padding: 9px 12px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); }
+.games time { font: 500 11.5px var(--f-mono); color: var(--muted); }
+.games b { color: var(--accent); margin: 0 4px; }
+.live-m { display: grid; gap: 2px; max-width: 720px; }
+.live-m small { color: var(--muted); }
+#league .src { margin-top: 12px; font-size: 12.5px; line-height: 1.5; color: var(--muted); max-width: 720px; }
+#league .src b { color: var(--fg); font-weight: 600; }
+.badge { display: inline-block; margin: 0 0 10px; padding: 3px 10px; border-radius: 999px; font: 600 11px var(--f-mono); letter-spacing: .05em; text-transform: uppercase; }
+.badge.real { background: rgba(94, 194, 122, .16); color: #7fd99a; }
+.badge.fake { background: rgba(196, 139, 255, .16); color: #c9a2ff; }
+
 /* geniş (tam ekran) düzen */
 @container (min-width: 640px) {
   .app-view header, .body { padding-left: max(32px, calc((100% - 980px) / 2)); padding-right: max(32px, calc((100% - 980px) / 2)); }

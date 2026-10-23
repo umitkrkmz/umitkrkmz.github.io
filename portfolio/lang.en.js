@@ -535,10 +535,47 @@ L.add({
   "Vatandaş olarak dolaş, bir kedinin yanında E ile sev; tanıştığın kedi buraya eklenir. \"Şehirde\" rozetli kediler şu an sokakta.": "Walk around as a citizen and press E next to a cat to pet it; every cat you meet is added here. Cats with an \"In the city\" badge are out on the streets right now.",
   "Kedilerle şehrin içinde tanışılır: Vatandaş olarak dolaş, bir kedinin yanında E ile sev.": "You meet the cats inside the city: walk around as a citizen and press E next to a cat to pet it."
 });
+/* telefon: Lig */
+L.add({
+  "Lig": "League",
+  "Semt Ligi": "District League",
+  "Süper Lig": "Süper Lig",
+  "Takım": "Team",
+  "O": "MP",
+  "G": "W",
+  "B": "D",
+  "M": "L",
+  "Av": "GD",
+  "P": "Pts",
+  "Son maçlar": "Recent matches",
+  "Bugün": "Today",
+  "Dün": "Yesterday",
+  "Başlamak üzere": "About to kick off",
+  "Devre arası": "Half time",
+  "Semt Ligi şehrin içinde oynanır: maçlar 13.30 ve 19.00'da Ankara Stadı'nda.": "The District League is played inside the city: matches at 13:30 and 19:00 at Ankara Stadium.",
+  "Ayın 1'inden bu yana şehirdeki maçlardan; takımlar ve skorlar tarihten tohumlanır, herkes aynı tabloyu görür. Galibiyet 3, beraberlik 1 puan.": "From the city's matches since the 1st of the month; teams and scores are seeded from the date, so everyone sees the same table. 3 points for a win, 1 for a draw.",
+  "Puan durumu yükleniyor…": "Loading the standings…",
+  "Puan durumu şu an alınamadı.": "The standings couldn't be loaded right now.",
+  "Kurgusal": "Fictional",
+  "Gerçek veri": "Real data",
+  "Kurgusal veri.": "Fictional data.",
+  "Gerçek veri.": "Real data.",
+  "Şehirdeki semt takımlarının maçları; gerçek takımlar değil.": "Matches between the city's district teams; not real teams.",
+  "Skorlar tarihten tohumlanır, herkes aynı tabloyu görür; eşleşmeler rastgele olduğu için takımların maç sayısı eşit değil. Galibiyet 3, beraberlik 1 puan.": "Scores are seeded from the date, so everyone sees the same table; pairings are random, so teams have not played the same number of matches. 3 points for a win, 1 for a draw.",
+  "Resmî olmayan bir uç nokta; 30 dakikada bir yenilenir. Ankara'nın takımı vurgulu.": "An unofficial endpoint, refreshed every 30 minutes. Ankara's team is highlighted."
+});
 const R = L.rule;
 R(/^Son güncelleme: (.+)$/, d => `Updated: ${t(d)}`);
 R(/^(\d+) gün önce$/, n => `${n} days ago`);
 /* Harita, Ajanda, Kedidex: değişkenli metinler */
+/* Lig */
+R(/^(\d+) gün önce · (\d\d\.\d\d)$/, (n, h) => `${n} days ago · ${h}`);
+R(/^(Bugün|Dün) · (\d\d\.\d\d)$/, (d, h) => `${t(d)} · ${h}`);
+R(/^(\d+)\. dakika$/, n => `${n}'`);
+R(/^Canlı · Ankara Stadı$/, () => 'Live · Ankara Stadium');
+R(/^(.+) – (.+) · (\d+) maç$/, (a, b, n) => `${a} – ${b} · ${n} matches`);
+R(/^(\d+)\. haftadan sonra$/, n => `after matchweek ${n}`);
+R(/^ESPN'den alındı: (.+)$/, a => `Fetched from ESPN: ${a}`);
 R(/^Devre arası · (.+)$/, x => `Half time · ${x}`);
 R(/^Maç sürüyor · (\d+)' · (.+)$/, (m, x) => `Match on · ${m}' · ${x}`);
 R(/^Sıradaki maç (yarın )?(\d\d\.\d\d)$/, (y, h) => `Next match ${y ? 'tomorrow ' : ''}${h}`);
