@@ -490,9 +490,61 @@ L.add({
   "Tunalı'da park yeri yok": "No parking on Tunalı",
   "Hafta sonu kahvaltısına gelenler park yeri bulmak için semti üç kez turladı.": "People coming for weekend breakfast circled the district three times looking for a parking space."
 });
+/* proje detay sayfaları (content.js detail) ve how-ai-actually-works */
+L.add({
+  "MediaGrab masaüstünde ve telefonda": "MediaGrab on the desktop and on a phone",
+  "Link yapıştır, indir. MediaGrab kendi bilgisayarında çalışan bir video ve ses indirme aracı: YouTube, YouTube Music ve yt-dlp'nin desteklediği 1700'den fazla site. Hesap, veritabanı, reklam ve telemetri yok; indirdiklerin ve ayarların o cihazda kalır.": "Paste a link, download it. MediaGrab is a video and audio downloader that runs on your own computer: YouTube, YouTube Music and the 1,700+ other sites yt-dlp supports. No account, no database, no ads and no telemetry; your downloads and settings stay on that device.",
+  "İlk sürüm": "First release",
+  "Ağustos 2026": "August 2026",
+  "Son sürüm": "Latest release",
+  "Lisans": "License",
+  "Çalıştığı yer": "Runs on",
+  "Neden": "Why",
+  "iPhone'da App Store indirme uygulamalarına izin vermiyor, kısayollar da sık bozuluyor; çevrim içi indirme siteleri ise reklamla dolu. İstediğim şey basitti: kendi bilgisayarımda çalışan, link yapıştırınca dosyayı veren ve kimseye veri göndermeyen bir araç. Ağustos 2026'da küçük bir FastAPI uygulaması olarak başladı; 19 sürümde kanal takibi, telefondan kullanım ve tek dosyalık Windows kurulumu olan bir projeye dönüştü.": "On iPhone the App Store doesn't allow downloader apps and shortcuts break often, while online download sites are full of ads. What I wanted was simple: a tool that runs on my own computer, hands over the file when I paste a link and sends data to no one. It started in August 2026 as a small FastAPI app; over 19 releases it grew into a project with channel following, use from a phone and a one-file Windows installer.",
+  "Link yapıştır, gerisi kendiliğinden": "Paste a link, the rest takes care of itself",
+  "Kutuya yapıştırılan link hemen çözümlenir: MediaGrab yt-dlp ile videonun bütün ses ve video kalitelerini, varsa dublaj dillerini ve altyazıları listeler. Acelen varsa \"En iyi ses\" ya da \"En iyi video\" tek tıkla iner; ayrıntı isteyen her çözünürlüğü, Opus, M4A ya da MP3'ü, birden fazla ses parçasını tek bir .mkv dosyasında seçebilir. YouTube dosya boyutunu vermediğinde ortalama bit hızından tahmini boyut gösterilir.": "A pasted link is resolved right away: MediaGrab uses yt-dlp to list every audio and video quality of the video, plus any dubbed languages and subtitles. In a hurry, \"Best audio\" or \"Best video\" downloads in one click; for more control you can pick any resolution, Opus, M4A or MP3, or several audio tracks in a single .mkv file. When YouTube doesn't give the file size, an estimate is shown from the average bitrate.",
+  "Çözümlenmiş bir video: ses ve video seçenekleri": "A resolved video: audio and video options",
+  "Aynı anda birden fazla indirme": "Several downloads at once",
+  "İndirmeler sayfanın altındaki kalıcı panelde ilerler: hız, kalan süre, iptal. Sayfa değişse ya da uygulama kapanıp açılsa da durum korunur. Aynı video yeniden indirilirken bir şey ters giderse eski dosya geri gelir; disk alanı yetmeyecekse indirme hiç başlamaz. Her dosyanın yanına başlık, kanal, tarih ve açıklamayı içeren bir JSON bilgi dosyası, istenirse altyazı (.srt) ve transkript (.txt) de kaydedilir.": "Downloads run in a persistent panel at the bottom of the page: speed, time left, cancel. The state survives a page change or an app restart. If something goes wrong while re-downloading a video, the old file comes back; if disk space won't be enough, the download never starts. Next to every file goes a JSON info file with the title, channel, date and description, plus subtitles (.srt) and a transcript (.txt) if you want them.",
+  "İndirme paneli": "The download panel",
+  "Telefondan, QR kodla": "From your phone, with a QR code",
+  "Ayarlar'da bir parola belirleyip uzaktan erişimi açınca bir QR kod çıkar; telefonun kamerasıyla okutup aynı Wi-Fi'dan MediaGrab'ı tarayıcıda açarsın. Link yapıştırırsın, dosya doğrudan telefona iner. Telefona hiçbir şey kurulmaz; arayüz küçük ekranda açılır menü ve dokunmaya uygun düğmelerle gelir, istenirse ana ekrana uygulama (PWA) olarak eklenir.": "Set a password in Settings and turn on remote access, and a QR code appears; scan it with the phone's camera and open MediaGrab in the browser over the same Wi-Fi. Paste a link and the file lands right on the phone. Nothing is installed on the phone; on a small screen the interface has a drop-down menu and touch-sized buttons, and it can be added to the home screen as an app (PWA).",
+  "Uzaktan erişim: parola ve QR kod": "Remote access: password and QR code",
+  "Telefonda MediaGrab": "MediaGrab on a phone",
+  "Kütüphane, istatistik, kanal takibi": "Library, statistics, channel following",
+  "Geçmiş sayfası indirilenleri kapaklı kartlar ya da liste olarak gösterir: arama, kanala ve dosya türüne göre süzme, yeniden indirme. Detay sayfasında dosyanın gerçek çözünürlüğü, kare hızı ve codec'leri ffprobe ile okunur; kendi oynatıcısı YouTube'un klavye kısayollarıyla çalışır. İstatistikler yalnızca sayı tutar: hangi siteden, hangi biçimde, ne kadar; başlık ya da bağlantı kaydedilmez.": "The history page shows downloads as cards with covers or as a list: search, filter by channel and file type, download again. The detail page reads the file's real resolution, frame rate and codecs with ffprobe, and the built-in player uses YouTube's keyboard shortcuts. Statistics keep only numbers: which site, which format, how much; no titles or links are stored.",
+  "İndirme geçmişi": "Download history",
+  "Takibe alınan YouTube kanalları her açılışta denetlenir: \"Bildir\" modunda yeni video ana sayfada haber verilir, \"Otomatik indir\" modunda seçilen biçimde kendiliğinden iner. Ev Sunucusu Modu'nda (ör. Raspberry Pi) denetim, kimse uygulamayı açmasa da üç saatte bir yapılır.": "Followed YouTube channels are checked each time the app opens: in \"Notify\" mode a new video is announced on the home page, in \"Auto-download\" mode it downloads by itself in the chosen format. In Home Server Mode (on a Raspberry Pi, say) the check runs every three hours, even if nobody opens the app.",
+  "Takip edilen kanallar": "Followed channels",
+  "Kurulum: tek dosya": "Setup: a single file",
+  "Windows'ta MediaGrabSetup.exe her şeyi içinde getirir: gömülü Python, FFmpeg ve Deno. Python, Git ya da ffmpeg kurmak gerekmez, yönetici izni istenmez; MediaGrab bildirim alanında kendi simgesiyle, konsol penceresi olmadan çalışır. Kurulum önceki bir sürümü bulup ayarları, kanalları ve istatistikleri aktarmayı, videoları yeni klasöre taşımayı teklif eder. Linux, macOS ve Raspberry Pi için amd64 ve arm64 Docker imajı var.": "On Windows, MediaGrabSetup.exe brings everything with it: embedded Python, FFmpeg and Deno. No Python, Git or ffmpeg to install and no admin rights needed; MediaGrab runs in the notification area with its own icon, without a console window. Setup finds an earlier version and offers to bring over the settings, channels and statistics and to move the videos into the new folder. For Linux, macOS and Raspberry Pi there is an amd64 and arm64 Docker image.",
+  "Nasıl yapıldı": "How it is built",
+  "Sunucu FastAPI; sayfalar Jinja2 ile sunucuda basılıyor, arayüz sade HTML, CSS ve JavaScript. yt-dlp yalnızca tek bir dosyada (downloader.py) içe aktarılıyor, böylece yt-dlp'deki değişiklikler tek yerden karşılanıyor. Veritabanı yok: ayarlar, kanallar ve istatistikler küçük JSON dosyalarında.": "The server is FastAPI; pages are rendered on the server with Jinja2, and the interface is plain HTML, CSS and JavaScript. yt-dlp is imported in a single file only (downloader.py), so changes in yt-dlp are handled in one place. There is no database: settings, channels and statistics live in small JSON files.",
+  "Windows paketi bir Python betiğiyle (gömülü Python, paketler ve her indirmesi SHA256 ile doğrulanan FFmpeg) hazırlanıp Inno Setup ile tek dosyaya çevriliyor. GitHub Actions her push'ta testleri Linux'ta ve Windows'ta çalıştırıyor; yayın iş akışı kurulum programını derleyip Windows'a sessizce kurarak deniyor ve kaldırıyor.": "The Windows package is prepared by a Python script (embedded Python, the packages and FFmpeg, each download checked against a SHA256) and turned into a single file with Inno Setup. GitHub Actions runs the tests on Linux and Windows on every push; the release workflow builds the installer, installs it silently on Windows to try it, then uninstalls it.",
+  "Güven": "Trust",
+  "Reklam, ücret, hesap ve telemetri yok. MediaGrab dışarıyla yalnızca işi için konuşur: indirdiğin siteyle, takip ettiğin kanallar için YouTube ile, sürüm kontrolünde GitHub ve PyPI ile. Her yayının notlarında kurulum dosyasının SHA256 değeri ve VirusTotal tarama bağlantısı var.": "No ads, no payment, no account and no telemetry. MediaGrab talks to the outside world only to do its job: to the site you download from, to YouTube for the channels you follow, and to GitHub and PyPI for version checks. Every release's notes list the installer's SHA256 and a VirusTotal scan link.",
+  "Sunucu": "Server",
+  "İndirme": "Downloading",
+  "Arayüz": "Interface",
+  "HTML, CSS, JavaScript, PWA; Türkçe ve İngilizce": "HTML, CSS, JavaScript, PWA; Turkish and English",
+  "Veri": "Data",
+  "JSON dosyaları, veritabanı yok": "JSON files, no database",
+  "Dağıtım": "Distribution",
+  "Test ve CI": "Tests and CI",
+  "pytest, GitHub Actions (Linux ve Windows)": "pytest, GitHub Actions (Linux and Windows)",
+  "İndir": "Download",
+  "Kılavuz": "Guide",
+  "Ayrıntılar": "Details",
+  "Teknolojiler": "Technologies",
+  "‹ Projeler": "‹ Projects",
+  "Proje": "Project",
+  "Modern AI sistemlerinin altındaki mekanizmalara ilk ilkelerden bir mühendislik rehberi: embedding, tokenizer (BPE), RAG, bağlam mühendisliği, MCP, ajan korkulukları, değerlendirme, çözümleme ve yapılandırılmış çıktı, VRAM ve nicemleme. Sekiz modül, yalnızca standart kütüphaneli Python; her iddia bir kaynakla ya da çalışan bir assert ile kanıtlanır.": "A first-principles engineering guide to the mechanisms behind modern AI systems: embeddings, tokenizers (BPE), RAG, context engineering, MCP, agent guardrails, evals, decoding and structured output, VRAM and quantization. Eight modules in standard-library Python only; every claim is backed by a source or a running assert.",
+  "Eğitim": "Education"
+});
 const R = L.rule;
 R(/^Son güncelleme: (.+)$/, d => `Updated: ${t(d)}`);
 R(/^(\d+) gün önce$/, n => `${n} days ago`);
+R(/^(v\d[\w.-]*) · (.+)$/, (v, d) => `${v} · ${t(d)}`);   // detay sayfasında son sürüm: "v2.4.0 · 10 gün önce"
 R(/^Open-Meteo · (az önce|(\d+) dk önce) güncellendi$/, (a, n) => `Open-Meteo · updated ${n ? n + ' min ago' : 'just now'}`);
 R(/^Ankara · Hava durumu · (.+)$/, h => `Ankara · Weather · ${h}`);
 R(/^(.+)\. Hissedilen (-?\d+)°, nem %(\d+), (\S+) (\d+) km\/sa rüzgâr\.$/, (l, f, h, d, w) => `${t(l)}. Feels like ${f}°, humidity ${h}%, wind ${t(d)} at ${w} km/h.`);

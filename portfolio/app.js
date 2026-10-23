@@ -42,18 +42,24 @@ const ago = iso => {                                                   // yakın
   const d = Math.floor((Date.now() - Date.parse(iso)) / 864e5);
   return d < 1 ? 'bugün' : d < 2 ? 'dün' : d < 30 ? d + ' gün önce' : new Date(iso).toLocaleDateString(LOC, { month: 'long', year: 'numeric' });
 };
+/* GitHub'dan gelen dil ve son güncelleme (kartta ve detay sayfasında) */
+function metaOf(p) {
+  const r = gh && p.repo ? gh.repos[p.repo] : null; if (!r) return '';
+  const lang = r.lang ? `<span class="lang" style="--l:${LANG[r.lang] || '#8b949e'}">${esc(r.lang)}</span>` : '';
+  return `<div class="meta">${lang}<span>Son güncelleme: ${esc(ago(r.pushed))}</span></div>`;
+}
 function projectCard(p) {
-  const here = p.live === '../index.html', r = gh && p.repo ? gh.repos[p.repo] : null;
+  const here = p.live === '../index.html';
   const go = (label, href, cls) => `<a${cls ? ` class="${cls}"` : ''} href="${esc(href)}" target="_blank" rel="noopener">${label}</a>`;
   const links = [
+    p.detail ? `<button data-detail="${esc(p.slug)}">Ayrıntılar</button>` : '',
     here ? (embed ? '<span>Şu an içindesin</span>' : '<a href="../index.html">Şehre gir</a>') : p.live ? go('Canlı', p.live) : '',
     p.paper ? go('Makale', p.paper) : '',
     p.repo ? go('Kod', 'https://github.com/' + (P.github || '') + '/' + p.repo, 'ghost') : '',
     p.extra ? go(esc(p.extra[0]), p.extra[1], 'ghost') : ''
   ].join('');
-  const lang = r && r.lang ? `<span class="lang" style="--l:${LANG[r.lang] || '#8b949e'}">${esc(r.lang)}</span>` : '';
-  const meta = r ? `<div class="meta">${lang}<span>Son güncelleme: ${esc(ago(r.pushed))}</span></div>` : '';
-  return `<article class="card proj"><h4>${esc(p.title)}</h4>${meta}<p>${esc(p.desc)}</p>${p.cite ? `<p class="cite">${esc(p.cite)}</p>` : ''}<ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul><div class="links">${links}</div></article>`;
+  const title = p.detail ? `<button class="tlink" data-detail="${esc(p.slug)}">${esc(p.title)}</button>` : esc(p.title);
+  return `<article class="card proj"><h4>${title}</h4>${metaOf(p)}<p>${esc(p.desc)}</p>${p.cite ? `<p class="cite">${esc(p.cite)}</p>` : ''}<ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul><div class="links">${links}</div></article>`;
 }
 function renderProjects() {
   const groups = [];
@@ -67,6 +73,37 @@ if (P.github && !(gh && Date.now() - gh.t < 36e5)) {
     gh = { t: Date.now(), repos }; try { localStorage.setItem(GH_KEY, JSON.stringify(gh)); } catch (e) {}
     renderProjects();
   }).catch(() => {});                                                   // ağ yoksa ya da sınır dolduysa elle yazılmış özet yeter
+}
+/* ---------- proje detayı: blog yazısı gibi; kapak, kısa bilgiler, görselli bölümler, teknolojiler.
+   Görsel ve bağlantılarda {l} dile göre tr ya da en. Son sürüm GitHub'dan (anahtarsız, depo başına 1 saat saklanır) ---------- */
+const LG = window.MSLang && MSLang.en ? 'en' : 'tr', lz = s => String(s).replace(/\{l\}/g, LG);
+const REL_KEY = 'ms.rel';
+let rel = {}; try { rel = JSON.parse(localStorage.getItem(REL_KEY)) || {}; } catch (e) {}
+const fig = ([src, cap, kind]) => `<figure class="shot${kind ? ' ' + esc(kind) : ''}"><img src="${esc(lz(src))}" alt="${esc(cap || '')}" loading="lazy" decoding="async">${cap ? `<figcaption>${esc(cap)}</figcaption>` : ''}</figure>`;
+const relText = p => rel[p.repo] ? rel[p.repo].tag + ' · ' + ago(rel[p.repo].date) : null;
+function detailHtml(p) {
+  const d = p.detail, code = 'https://github.com/' + (P.github || '') + '/' + p.repo;
+  const facts = (d.facts || []).map(([k, v, live]) => `<div><small>${esc(k)}</small><b${live ? ` data-live="${esc(live)}"` : ''}>${esc((live === 'release' && relText(p)) || v)}</b></div>`).join('');
+  const secs = (d.sections || []).map(s => (s.h ? `<h3>${esc(s.h)}</h3>` : '') + (s.p || []).map(t => `<p>${esc(t)}</p>`).join('') +
+    (s.img ? fig(s.img) : '') + (s.imgs ? `<div class="shots">${s.imgs.map(fig).join('')}</div>` : '')).join('');
+  const stack = d.stack ? `<h3>Teknolojiler</h3><ul class="skillrows stack">${d.stack.map(([k, v]) => `<li><b>${esc(k)}</b><span>${esc(v)}</span></li>`).join('')}</ul>` : '';
+  const links = (p.repo ? `<a href="${esc(code)}" target="_blank" rel="noopener">Kod</a>` : '') + (d.links || []).map(([k, h]) => `<a class="ghost" href="${esc(lz(h))}" target="_blank" rel="noopener">${esc(k)}</a>`).join('');
+  return `<article class="post">${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}<p class="lead">${esc(d.lead || p.desc)}</p><div class="facts">${facts}</div>` +
+    `<ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${secs}${stack}<div class="links">${links}</div></article>`;
+}
+function openDetail(slug, from) {
+  const p = (P.projects || []).find(x => x.slug === slug); if (!p || !p.detail) return;
+  const v = $('project');
+  v.querySelector('.url').innerHTML = `<i class="lk">${SV('lock')}</i>${esc(P.site || '')}/<b>projeler/${esc(slug)}</b>`;
+  $('pjTitle').textContent = p.title; $('pjSub').innerHTML = metaOf(p); $('pjBody').innerHTML = detailHtml(p); $('pjBody').scrollTop = 0;
+  show('project', from); history.replaceState(null, '', '#projects/' + slug);
+  const c = rel[p.repo];
+  if (p.repo && P.github && !(c && Date.now() - c.t < 36e5)) {
+    fetch('https://api.github.com/repos/' + encodeURIComponent(P.github) + '/' + encodeURIComponent(p.repo) + '/releases/latest').then(r => r.ok ? r.json() : Promise.reject(r.status)).then(x => {
+      rel[p.repo] = { t: Date.now(), tag: x.tag_name, date: x.published_at }; try { localStorage.setItem(REL_KEY, JSON.stringify(rel)); } catch (e) {}
+      const b = $('pjBody').querySelector('[data-live="release"]'); if (b) b.textContent = relText(p);
+    }).catch(() => {});                                                 // yayın yoksa ya da ağ yoksa elle yazılan sürüm kalır
+  }
 }
 if (P.more) { $('moreLink').href = P.more.href; $('moreLink').textContent = P.more.label + ' →'; } else $('moreLink').hidden = true;
 $('aboutText').innerHTML = (P.about || []).map(t => `<p>${esc(t)}</p>`).join('');
@@ -241,12 +278,15 @@ function home() {
 }
 document.addEventListener('click', e => {
   const o = e.target.closest('[data-open]'); if (o) { show(o.dataset.open, o); return; }
+  const dt = e.target.closest('[data-detail]'); if (dt) { openDetail(dt.dataset.detail, dt); return; }
+  const to = e.target.closest('[data-to]'); if (to) { show(to.dataset.to); return; }
   if (e.target.closest('[data-home]')) home();
 });
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
+  if (current && current.id === 'project') { show('projects'); return; }   // detaydan projelere
   if (!home()) tell({ type: 'phone-close' });                       // ana ekrandaysa telefonu kapat
 });
 window.addEventListener('message', e => { if (e.data && e.data.type === 'phone-home') home(); });   // telefon kapanınca ana ekrana dön
-const start = location.hash.slice(1); if (['projects', 'about', 'contact', 'city'].includes(start)) show(start);
+const start = location.hash.slice(1); if (['projects', 'about', 'contact', 'city'].includes(start)) show(start); else if (start.startsWith('projects/')) openDetail(start.slice(9));
 })();
