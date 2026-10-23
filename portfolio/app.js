@@ -115,8 +115,9 @@ function openDetail(slug, from) {
   const p = (P.projects || []).find(x => x.slug === slug); if (!p || !p.detail) return;
   const v = $('project');
   v.querySelector('.url').innerHTML = `<i class="lk">${SV('lock')}</i>${esc(P.site || '')}/<b>projeler/${esc(slug)}</b>`;
-  $('pjTitle').textContent = p.title; v.dataset.slug = slug; $('pjSub').innerHTML = metaOf(p); $('pjBody').innerHTML = detailHtml(p); $('pjBody').scrollTop = 0;
+  $('pjTitle').textContent = p.title; v.dataset.slug = slug; $('pjSub').innerHTML = metaOf(p); $('pjBody').innerHTML = detailHtml(p);
   show('project', from); history.replaceState(null, '', '#projects/' + slug);
+  $('pjBody').scrollTop = 0;                                          // görünür olduktan sonra: gizliyken atanan kaydırma yok sayılır, önceki detayın yeri kalırdı
   const c = rel[p.repo];
   if (p.repo && P.github && !(c && Date.now() - c.t < 36e5)) {
     fetch('https://api.github.com/repos/' + encodeURIComponent(P.github) + '/' + encodeURIComponent(p.repo) + '/releases/latest').then(r => r.ok ? r.json() : Promise.reject(r.status)).then(x => {
