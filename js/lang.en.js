@@ -244,7 +244,7 @@ L.add({
 L.add({
   "● Saate göre": "● By hour",
   "Saate göre": "By hour",
-  "Saate göre: sabah ve akşam yoğun, gece sakin": "By hour: busy in the morning and evening, quiet at night",
+  "Saate göre: Ankara'nın 2025 ortalaması (TomTom Traffic Index)": "By hour: Ankara's 2025 average (TomTom Traffic Index)",
   "Gece: yollar sakin": "Night: quiet roads",
   "Sabah yoğunluğu": "Morning rush",
   "Gün içi: orta": "Daytime: moderate",
@@ -255,6 +255,7 @@ L.add({
 });
 /* değişkenli metinler */
 L.rule(/^(.+) · yağış$/, n => `${t(n)} · rain`);
+L.rule(/^(.+) · Ankara ortalaması %(\d+)$/, (a, n) => `${t(a)} · Ankara average ${n}%`);
 const R = L.rule;
 R(/^E: Kediyi sev \((.+?), (.+)\) · Q: Kucağına al$/, (n, c) => `E: Pet the cat (${n}, ${t(c)}) · Q: Pick up`);
 R(/^E: Gir · (.+)$/, n => `E: Enter · ${t(n)}`);

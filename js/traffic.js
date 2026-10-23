@@ -130,15 +130,25 @@ const sigs = [C.inst(sigGeo(-1), sigM, MAXC), C.inst(sigGeo(1), sigM, MAXC)];   
 sigs.forEach(m => { m.count = 0; scene.add(m); C.carLayers.push(m); });
 const CAR_COLORS = ['#c9372c', '#1f5fa8', '#e8e8e8', '#2b2d31', '#f2b705', '#2f8f5b', '#8d939a', '#ffffff', '#6b3fa0', '#d9822b'].map(C.col);
 
-/* ---------- saate göre trafik: hafta içi sabah ve akşam zirvesi, gece sakin; hafta sonu geç başlar, gün boyu orta.
-   Ankara'nın ölçümü değil, örnek tasarım değerleri (ileride canlı veriyle değişebilir). Otomatikte (C.trafficAuto) kapasite
-   C.trafficPeak ile kurulur, saatin istediği kadarı yolda kalır: fazlası kameradan uzakta yoldan çekilir (uyur), eksik
-   olunca uyuyan bir araç uzakta boş bir şeride konur. Yağış trafiği biraz artırır ---------- */
-const WEEKDAY = [[0, .12], [3, .06], [5.5, .08], [6.5, .25], [7.5, .75], [8.25, 1], [9.25, .8], [10, .45], [12.5, .5], [14, .4], [16, .55], [17.25, .9], [18, 1], [19, .85], [19.75, .45], [22, .25], [24, .12]];
-const WEEKEND = [[0, .2], [3, .1], [6, .06], [8, .15], [10, .35], [12, .5], [14, .55], [17, .55], [19, .5], [21, .4], [22.5, .3], [24, .2]];
-const curveAt = (P, h) => {
-  for (let i = 1; i < P.length; i++) if (h <= P[i][0]) { const [a, va] = P[i - 1], [b, vb] = P[i], t = (h - a) / (b - a); return va + (vb - va) * t * t * (3 - 2 * t); }
-  return P[0][1];
+/* ---------- saate göre trafik: Ankara'nın gerçek ortalaması. TomTom Traffic Index 2025, Ankara şehir merkezi: haftanın her günü ve saati için
+   ortalama yoğunluk (serbest akışa göre fazladan yolculuk süresi, %). Sabah zirvesi 08 (~%90), akşam 17-18 (~%118, sabahtan ağır),
+   cumartesi öğleden sonra hafta içi öğleden yoğun. Yoğunluktan yoldaki araç payına geçiş varsayım: yoğunluk kapasiteye yaklaşınca
+   araç sayısından hızlı artar, bu yüzden pay = 0,06 + 0,94 · (yoğunluk / en yüksek)^0,7. Otomatikte (C.trafficAuto) kapasite
+   C.trafficPeak ile kurulur, saatin istediği kadarı yolda kalır: fazlası kameradan uzakta yoldan çekilir (uyur), eksik olunca uyuyan
+   bir araç uzakta boş bir şeride konur. Yağış trafiği biraz artırır (%12, varsayım) ---------- */
+const TOMTOM = [   // [gün][saat] yoğunluk %, gün getUTCDay sırasıyla (0 pazar)
+  [18, 11, 4, 0, 0, 0, 3, 12, 16, 19, 19, 22, 28, 36, 40, 41, 40, 39, 38, 33, 28, 27, 26, 19],   // pazar
+  [8, 1, 0, 0, 0, 0, 17, 55, 96, 72, 47, 43, 47, 49, 58, 65, 78, 114, 116, 63, 32, 26, 23, 16],   // pazartesi
+  [7, 2, 0, 0, 0, 0, 16, 52, 94, 72, 50, 46, 53, 57, 63, 67, 81, 115, 114, 63, 33, 27, 25, 17],   // salı
+  [8, 3, 1, 0, 0, 0, 16, 50, 89, 68, 46, 45, 51, 54, 63, 67, 80, 116, 118, 66, 35, 29, 26, 18],   // çarşamba
+  [8, 2, 0, 0, 0, 0, 16, 50, 88, 67, 46, 45, 51, 54, 61, 65, 81, 119, 120, 70, 36, 28, 25, 18],   // perşembe
+  [8, 2, 0, 0, 0, 0, 16, 49, 84, 63, 45, 45, 49, 48, 67, 75, 91, 121, 121, 79, 46, 33, 32, 25],   // cuma
+  [14, 6, 1, 0, 0, 0, 9, 20, 24, 30, 32, 37, 48, 62, 71, 72, 68, 66, 64, 55, 40, 33, 35, 29],   // cumartesi
+];
+const TT_MAX = 121;
+const congestionAt = (day, h) => {                                   // saatler arasında yumuşak geçiş, gece yarısı ertesi güne bağlanır
+  const i = Math.floor(h), t = h - i, a = TOMTOM[day][i], b = i < 23 ? TOMTOM[day][i + 1] : TOMTOM[(day + 1) % 7][0];
+  return a + (b - a) * t * t * (3 - 2 * t);
 };
 C.trafficAuto = true;
 C.trafficLevel = h => {
@@ -146,10 +156,10 @@ C.trafficLevel = h => {
   h = ((h % 24) + 24) % 24;
   const day = new Date(Date.now() + 3 * 3600e3).getUTCDay(), we = day === 0 || day === 6;   // Türkiye'de haftanın günü
   const w = C.weather && C.weather.cur, wet = w ? Math.min(1, w.rain + w.snow) : 0;
-  const v = Math.min(1, curveAt(we ? WEEKEND : WEEKDAY, h) * (1 + wet * 0.12));
+  const c = congestionAt(day, h), v = Math.min(1, (0.06 + 0.94 * Math.pow(c / TT_MAX, 0.7)) * (1 + wet * 0.12));
   const key = we ? (h < 8 || h >= 22 ? 'night' : 'weekend')
     : h < 6 || h >= 22.5 ? 'night' : h >= 6.5 && h < 9.75 ? 'morning' : h >= 16.5 && h < 19.5 ? 'evening' : h >= 19.5 ? 'late' : 'day';
-  return { v, key, weekend: we, wet: wet > 0.2 };
+  return { v, key, weekend: we, wet: wet > 0.2, congestion: Math.round(c) };   // congestion: TomTom ortalaması (%)
 };
 const sleepers = [];
 let cap = 0, balT = 0;

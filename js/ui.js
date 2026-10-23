@@ -239,7 +239,7 @@ function syncTraffic() {
   const auto = C.trafficAuto, b = $('trafficLive'), L = C.trafficLevel();
   const v = Math.round((auto ? C.trafficPeak * L.v : C.density) * 100);
   if (auto) $('traffic').value = v;
-  const note = auto ? TRAFFIC_NOTE[L.key] + (L.wet ? ' · yağış' : '') : 'Elle seçildi, saatle değişmez', key = v + note + auto;
+  const note = auto ? TRAFFIC_NOTE[L.key] + ' · Ankara ortalaması %' + L.congestion + (L.wet ? ' · yağış' : '') : 'Elle seçildi, saatle değişmez', key = v + note + auto;
   if (key === trafficKey) return;                                    // değişmediyse dokunma (çeviri her yazışta yeniden çalışır)
   trafficKey = key;
   $('trafficOut').textContent = v + '%';
