@@ -482,6 +482,7 @@ details.card p { margin-top: 8px; }
 .relc span { font-size: 13px; color: #c9d2d8; }
 .constel { position: relative; height: 470px; margin: 0 0 6px; }
 .constel.tall { height: 880px; }
+.constel { overflow-x: clip; }                                   /* güvence: hiçbir etiket Projeler'de yatay kaydırma açmasın */
 .constel h3 { margin: 4px 0 0; }
 /* Projeler ekranı: gökyüzü bütün pencerenin arka planı, takımyıldızlar doğrudan onun üstünde; uzak toz sabit, yakın toz kaydırınca
    yavaşça kayar (--sy, app.js); kartlar ve üst şerit cam, arkalarından gök süzülür */
@@ -507,26 +508,26 @@ details.card p { margin-top: 8px; }
 .skyname.on { opacity: 1; }
 .skyname b { font: 800 15px var(--f-display); letter-spacing: .3em; text-transform: uppercase; color: rgba(214, 226, 255, .75); }
 .skyname small { font: 500 10.5px var(--f-mono); color: rgba(170, 186, 220, .7); white-space: nowrap; }
-.cn { position: absolute; transform: translate(-50%, -7px); z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0; border: 0; background: none; color: var(--fg); cursor: pointer; font: 500 11.5px var(--f-body); }
+.cn { position: absolute; transform: translate(calc(-50% + var(--dx, 0px)), -7px); z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0; border: 0; background: none; color: var(--fg); cursor: pointer; font: 500 11.5px var(--f-body); }
 .cn i { width: 11px; height: 11px; border-radius: 50%; background: var(--rc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--rc) 22%, transparent), 0 0 14px var(--rc); transition: transform .2s; }
 .cn.main i { width: 15px; height: 15px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--rc) 25%, transparent), 0 0 22px var(--rc), 0 0 44px color-mix(in srgb, var(--rc) 50%, transparent); }
 .cn:hover i, .cn:focus-visible i { transform: scale(1.35); }
 .cn span { white-space: nowrap; text-shadow: 0 1px 3px rgba(0, 0, 0, .9); }
-.cn span, .cn small { translate: var(--dx, 0px) 0; }
+.cn i { translate: calc(-1 * var(--dx, 0px)) 0; }                /* kutu kenardan içeri kayar, nokta yerinde kalır */
 .cn small { font: 500 10px var(--f-mono); color: rgba(170, 186, 220, .7); white-space: nowrap; margin-top: -2px; }
-.cn.solo small span { font: inherit; translate: none; }
+.cn.solo small span { font: inherit; }
 .cn.pulse i { width: 17px; height: 17px; animation: sirius 2.6s ease-in-out infinite; }
 @keyframes sirius { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--rc) 18%, transparent), 0 0 34px var(--rc), 0 0 70px color-mix(in srgb, var(--rc) 55%, transparent); transform: scale(1.12); } }
-.cn.ghost { cursor: help; transform: translate(-50%, -4px); }
+.cn.ghost { cursor: help; transform: translate(calc(-50% + var(--dx, 0px)), -4px); }
 .cn.ghost i { width: 7px; height: 7px; background: transparent; border: 1px solid rgba(200, 215, 255, .45); box-shadow: none; }
 .cn.ghost small { color: rgba(170, 186, 220, .45); }
-.cn.ghost em { position: absolute; top: 26px; left: 50%; translate: calc(-50% + var(--dx, 0px)) 0; white-space: nowrap; font: 500 10.5px var(--f-mono); font-style: normal; color: rgba(190, 205, 240, .8); background: rgba(8, 12, 26, .85); padding: 2px 7px; border-radius: 6px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.cn.ghost em { position: absolute; top: 26px; left: 50%; translate: -50% 0; white-space: nowrap; font: 500 10.5px var(--f-mono); font-style: normal; color: rgba(190, 205, 240, .8); background: rgba(8, 12, 26, .85); padding: 2px 7px; border-radius: 6px; opacity: 0; transition: opacity .2s; pointer-events: none; }
 .cn.ghost:hover em, .cn.ghost:focus em { opacity: 1; }
 /* Gökyüzünde gör (detaydan): yıldız büyür, üç kez nabız atar, çevresinde halka açılır */
 .cn.spot { z-index: 2; }
 .cn.spot i { transform: scale(1.5); animation: spot 1.4s ease-in-out 3; }
 .cn.spot span { color: #fff; text-shadow: 0 0 12px var(--rc), 0 1px 3px rgba(0, 0, 0, .9); }
-.cn.spot::before { content: ""; position: absolute; left: 50%; top: 6px; width: 14px; height: 14px; margin: -7px; border-radius: 50%; border: 1.5px solid var(--rc); opacity: 0; pointer-events: none; animation: ring 1.4s ease-out 3; }
+.cn.spot::before { content: ""; position: absolute; left: calc(50% - var(--dx, 0px)); top: 6px; width: 14px; height: 14px; margin: -7px; border-radius: 50%; border: 1.5px solid var(--rc); opacity: 0; pointer-events: none; animation: ring 1.4s ease-out 3; }
 @keyframes spot { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--rc) 20%, transparent), 0 0 40px var(--rc), 0 0 80px color-mix(in srgb, var(--rc) 60%, transparent); } }
 @keyframes ring { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(5); } }
 @media (prefers-reduced-motion: reduce) { .cn.pulse i, .cn.spot i { animation: none; } .cn.spot::before { display: none; } }

@@ -237,7 +237,7 @@ function drawConstel() {
     box.classList.toggle('tall', tall);
     box.innerHTML = `<h3 class="group">Takımyıldızlar</h3><div class="cstage"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg>${labels}${nodes}</div>`;
   };
-  const clamp = () => {   // etiketi sahnenin içine kaydır (nokta yerinde kalır; .cn'de yalnızca yazılar kayar)
+  const clamp = () => {   // etiketi sahnenin içine kaydır: .cn kutusu --dx kadar kayar, nokta geri kaydırılıp yerinde kalır (kutu taşarsa yatay kaydırma açılırdı)
     const st = box.querySelector('.cstage'); if (!st) return; const W = st.clientWidth;
     st.querySelectorAll('.cn, .skyname').forEach(e => {
       e.style.setProperty('--dx', '0px'); const x = e.offsetLeft, hw = Math.max(...[...e.children].map(c => c.offsetWidth)) / 2;
