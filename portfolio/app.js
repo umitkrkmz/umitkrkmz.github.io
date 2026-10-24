@@ -104,7 +104,7 @@ function detailHtml(p) {
   const facts = (d.facts || []).map(([k, v, live]) => `<div><small>${esc(tx(k))}</small><b${live ? ` data-live="${esc(live)}"` : ''}>${esc((live === 'release' && relText(p)) || tx(v))}</b></div>`).join('');
   const cover = d.gen && window.GEN ? `<div class="cover"><canvas class="gen" data-gen="${esc(d.gen)}" aria-hidden="true"></canvas></div>` : '';
   const nums = d.nums ? `<div class="nums">${d.nums.map(([v, l]) => `<div><b>${esc(tx(v))}</b><small>${esc(tx(l))}</small></div>`).join('')}</div>` : '';
-  const groups = [{ id: 'sec-top', h: 'Özet', html: `${cover}<p class="lead">${esc(tx(d.lead) || p.desc)}</p>${nums}<div class="facts">${facts}</div><ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}` }];
+  const groups = [{ id: 'sec-top', h: 'Özet', html: `<div class="bento">${cover}<p class="lead">${esc(tx(d.lead) || p.desc)}</p>${nums}<div class="facts">${facts}</div></div><ul class="chips">${(p.tags || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>${d.hero ? fig([d.hero[0], d.hero[1], 'hero']) : ''}` }];
   for (const s of d.sections || []) { if (s.h) groups.push({ id: 'sec-' + groups.length, h: tx(s.h), html: '' }); groups[groups.length - 1].html += block(s); }
   if (p.repo) groups.push({ id: 'sec-rel', h: 'Sürümler', html: `<h3>Sürümler</h3><div class="tl" data-repo="${esc(p.repo)}"><p class="empty">Sürümler yükleniyor…</p></div>` });
   if (d.stack) groups.push({ id: 'sec-stack', h: 'Teknolojiler', html: `<h3>Teknolojiler</h3>${rowsOf(d.stack)}` });
@@ -116,7 +116,8 @@ function detailHtml(p) {
       `<button type="button" class="relc" data-detail="${esc(q.slug)}" style="--rc:${esc((q.detail && q.detail.theme) || '#ffb53d')}"><b>${esc(q.title)}</b><span>${esc(why(q.slug))}</span></button>`).join('')}</div>` });
   } else if (sky) groups.push({ id: 'sec-links', h: 'Bağımsız yıldız', html: `<h3>Bağımsız yıldız</h3><p class="skyof"><b>${esc(sky.star)}</b> · <span>Hiçbir takımyıldıza bağlı değil; kendi başına parlıyor.</span> · <button type="button" data-sky="${esc(p.slug)}">Gökyüzünde gör</button></p>` });
   const toc = `<nav class="toc" aria-label="İçindekiler"><b>İçindekiler</b><ul>${groups.map(g => `<li><a href="#${g.id}" data-sec="${g.id}">${esc(g.h)}</a></li>`).join('')}</ul><div class="links">${detailLinks(p)}</div></nav>`;
-  return `<div class="post-wrap">${toc}<article class="post">${groups.map(g => `<section class="sec" id="${g.id}">${g.html}</section>`).join('')}<div class="links">${detailLinks(p)}</div></article></div>`;
+  const media = h => (h.match(/<figure class="shot"/g) || []).length === 1 && !h.includes('class="shots') && /<p>|class="bul"/.test(h);
+  return `<div class="post-wrap">${toc}<article class="post">${groups.map(g => `<section class="sec${g.id !== 'sec-top' && media(g.html) ? ' media' : ''}" id="${g.id}">${g.html}</section>`).join('')}<div class="links">${detailLinks(p)}</div></article></div>`;
 }
 let tocPin = null;   // içindekilerden tıklanan bölüm: başlığı yukarı çıkamasa da (sayfa sonu) işaretli kalır, kullanıcı kaydırınca bırakılır
 function tocSpy() {
@@ -139,11 +140,13 @@ function tocMark() {   // etkin bölüm: başı kabın üst çeyreğini geçen s
   links.forEach(a => a.classList.toggle('on', a.dataset.sec === id));
 }
 /* detay açılınca: tema rengi, canlı kapak, kaydırmada belirme, okuma çubuğu, sürüm zaman çizelgesi */
+const BG = { city: 'stars', schema: 'stars', download: 'dots', stego: 'dots', rag: 'grid', graph: 'grid', vectors: 'grid', uic: 'grid', lorenz: 'rings', layers: 'rings', packets: 'lines' };
 const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 let rvObs = null;
 function detailFx(p) {
   const v = $('project'), body = $('pjBody'), d = p.detail;
   v.style.setProperty('--pa', d.theme || 'var(--accent)');
+  v.dataset.bg = BG[d.gen] || 'dots';                                 // arka plan deseni kapağın türüne göre (style.css #project[data-bg])
   const cv = body.querySelector('canvas.gen'); if (cv && window.GEN) GEN.mount(cv, cv.dataset.gen, d.theme);
   if (rvObs) rvObs.disconnect();
   if (!REDUCE && window.IntersectionObserver) {
@@ -807,6 +810,7 @@ function setRender() {
       row('Canlı saat', tog('clock', !!C.liveClock), 'Gerçek Türkiye saati') + row('Canlı hava', tog('wx', !!(C.weather && C.weather.live)), 'Ankara\'nın şu anki havası') +
       row('Saate göre trafik', tog('traffic', !!C.trafficAuto), 'Ankara\'nın 2025 ortalaması') + row('Rastgele olaylar', tog('events', !!C.eventsOn), 'Yangın, kaza, hırsızlık');
   }
+  if (window.GEN && GEN.sysReduce) html += row('Kapak animasyonları', tog('motion', GEN.moving), 'Sistemde hareketi azalt açık; açınca proje kapakları yine oynar');
   html += row('Kedidex', `<button type="button" class="sw danger" data-set="dex">${dexArm ? 'Emin misin?' : 'Sıfırla'}</button>`, 'Tanıştığın kediler silinir.');
   const l = $('setList'); if (l.dataset.h !== html) { l.dataset.h = html; l.innerHTML = html; }
 }
@@ -816,6 +820,7 @@ if ($('setList')) {
     const b = e.target.closest('button[data-set]'); if (!b) return;
     const C = city(), k = b.dataset.set;
     if (k === 'lang-tr' || k === 'lang-en') { const L = C && window.parent.MSLang ? window.parent.MSLang : window.MSLang; if (L) L.set(k.slice(5)); return; }   // şehirdeysek bütün sayfa dil değiştirir
+    if (k === 'motion' && window.GEN) GEN.play(!GEN.moving);
     if (k === 'clock' && C) C.setLiveClock(!C.liveClock);
     if (k === 'wx' && C && C.weather) { if (C.weather.live) C.weather.set(C.weather.pick || 'clear'); else C.weather.setLive(true); }
     if (k === 'traffic' && C) { if (C.trafficAuto) { const v = C.trafficPeak * C.trafficLevel().v; C.trafficAuto = false; C.setDensity(v); } else C.setTrafficAuto(true); if (C.syncTraffic) C.syncTraffic(); }

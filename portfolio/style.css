@@ -24,7 +24,7 @@ body.full:not(.embed) .device { max-width: none; }
   body:not(.embed) { display: grid; place-items: center; padding: 56px 16px 24px; }
   body:not(.embed) .device { height: min(820px, calc(100vh - 80px)); width: 400px; border-radius: 40px; box-shadow: 0 0 0 10px #0b0d10, 0 0 0 12px #2b3036, 0 30px 80px rgba(0,0,0,.6);
     transition: width .35s cubic-bezier(.2, .8, .2, 1), height .35s, border-radius .35s; }
-  body.full:not(.embed) .device { width: min(1100px, calc(100vw - 48px)); height: calc(100vh - 80px); border-radius: 18px; }
+  body.full:not(.embed) .device { width: min(1440px, calc(100vw - 48px)); height: calc(100vh - 80px); border-radius: 18px; }
 }
 body.embed { background: var(--bg); }
 body.embed .device { max-width: none; }
@@ -455,6 +455,9 @@ details.card p { margin-top: 8px; }
 #project header { position: relative; }
 .cover { position: relative; margin: 0 0 16px; border-radius: 16px; overflow: hidden; border: 1px solid color-mix(in srgb, var(--pa) 35%, transparent); box-shadow: 0 18px 50px -25px var(--pa); }
 .cover canvas { display: block; width: 100%; aspect-ratio: 16 / 7; }
+.gen-play { position: absolute; right: 10px; bottom: 10px; padding: 5px 12px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--pa) 55%, transparent);
+  background: rgba(8, 12, 18, .78); color: var(--fg); font: 600 12px var(--f-body); cursor: pointer; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.gen-play:hover { border-color: var(--pa); }
 .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 8px; }
 .nums div { padding: 12px; border-radius: 14px; background: linear-gradient(160deg, color-mix(in srgb, var(--pa) 18%, transparent), rgba(255, 255, 255, .03)); border: 1px solid color-mix(in srgb, var(--pa) 25%, transparent); min-width: 0; }
 .nums b { display: block; font: 800 26px/1.05 var(--f-display); letter-spacing: .01em; color: var(--pa); }
@@ -532,6 +535,23 @@ details.card p { margin-top: 8px; }
 @keyframes ring { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(5); } }
 @media (prefers-reduced-motion: reduce) { .cn.pulse i, .cn.spot i { animation: none; } .cn.spot::before { display: none; } }
 @media (hover: none) { .skyname { opacity: .55; } }               /* dokunmatikte takımyıldız adları hep silikçe görünür */
+/* proje detayı: kendi arka planı. Projenin renginde iki ışıma, üstte kapağın türüne göre ince bir desen (app.js BG > data-bg), aşağı doğru söner */
+#project { background: radial-gradient(70% 55% at 88% 0%, color-mix(in srgb, var(--pa) 22%, transparent), transparent 70%),
+  radial-gradient(60% 45% at 0% 100%, color-mix(in srgb, var(--pa) 12%, transparent), transparent 70%), #0b1016; }
+#project::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .55;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, .35) 55%, transparent 90%); mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, .35) 55%, transparent 90%); }
+#project > header, #project > .body { position: relative; z-index: 1; }
+#project > header { background: rgba(9, 13, 19, .5); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom-color: color-mix(in srgb, var(--pa) 22%, transparent); }
+#project[data-bg="grid"]::before { background-image: linear-gradient(color-mix(in srgb, var(--pa) 13%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--pa) 13%, transparent) 1px, transparent 1px); background-size: 34px 34px; }
+#project[data-bg="dots"]::before { background-image: radial-gradient(color-mix(in srgb, var(--pa) 40%, transparent) 1px, transparent 1.6px); background-size: 20px 20px; }
+#project[data-bg="rings"]::before { background-image: repeating-radial-gradient(circle at 88% 0%, transparent 0 46px, color-mix(in srgb, var(--pa) 16%, transparent) 46px 47px); }
+#project[data-bg="lines"]::before { background-image: repeating-linear-gradient(135deg, transparent 0 26px, color-mix(in srgb, var(--pa) 12%, transparent) 26px 27px); }
+#project[data-bg="stars"]::before { opacity: .8; background-size: 240px 200px; background-image: radial-gradient(1px 1px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 33% 72%, #dfe8ff, transparent),
+  radial-gradient(1.4px 1.4px at 58% 12%, #fff, transparent), radial-gradient(1px 1px at 76% 44%, color-mix(in srgb, var(--pa) 70%, #fff), transparent), radial-gradient(1px 1px at 88% 82%, #fff, transparent),
+  radial-gradient(1.2px 1.2px at 46% 92%, color-mix(in srgb, var(--pa) 60%, #fff), transparent), radial-gradient(.8px .8px at 5% 60%, rgba(255, 255, 255, .7), transparent); }
+#project .post blockquote { border-left-color: var(--pa); }
+.bento .cover { margin: 0 0 16px; }
+.bento .nums div { display: flex; flex-direction: column; justify-content: center; }
 @media (prefers-reduced-motion: reduce) { .sec.rv { opacity: 1; transform: none; transition: none; } }
 
 /* geniş (tam ekran) düzen */
@@ -568,6 +588,28 @@ details.card p { margin-top: 8px; }
   #project header { padding-left: max(32px, calc((100% - 1014px) / 2)); }
   #pjBody { padding-left: 32px; padding-right: 32px; }
   .shots .shot.phone { margin: 14px 0 20px; }
+  /* bento: kapak büyük kutuda, yanında üç rakam alt alta; altında giriş ve dört bilgi kutusu */
+  .bento { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .bento .nums, .bento .facts { display: contents; }
+  .bento .cover { grid-column: 1 / 4; grid-row: 1 / 4; margin: 0; }
+  .bento .nums div { grid-column: 4; margin: 0; }
+  .bento .lead { grid-column: 1 / -1; grid-row: 4; margin: 8px 0 4px; max-width: none; }
+  .bento .facts div { grid-row: 5; }
+}
+/* çok geniş (masaüstü tam ekran): sütun genişler; düzyazı okunur genişlikte kalır, tek görselli bölümde yazı solda, görsel sağda yapışkan */
+@container (min-width: 1240px) {
+  .post-wrap { grid-template-columns: 230px minmax(0, 1080px); gap: 56px; }
+  #project header { padding-left: max(32px, calc((100% - 1366px) / 2)); }
+  .post .sec > p, .post .sec > .bul, .post .sec > blockquote, .bento .lead { max-width: 860px; }
+  .post .sec.media { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); column-gap: 36px; align-items: start; }
+  .post .sec.media > * { grid-column: 1; }
+  .post .sec.media > h3 { grid-column: 1 / -1; }
+  .post .sec.media > .shot { grid-column: 2; grid-row: 2 / span 30; position: sticky; top: 12px; margin-top: 4px; }
+  .skillrows { grid-template-columns: repeat(3, 1fr); }
+  .post .skillrows { max-width: none; }
+  .post .sec.media .skillrows { grid-template-columns: 1fr; }        /* dar yazı sütununda satırlar alt alta */
+  .rel { grid-template-columns: repeat(3, 1fr); }
+  .nums b { font-size: 40px; }
 }
 @container (min-width: 960px) { #cityNews { grid-template-columns: repeat(3, 1fr); } }
 @container (min-width: 1240px) { #projectList .grid { grid-template-columns: repeat(3, 1fr); } .app-view header, .body { padding-left: max(32px, calc((100% - 1180px) / 2)); padding-right: max(32px, calc((100% - 1180px) / 2)); } }

@@ -1,9 +1,11 @@
 /* ===== gen.js: proje detaylarının canlı kapakları. Her proje kendi fikrini anlatan küçük bir canvas animasyonu (details.js 'gen'):
    city, download, rag, stego, lorenz, graph, schema, vectors, layers, packets, uic. Kütüphane yok. Ekranda değilken ve sekme arka plandayken durur;
-   "hareketi azalt" açıksa tek kare çizilir (setup still verirse o an). GEN.mount(canvas, tür, renk); kapak DOM'dan çıkınca kendiliğinden bırakılır ===== */
+   "hareketi azalt" açıksa tek kare çizilir (setup still verirse o an) ve kapakta Oynat çıkar (GEN.play, localStorage ms.motion). GEN.mount(canvas, tür, renk); kapak DOM'dan çıkınca kendiliğinden bırakılır ===== */
 window.GEN = (function () {
   'use strict';
-  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sysReduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), KEY = 'ms.motion';
+  // sistem "hareketi azalt" diyorsa tek kare; kapaktaki Oynat ya da Ayarlar KEY'e '1' yazar, kapaklar yine oynar
+  let reduce = sysReduce && (() => { try { return localStorage.getItem(KEY) !== '1'; } catch (e) { return true; } })();
   const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const rgba = (h, a) => { const [r, g, b] = rgb(h); return `rgba(${r},${g},${b},${a})`; };
   const rnd = seed => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
@@ -293,7 +295,7 @@ window.GEN = (function () {
   function frame(o, now) {
     if (!size(o)) return;
     const x = o.cv.getContext('2d'); x.setTransform(o.d, 0, 0, o.d, 0, 0);
-    o.A.draw(x, o.w, o.h, reduce ? o.st.still || 12 : (now - o.t0) / 1000, o.st, o.col);
+    o.A.draw(x, o.w, o.h, reduce ? o.st.still || 12 : Math.max(0, now - o.t0) / 1000, o.st, o.col);   // ilk rAF damgası mount'tan önce olabilir
   }
   let raf = 0;
   function loop(now) {
@@ -305,8 +307,21 @@ window.GEN = (function () {
     const Akind = A[kind]; if (!cv || !Akind) return;
     const o = { cv, A: Akind, col: col || '#ffb53d', t0: performance.now(), vis: true };
     live.add(o); if (io) io.observe(cv);
-    if (reduce && window.ResizeObserver) new ResizeObserver(() => { if (cv.isConnected) frame(o, 0); }).observe(cv);   // döngü yok: boyut değişince (tam ekran) tek kare yeniden
+    if (sysReduce && window.ResizeObserver) new ResizeObserver(() => { if (reduce && cv.isConnected) frame(o, 0); }).observe(cv);
+    if (reduce) playBtn(cv);   // döngü yok: boyut değişince (tam ekran) tek kare yeniden
     requestAnimationFrame(now => { frame(o, now); if (!raf && !reduce) raf = requestAnimationFrame(loop); });
   }
-  return { mount, kinds: Object.keys(A) };
+  function playBtn(cv) {                                              // hareketsiz kapakta Oynat
+    const box = cv.parentNode; if (!box || box.querySelector('.gen-play')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'gen-play'; b.textContent = '▶ Oynat';
+    b.addEventListener('click', () => play(true)); box.appendChild(b);
+  }
+  function play(on) {                                                 // true: kapaklar oynar (tercih saklanır), false: sisteme uy
+    try { if (on) localStorage.setItem(KEY, '1'); else localStorage.removeItem(KEY); } catch (e) {}
+    reduce = sysReduce && !on;
+    document.querySelectorAll('.gen-play').forEach(b => b.remove());
+    for (const o of live) { o.t0 = performance.now(); if (reduce) { frame(o, 0); playBtn(o.cv); } }
+    if (!reduce && live.size && !raf) raf = requestAnimationFrame(loop);
+  }
+  return { mount, kinds: Object.keys(A), play, sysReduce, get moving() { return !reduce; } };
 })();
