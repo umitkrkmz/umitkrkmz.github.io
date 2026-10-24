@@ -118,14 +118,25 @@ function detailHtml(p) {
   const toc = `<nav class="toc" aria-label="İçindekiler"><b>İçindekiler</b><ul>${groups.map(g => `<li><a href="#${g.id}" data-sec="${g.id}">${esc(g.h)}</a></li>`).join('')}</ul><div class="links">${detailLinks(p)}</div></nav>`;
   return `<div class="post-wrap">${toc}<article class="post">${groups.map(g => `<section class="sec" id="${g.id}">${g.html}</section>`).join('')}<div class="links">${detailLinks(p)}</div></article></div>`;
 }
-let tocObs = null;
+let tocPin = null;   // içindekilerden tıklanan bölüm: başlığı yukarı çıkamasa da (sayfa sonu) işaretli kalır, kullanıcı kaydırınca bırakılır
 function tocSpy() {
-  if (tocObs) tocObs.disconnect();
-  const body = $('pjBody'), links = [...body.querySelectorAll('.toc [data-sec]')], set = id => links.forEach(a => a.classList.toggle('on', a.dataset.sec === id));
-  if (!links.length || !window.IntersectionObserver) return;
-  set(links[0].dataset.sec);
-  tocObs = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) set(e.target.id); }, { root: body, rootMargin: '-12% 0px -70% 0px' });   // kayan kap izlenir, sayfa değil
-  body.querySelectorAll('.sec').forEach(s => tocObs.observe(s));
+  const body = $('pjBody');
+  if (!body.dataset.spy) {                                            // #pjBody kalıcı, dinleyiciler bir kez
+    body.dataset.spy = 1; let raf = 0;
+    body.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; tocMark(); }); }, { passive: true });
+    for (const ev of ['wheel', 'touchstart', 'pointerdown', 'keydown']) body.addEventListener(ev, () => { tocPin = null; }, { passive: true });
+  }
+  tocPin = null; tocMark();
+}
+function tocMark() {   // etkin bölüm: başı kabın üst çeyreğini geçen son bölüm; en alta gelinince son bölüm (kısa son bölümler o banda hiç çıkamaz)
+  const body = $('pjBody'), links = [...body.querySelectorAll('.toc [data-sec]')]; if (!links.length) return;
+  let id = tocPin;
+  if (!id) {
+    const secs = [...body.querySelectorAll('.post .sec')], line = body.getBoundingClientRect().top + body.clientHeight * 0.25;
+    for (const x of secs) if (!id || x.getBoundingClientRect().top <= line) id = x.id;
+    if (secs.length && body.scrollTop + body.clientHeight >= body.scrollHeight - 4) id = secs[secs.length - 1].id;
+  }
+  links.forEach(a => a.classList.toggle('on', a.dataset.sec === id));
 }
 /* detay açılınca: tema rengi, canlı kapak, kaydırmada belirme, okuma çubuğu, sürüm zaman çizelgesi */
 const REDUCE = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -924,7 +935,7 @@ document.addEventListener('click', e => {
   const sk = e.target.closest('[data-sky]'); if (sk) { show('projects'); skySpot(sk.dataset.sky); return; }
   const to = e.target.closest('[data-to]'); if (to) { show(to.dataset.to); return; }
   const sec = e.target.closest('.toc [data-sec]');
-  if (sec) { e.preventDefault(); const t = $(sec.dataset.sec); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  if (sec) { e.preventDefault(); const t = $(sec.dataset.sec); if (t) { tocPin = t.id; tocMark(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } return; }
   const cp = e.target.closest('.copy');
   if (cp) copyText(cp.parentNode.querySelector('pre').textContent).then(() => { cp.textContent = 'Kopyalandı'; clearTimeout(cp.t); cp.t = setTimeout(() => { cp.textContent = 'Kopyala'; }, 1600); }).catch(() => {});
   if (e.target.closest('[data-home]')) home();
