@@ -183,18 +183,21 @@ function drawTimeline(el, list) {
    de buradan: aynı kümedeki projeler (skyOf), nedenleri details.js related'da */
 const STARS = {
   clusters: [
-    { id: 'lynx', name: 'Lynx', sub: { tr: 'Steganografi ve analiz', en: 'Steganography and analysis' }, lab: [22, 20, 26, 11],
-      nodes: [['chaotic-audio', 'α Lyncis', 13, 60, 16, 31, 1], ['stegotester', 'Alsciaukat (31 Lyn)', 24, 40, 38, 21], ['ui2py', '38 Lyncis', 29, 76, 54, 36],
-        [null, '15 Lyncis', 7, 30, 8, 20], [null, '21 Lyncis', 37, 55, 74, 25]],
+    { id: 'lynx', name: 'Lynx', sub: { tr: 'Steganografi ve analiz', en: 'Steganography and analysis' }, lab: [21, 15, 26, 7],
+      nodes: [['chaotic-audio', 'α Lyncis', 12, 50, 16, 24, 1], ['stegotester', 'Alsciaukat (31 Lyn)', 23, 33, 38, 16], ['ui2py', '38 Lyncis', 28, 63, 54, 28],
+        [null, '15 Lyncis', 6, 25, 8, 15], [null, '21 Lyncis', 36, 46, 74, 19]],
       links: [[0, 1], [1, 3], [1, 4], [0, 2], [2, 4]] },
-    { id: 'reticulum', name: 'Reticulum', sub: { tr: 'Ağ ve DPI aşma', en: 'Networking and DPI bypass' }, lab: [53, 10, 30, 44],
-      nodes: [['zerodivert', 'α Reticuli', 53, 22, 66, 46, 1], ['limbo', 'ζ Reticuli', 45, 45, 44, 55], [null, 'β Reticuli', 61, 46, 84, 54], [null, 'ε Reticuli', 53, 66, 64, 63]],
+    { id: 'reticulum', name: 'Reticulum', sub: { tr: 'Ağ ve DPI aşma', en: 'Networking and DPI bypass' }, lab: [53, 5, 30, 35],
+      nodes: [['zerodivert', 'α Reticuli', 53, 18, 66, 36, 1], ['limbo', 'ζ Reticuli', 45, 37, 44, 43], [null, 'β Reticuli', 61, 38, 84, 42], [null, 'ε Reticuli', 53, 54, 64, 49]],
       links: [[0, 1], [1, 3], [3, 2], [2, 0], [0, 3]] },
-    { id: 'norma', name: 'Norma', sub: { tr: 'AI mühendisliği ve korkuluklar', en: 'AI engineering and guardrails' }, lab: [81, 14, 72, 68],
-      nodes: [['how-ai-actually-works', 'γ² Normae', 74, 36, 30, 72, 1], ['ai-context-mapping', 'ε Normae', 87, 60, 62, 82], [null, 'δ Normae', 91, 26, 10, 64], [null, 'η Normae', 71, 64, 34, 86]],
-      links: [[2, 0], [0, 3], [3, 1]] }
+    { id: 'norma', name: 'Norma', sub: { tr: 'AI mühendisliği ve korkuluklar', en: 'AI engineering and guardrails' }, lab: [82, 9, 72, 54],
+      nodes: [['how-ai-actually-works', 'γ² Normae', 75, 29, 30, 57, 1], ['ai-context-mapping', 'ε Normae', 88, 48, 62, 65], [null, 'δ Normae', 92, 21, 10, 51], [null, 'η Normae', 72, 52, 34, 68]],
+      links: [[2, 0], [0, 3], [3, 1]] },
+    { id: 'leo', name: 'Leo', sub: { tr: 'Kurumsal veri', en: 'Enterprise data' }, lab: [53, 74, 74, 74],
+      nodes: [['kurumsal-bilgi', 'Regulus (α Leo)', 16, 86, 15, 84, 1], ['sqlschema', 'Denebola (β Leo)', 40, 90, 36, 92], [null, 'γ Leonis', 22, 73, 30, 77], [null, 'δ Leonis', 34, 78, 56, 79]],
+      links: [[0, 2], [2, 3], [3, 1], [1, 0]] }
   ],
-  solo: [['mikro-sehir', 'Sirius', 62, 86, 26, 93, 'pulse'], ['mediagrab', 'Altair', 92, 84, 76, 93], ['kurumsal-bilgi', 'Regulus', 36, 13, 50, 3]]
+  solo: [['mikro-sehir', 'Sirius', 72, 78, 70, 90, 'pulse'], ['mediagrab', 'Altair', 93, 88, 90, 80]]
 };
 const GHOST = [{ tr: 'Keşfedilmemiş sektör', en: 'Uncharted sector' }, { tr: 'Geliştirme aşamasında', en: 'In development' }];
 let constelHot = null;

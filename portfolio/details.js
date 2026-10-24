@@ -796,6 +796,358 @@ const D = {
      "en": "language model, data stays in"
     }
    ]
+  ],
+  "related": [
+   [
+    "sqlschema",
+    {
+     "tr": "İkisi de bir kurumun verisini anlaşılır kılıyor ve veriyi dışarı çıkarmıyor: biri belgeleri yerel bir dil modeliyle sorulabilir yapar, öbürü şemayı tarayıcıda haritaya çevirir.",
+     "en": "Both make an organisation's data easier to understand without sending it anywhere: one lets you ask questions of documents with a local language model, the other turns a schema into a map in the browser."
+    }
+   ]
+  ]
+ },
+ "sqlschema": {
+  "hero": [
+   "img/sqlschema/overview-{l}.webp",
+   {
+    "tr": "318 tablolu bir telekom şemasının galaksi görünümü",
+    "en": "Galaxy view of a 318-table telecom schema"
+   }
+  ],
+  "lead": {
+   "tr": "Veritabanı şema dosyalarını tarayıcıda okuyup bir gökyüzü haritası olarak çizen açık kaynak görselleştirici. Her tablo bir yıldız, her ilişki bir çizgi, her şema bir gökyüzü bölgesi, her veritabanı bir galaksi; yaklaştıkça yıldızlar kolon listeli tablo kartlarına dönüşür.",
+   "en": "An open-source viewer that reads database schema files in the browser and draws them as a sky map. Every table is a star, every relationship a line, every schema a region of sky and every database a galaxy; zoom in and the stars turn into table cards with their columns."
+  },
+  "facts": [
+   [
+    {
+     "tr": "Son sürüm",
+     "en": "Latest release"
+    },
+    "0.1.0",
+    "release"
+   ],
+   [
+    {
+     "tr": "Veritabanları",
+     "en": "Databases"
+    },
+    "Oracle, SQL Server, MySQL, MariaDB, PostgreSQL, SQLite, Cassandra, MongoDB"
+   ],
+   [
+    {
+     "tr": "Bağımlılık",
+     "en": "Dependencies"
+    },
+    {
+     "tr": "Yok; derleme adımı da yok",
+     "en": "None, and no build step"
+    }
+   ],
+   [
+    {
+     "tr": "Lisans",
+     "en": "License"
+    },
+    "MIT"
+   ]
+  ],
+  "sections": [
+   {
+    "quote": {
+     "tr": "Hangi tablo neye bağlı? Cevap birkaç saniyede görünsün.",
+     "en": "Which table connects to what? The answer should show in seconds."
+    },
+    "p": [
+     {
+      "tr": "draw.io kadar elle uğraştırmaz, veri modelleme aracı kadar ağır değildir. Bir şema dosyasını, birden fazla dosyayı ya da bütün bir migration klasörünü sayfaya sürüklemek yeter; dosyalar hiçbir sunucuya gitmez.",
+      "en": "It takes less hand work than draw.io and is lighter than a data modelling tool. Drag a schema file, several files or a whole migration folder onto the page; nothing is sent to a server."
+     }
+    ]
+   },
+   {
+    "h": {
+     "tr": "Üç yakınlaştırma düzeyi",
+     "en": "Three zoom levels"
+    },
+    "rows": [
+     [
+      {
+       "tr": "Galaksi",
+       "en": "Galaxy"
+      },
+      {
+       "tr": "Veritabanları, şemalar ve şemalar arası ilişki demetleri; çizgideki sayı ilişki adedi.",
+       "en": "Databases, schemas and the bundles of relationships between schemas; the number on a line is how many."
+      }
+     ],
+     [
+      {
+       "tr": "Takımyıldız",
+       "en": "Constellation"
+      },
+      {
+       "tr": "Tablolar yıldız olur: boyut bağlantı sayısı, renk şema. Büyük şemalar ad öneklerine göre takımyıldızlara bölünür, yıldızlar Bayer usulü ad alır (α Billing, β Billing).",
+       "en": "Tables become stars: size is the number of links, colour is the schema. Large schemas split into constellations by name prefix, and stars get Bayer-style names (α Billing, β Billing)."
+      }
+     ],
+     [
+      {
+       "tr": "Yakın plan",
+       "en": "Close-up"
+      },
+      {
+       "tr": "Tablolar kart olur; çizgiler doğrudan FK ve PK kolon satırlarına bağlanır.",
+       "en": "Tables become cards, and lines attach straight to the FK and PK column rows."
+      }
+     ]
+    ],
+    "p": [
+     {
+      "tr": "Ayrıntı panelinde kolonlar, açıklamalar, tanımın geçtiği dosya ve satır, her ilişkinin düz bir cümleyle okunuşu var. Odak modu seçili tablonun bir ya da iki adım ötesindeki komşularını bırakıp gerisini söndürür.",
+      "en": "The detail panel lists the columns, comments, the file and line of the definition, and reads each relationship out as a plain sentence. Focus mode keeps the neighbours one or two steps away from the selected table and dims the rest."
+     }
+    ],
+    "img": [
+     "img/sqlschema/select-{l}.webp",
+     {
+      "tr": "Seçili tablo, vurgulu ilişkileri ve ayrıntı paneli",
+      "en": "A selected table, its highlighted relationships and the detail panel"
+     }
+    ]
+   },
+   {
+    "h": {
+     "tr": "Karga ayağı ve tahmini ilişkiler",
+     "en": "Crow's foot and inferred relationships"
+    },
+    "p": [
+     {
+      "tr": "Kardinalite şemadan çıkarılır: FK kolonu NOT NULL ise tam olarak bir, NULL olabiliyorsa sıfır ya da bir, FK aynı zamanda PK ya da UNIQUE ise 1:1; FK'yi taşıyan tarafta sıfır ya da çok.",
+      "en": "Cardinality comes from the schema: a NOT NULL FK column means exactly one, a nullable one zero or one, an FK that is also the PK or UNIQUE means 1:1, and the side holding the FK gets zero or many."
+     },
+     {
+      "tr": "FK tanımlamayan eski sistemlerde, Cassandra'da ve MongoDB'de bağlantılar kolon adlarından bulunur (CDR.SUBSCRIPTION_ID → SUBSCRIPTION) ve kesikli çizilir. Tipler uyuşmuyorsa ya da birden fazla aday varsa çizilmez; ara tablolar (M:N) halka olarak görünür.",
+      "en": "In legacy systems without FKs, in Cassandra and in MongoDB, links are found from column names (CDR.SUBSCRIPTION_ID → SUBSCRIPTION) and drawn dashed. Nothing is drawn when the types disagree or there is more than one candidate; junction tables (M:N) show as rings."
+     }
+    ],
+    "img": [
+     "img/sqlschema/closeup-{l}.webp",
+     {
+      "tr": "Yakın plan: kolon satırlarına bağlanan çizgiler ve karga ayağı uçları",
+      "en": "Close-up: lines attached to column rows, with crow's foot ends"
+     }
+    ]
+   },
+   {
+    "h": {
+     "tr": "Sekiz veritabanı, tek harita",
+     "en": "Eight databases, one map"
+    },
+    "p": [
+     {
+      "tr": "Oracle, SQL Server, MySQL, MariaDB, PostgreSQL, SQLite ve Cassandra için kendi lexer'ı ve DDL ayrıştırıcısı var. PL/SQL ve T-SQL blokları, DELIMITER, PostgreSQL $$ gövdeleri ve partition ifadeleri ayrıştırıcıyı şaşırtmaz; dosya UTF-8, UTF-16 ya da Windows-1254 olabilir.",
+      "en": "It has its own lexer and DDL parser for Oracle, SQL Server, MySQL, MariaDB, PostgreSQL, SQLite and Cassandra. PL/SQL and T-SQL blocks, DELIMITER, PostgreSQL $$ bodies and partition clauses do not trip it up, and files can be UTF-8, UTF-16 or Windows-1254."
+     },
+     {
+      "tr": "MongoDB'de DDL olmadığı için şema $jsonSchema doğrulayıcılarından, Mongoose modellerinden ve mongoexport belgelerinden çıkarılır; gömülü belgeler sahibinin yanında duran uydu yıldızlara dönüşür.",
+      "en": "MongoDB has no DDL, so the schema is read from $jsonSchema validators, Mongoose models and mongoexport documents; embedded documents become satellite stars next to their owner."
+     }
+    ],
+    "img": [
+     "img/sqlschema/mongo-{l}.webp",
+     {
+      "tr": "MongoDB: koleksiyonlar, uydu alt belgeler ve tahmini ilişkiler",
+      "en": "MongoDB: collections, satellite sub-documents and inferred relationships"
+     }
+    ]
+   },
+   {
+    "h": {
+     "tr": "Migration klasörleri ve çok veritabanı",
+     "en": "Migration folders and many databases"
+    },
+    "p": [
+     {
+      "tr": "Flyway ve golang-migrate klasörleri araçların kendi sırasıyla okunur, migration'lar baştan sona uygulanır ve harita şemanın son hâlini gösterir: adı değişen, silinen ve tipi değişen tablolar ve kolonlar işlenir. Farklı lehçelerden dosyalar birlikte açılınca her klasör kendi galaksisi olur.",
+      "en": "Flyway and golang-migrate folders are read in each tool's own order, migrations are applied from first to last, and the map shows the final state of the schema: renamed, dropped and retyped tables and columns are all handled. Open files from different dialects together and each folder becomes its own galaxy."
+     }
+    ],
+    "img": [
+     "img/sqlschema/multi-{l}.webp",
+     {
+      "tr": "Üç veritabanı üç ayrı galaksi: MySQL siparişler, MongoDB katalog, PostgreSQL analitik",
+      "en": "Three databases as three galaxies: MySQL orders, a MongoDB catalogue, PostgreSQL analytics"
+     }
+    ]
+   },
+   {
+    "h": {
+     "tr": "Hız ve gizlilik",
+     "en": "Speed and privacy"
+    },
+    "list": [
+     {
+      "tr": "2.862 tabloluk 4,7 MB'lık bir döküm yaklaşık 0,6 saniyede açılır, bir karenin çizimi 10 ms'nin altında kalır.",
+      "en": "A 4.7 MB dump with 2,862 tables opens in about 0.6 seconds, and a frame draws in under 10 ms."
+     },
+     {
+      "tr": "Dosyalar tarayıcıdan çıkmaz; ağ isteği yalnızca örnek dosyalar için yapılır, analitik ve telemetri yok.",
+      "en": "Files never leave the browser; the only network requests are for the bundled samples, and there is no analytics or telemetry."
+     },
+     {
+      "tr": "Yerleşim deterministik: aynı dosyalar her açılışta aynı haritayı verir.",
+      "en": "The layout is deterministic: the same files give the same map every time."
+     },
+     {
+      "tr": "12 sentetik sektör örneği (telekom, bankacılık, eski bir sigorta sistemi, Flyway'li lojistik...) üreticisiyle birlikte gelir; 125 denetimlik test seti CI'da çalışır.",
+      "en": "It ships with 12 synthetic sector samples (telecom, banking, a legacy insurance system, logistics on Flyway...) and their generator; a 125-check test suite runs in CI."
+     }
+    ]
+   },
+   {
+    "h": {
+     "tr": "Dene",
+     "en": "Try it"
+    },
+    "p": [
+     {
+      "tr": "Derleme ya da kurulum gerekmez; iki yoldan biri yeter.",
+      "en": "Nothing to build or install; either way works."
+     }
+    ],
+    "actions": [
+     {
+      "t": {
+       "tr": "Zip olarak indir",
+       "en": "Download the zip"
+      },
+      "d": {
+       "tr": "Sürüm sayfasından sqlSchema-v0.1.0.zip'i indirip bir klasöre açın ve index.html'e çift tıklayın. Kendi şema dosyalarınızı sürükleyin; klasörleri Klasör düğmesiyle seçin. Gömülü küçük örnek her durumda açılır, öbür örnekler için yerel sunucu gerekir.",
+       "en": "Download sqlSchema-v0.1.0.zip from the release page, unzip it and double-click index.html. Drag in your own schema files, and pick folders with the Folder button. The small built-in sample always opens; the other samples need a local server."
+      },
+      "links": [
+       [
+        {
+         "tr": "Sürüm sayfası",
+         "en": "Release page"
+        },
+        "https://github.com/umitkrkmz/sqlSchema/releases/tag/v0.1.0"
+       ]
+      ]
+     },
+     {
+      "t": {
+       "tr": "Git ve yerel sunucu",
+       "en": "Git and a local server"
+      },
+      "d": {
+       "tr": "Örnekleri ve sürüklenen klasörleri de okumak için depoyu klonlayıp yerel bir sunucuyla açın, sonra http://localhost:8000 adresine gidin.",
+       "en": "To read the samples and dragged folders as well, clone the repository and serve it locally, then go to http://localhost:8000."
+      },
+      "code": "git clone https://github.com/umitkrkmz/sqlSchema.git\ncd sqlSchema\npython -m http.server 8000"
+     }
+    ]
+   }
+  ],
+  "stack": [
+   [
+    {
+     "tr": "Dil",
+     "en": "Language"
+    },
+    {
+     "tr": "HTML, CSS, JavaScript; klasik betikler, file:// ile de çalışır",
+     "en": "HTML, CSS, JavaScript; classic scripts that also run from file://"
+    }
+   ],
+   [
+    {
+     "tr": "Çizim",
+     "en": "Rendering"
+    },
+    {
+     "tr": "Canvas 2D, kamera, deterministik hiyerarşik kuvvet yerleşimi",
+     "en": "Canvas 2D, a camera, a deterministic hierarchical force layout"
+    }
+   ],
+   [
+    {
+     "tr": "Ayrıştırma",
+     "en": "Parsing"
+    },
+    {
+     "tr": "Kendi lexer'ı ve DDL ayrıştırıcısı; MongoDB için $jsonSchema, Mongoose, JSON",
+     "en": "Its own lexer and DDL parser; $jsonSchema, Mongoose and JSON for MongoDB"
+    }
+   ],
+   [
+    {
+     "tr": "Arayüz",
+     "en": "Interface"
+    },
+    {
+     "tr": "Türkçe ve İngilizce, URL parametreleriyle paylaşılabilir görünüm, PNG dışa aktarma",
+     "en": "Turkish and English, shareable views through URL parameters, PNG export"
+    }
+   ],
+   [
+    {
+     "tr": "Test ve CI",
+     "en": "Tests and CI"
+    },
+    {
+     "tr": "Node 18+, 125 denetim, GitHub Actions; üretilen örneklerin güncelliği de denetlenir",
+     "en": "Node 18+, 125 checks, GitHub Actions; generated samples are checked for freshness too"
+    }
+   ]
+  ],
+  "theme": "#6cc6dc",
+  "gen": "schema",
+  "nums": [
+   [
+    "8",
+    {
+     "tr": "veritabanı türü",
+     "en": "database engines"
+    }
+   ],
+   [
+    {
+     "tr": "0,6 sn",
+     "en": "0.6 s"
+    },
+    {
+     "tr": "2.862 tabloluk dökümü açmak",
+     "en": "to open a 2,862-table dump"
+    }
+   ],
+   [
+    "0",
+    {
+     "tr": "bağımlılık, derleme, sunucu",
+     "en": "dependencies, builds, servers"
+    }
+   ]
+  ],
+  "related": [
+   [
+    "kurumsal-bilgi",
+    {
+     "tr": "İkisi de bir kurumun verisini anlaşılır kılıyor ve veriyi dışarı çıkarmıyor: biri belgeleri yerel bir dil modeliyle sorulabilir yapar, öbürü şemayı tarayıcıda haritaya çevirir.",
+     "en": "Both make an organisation's data easier to understand without sending it anywhere: one lets you ask questions of documents with a local language model, the other turns a schema into a map in the browser."
+    }
+   ]
+  ],
+  "links": [
+   [
+    {
+     "tr": "İndir",
+     "en": "Download"
+    },
+    "https://github.com/umitkrkmz/sqlSchema/releases/tag/v0.1.0"
+   ]
   ]
  },
  "stegotester": {

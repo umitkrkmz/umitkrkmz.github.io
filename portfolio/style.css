@@ -480,8 +480,8 @@ details.card p { margin-top: 8px; }
 .relc:hover { border-color: var(--rc); }
 .relc b { font: 800 18px var(--f-display); letter-spacing: .02em; }
 .relc span { font-size: 13px; color: #c9d2d8; }
-.constel { position: relative; height: 380px; margin: 0 0 6px; }
-.constel.tall { height: 720px; }
+.constel { position: relative; height: 470px; margin: 0 0 6px; }
+.constel.tall { height: 880px; }
 .constel h3 { margin: 4px 0 0; }
 /* Projeler ekranı: gökyüzü bütün pencerenin arka planı, takımyıldızlar doğrudan onun üstünde; uzak toz sabit, yakın toz kaydırınca
    yavaşça kayar (--sy, app.js); kartlar ve üst şerit cam, arkalarından gök süzülür */
@@ -547,7 +547,7 @@ details.card p { margin-top: 8px; }
   .shots.with-phone { grid-template-columns: 1fr 230px; }
   .acts { grid-template-columns: 1fr 1fr; }
   .rel { grid-template-columns: 1fr 1fr; }
-  .constel { height: 400px; }
+  .constel { height: 490px; }
   .nums b { font-size: 34px; }
   .mapgrid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: start; }
 }

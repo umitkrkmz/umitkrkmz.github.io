@@ -41,6 +41,11 @@ window.PORTFOLIO = {
       tags: ['.NET 10', 'ASP.NET Core', 'Clean Architecture', 'CQRS', 'RAG']
     },
     {
+      group: 'Öne çıkanlar', title: 'sqlSchema', slug: 'sqlschema', repo: 'sqlSchema',
+      desc: 'Veritabanı şema dosyalarını tarayıcıda bir yıldız haritası olarak çizen görselleştirici: her tablo bir yıldız, her ilişki bir çizgi; yaklaşınca kolon listeli kartlar ve karga ayağı. Oracle, SQL Server, MySQL, PostgreSQL, SQLite, Cassandra ve MongoDB; migration klasörleri, tahmini ilişkiler. Bağımlılık yok, dosyalar tarayıcıdan çıkmaz.',
+      tags: ['JavaScript', 'Canvas', 'SQL', 'Veri görselleştirme']
+    },
+    {
       group: 'Öne çıkanlar', title: 'StegoTester', slug: 'stegotester', repo: 'StegoTester',
       desc: 'Görsel, ses ve metin dosyalarında gizli veri arayan, steganografi yöntemlerini 30\'dan fazla metrikle karşılaştıran analiz aracı. Hızlı matematiksel eşik ile Random Forest ve Gradient Boosting modellerini birleştiren hibrit tespit, pHash ve spektral parmak iziyle otomatik eşleştirme, PDF rapor.',
       tags: ['Python', 'PySide6', 'scikit-learn', 'Veri analizi'], extra: ['Model eğitimi', 'https://github.com/umitkrkmz/StegoTester-AI-Training']

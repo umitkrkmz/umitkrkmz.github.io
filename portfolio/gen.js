@@ -1,6 +1,6 @@
 /* ===== gen.js: proje detaylarının canlı kapakları. Her proje kendi fikrini anlatan küçük bir canvas animasyonu (details.js 'gen'):
-   city, download, rag, stego, lorenz, graph, vectors, layers, packets, uic. Kütüphane yok. Ekranda değilken ve sekme arka plandayken durur;
-   "hareketi azalt" açıksa tek kare çizilir. GEN.mount(canvas, tür, renk); kapak DOM'dan çıkınca kendiliğinden bırakılır ===== */
+   city, download, rag, stego, lorenz, graph, schema, vectors, layers, packets, uic. Kütüphane yok. Ekranda değilken ve sekme arka plandayken durur;
+   "hareketi azalt" açıksa tek kare çizilir (setup still verirse o an). GEN.mount(canvas, tür, renk); kapak DOM'dan çıkınca kendiliğinden bırakılır ===== */
 window.GEN = (function () {
   'use strict';
   const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -147,6 +147,64 @@ window.GEN = (function () {
         x.textAlign = 'left';
       }
     },
+    /* sqlSchema: şema bir gökyüzü; kamera sırayla bir takımyıldıza yaklaşır, adlı yıldızlar kolon listeli tablo kartına döner, karga ayağıyla bağlanır */
+    schema: {
+      setup() {
+        const r = rnd(11), n = [], e = [], dust = [];
+        const C = [['BILLING', 0.25, 0.3, ['INVOICE', 'BILLING_ACCOUNT', 'PAYMENT', 'TARIFF']], ['CRM', 0.72, 0.27, ['CUSTOMER', 'CONTACT', 'ADDRESS', 'SEGMENT']],
+          ['ORDERS', 0.3, 0.74, ['ORDERS', 'ORDER_ITEM', 'PRODUCT', 'SHIPMENT']], ['NETWORK', 0.75, 0.72, ['SUBSCRIPTION', 'CDR', 'CELL_SITE', 'DEVICE']]];
+        const OFF = [[0, 0], [0.12, -0.1], [-0.11, 0.1], [0.1, 0.13]];   // adlı yıldızlar elle: yaklaşınca kartlar çakışmasın
+        C.forEach(([, cx, cy, names], c) => {
+          const b = n.length;
+          for (let k = 0; k < 7; k++) {
+            const a = r() * 6.28, d = 0.15 + r() * 0.05, o = OFF[k] || [Math.cos(a) * d, Math.sin(a) * d * 0.8];
+            n.push({ c, x: cx + o[0], y: cy + o[1], nm: names[k] || '', m: k < 4 ? 1.7 - k * 0.2 : 0.7 });
+          }
+          e.push([b, b + 1], [b, b + 2], [b + 1, b + 3], [b + 2, b + 4], [b + 1, b + 5], [b + 3, b + 6]);
+        });
+        e.push([0, 7], [7, 21], [14, 21], [2, 14]);                     // şemalar arası
+        for (let i = 0; i < 70; i++) dust.push([r(), r(), r()]);
+        return { C, n, e, dust, still: 6 };                                // hareketsiz kipte kartların göründüğü kare
+      },
+      draw(x, w, h, t, s, col) {
+        bg(x, w, h, col);
+        const T = 11, f = Math.floor(t / T) % 4, p = (t % T) / T, sm = v => v <= 0 ? 0 : v >= 1 ? 1 : v * v * (3 - 2 * v);
+        const a = sm((p - 0.12) / 0.28) * (1 - sm((p - 0.8) / 0.16)), z = 1 + a * 1.7, pal = [col, '#a58cf2', '#ef7b86', '#f2b45a'];
+        const fx = 0.5 + (s.C[f][1] - 0.5) * a, fy = 0.5 + (s.C[f][2] - 0.5) * a, P = q => [w / 2 + (q.x - fx) * w * z, h / 2 + (q.y - fy) * h * z];
+        for (const [u, v, k] of s.dust) { x.fillStyle = `rgba(220,230,255,${0.15 + k * 0.35})`; x.fillRect(((u - fx) * z * 0.3 + u) % 1 * w, v * h, 1, 1); }
+        const vis = q => q.c === f ? 1 : 1 - a * 0.85, card = a > 0.55 ? sm((a - 0.55) / 0.35) : 0, CW = Math.max(88, Math.min(124, w * 0.27)), CH = 50, nc = Math.floor((CW - 14) / 5.8);   // dar kapakta kart yazısı sığsın
+        for (const [i, j] of s.e) {
+          const A = s.n[i], B = s.n[j], [ax, ay] = P(A), [bx, by] = P(B), same = A.c === B.c;
+          x.strokeStyle = same ? rgba(pal[A.c], 0.28 * Math.min(vis(A), vis(B))) : `rgba(200,210,240,${0.12 * (1 - a)})`; x.lineWidth = 1;
+          x.setLineDash(same ? [] : [4, 4]); x.beginPath(); x.moveTo(ax, ay); x.lineTo(bx, by); x.stroke(); x.setLineDash([]);
+          if (card && A.c === f && A.nm && B.nm) {                           // karga ayağı: B ucunda çok, A ucunda bir
+            const L = Math.hypot(bx - ax, by - ay) || 1, ux = (bx - ax) / L, uy = (by - ay) / L, cut = (cx, cy, sg) => { const k = Math.min(CW / 2 / (Math.abs(ux) || 1e-6), CH / 2 / (Math.abs(uy) || 1e-6)); return [cx - ux * k * sg, cy - uy * k * sg]; };
+            const [qx, qy] = cut(bx, by, 1), [ox, oy] = cut(ax, ay, -1);
+            x.strokeStyle = rgba(col, 0.9 * card); x.lineWidth = 1.5; x.beginPath();
+            for (const sg of [-1, 0, 1]) { x.moveTo(qx - ux * 11, qy - uy * 11); x.lineTo(qx - uy * 6 * sg, qy + ux * 6 * sg); }
+            for (const d of [6, 10]) { x.moveTo(ox + ux * d - uy * 5, oy + uy * d + ux * 5); x.lineTo(ox + ux * d + uy * 5, oy + uy * d - ux * 5); }
+            x.stroke();
+          }
+        }
+        mono(x, Math.max(9, h * 0.036));
+        s.n.forEach(q => {
+          const [px, py] = P(q), al = vis(q), c = pal[q.c], R = q.m * 2.2 * (1 + a * 0.4);
+          const g = x.createRadialGradient(px, py, 0, px, py, R * 5); g.addColorStop(0, rgba(c, 0.5 * al)); g.addColorStop(1, rgba(c, 0)); x.fillStyle = g; x.beginPath(); x.arc(px, py, R * 5, 0, 7); x.fill();
+          x.fillStyle = `rgba(255,255,255,${0.9 * al})`; x.beginPath(); x.arc(px, py, R * 0.6, 0, 7); x.fill();
+          if (q.c === f && q.nm && a > 0.2 && card < 1) { x.fillStyle = `rgba(228,233,247,${0.8 * sm((a - 0.2) / 0.2) * (1 - card)})`; x.textAlign = 'center'; x.fillText('αβγδ'[s.n.indexOf(q) % 7] + ' ' + s.C[f][0], px, py + R * 4 + 6); }
+          if (card && q.c === f && q.nm) {                                    // tablo kartı: başlık şemanın renginde, PK, FK, sıradan kolon
+            const k = s.n.indexOf(q) % 7, rows = [['id', 'PK'], [k ? s.C[f][3][0].toLowerCase() + '_id' : 'name', k ? 'FK' : ''], ['created_at', '']];
+            x.globalAlpha = card; rr(x, px - CW / 2, py - CH / 2, CW, CH, 6); x.fillStyle = 'rgba(10,16,39,.94)'; x.fill(); x.strokeStyle = rgba(col, 0.6); x.lineWidth = 1; x.stroke();
+            x.fillStyle = col; x.textAlign = 'left'; mono(x, 9.5, 700); x.fillText(q.nm.length > nc ? q.nm.slice(0, nc - 1) + '…' : q.nm, px - CW / 2 + 7, py - CH / 2 + 11);
+            mono(x, 8.5); rows.forEach(([nm, tg], i) => { const yy = py - CH / 2 + 23 + i * 10; x.fillStyle = tg ? '#e4e9f7' : '#8a96b8'; x.fillText(nm.slice(0, nc - 3), px - CW / 2 + 7, yy); if (tg) { x.fillStyle = tg === 'PK' ? '#f2b45a' : col; x.textAlign = 'right'; x.fillText(tg, px + CW / 2 - 7, yy); x.textAlign = 'left'; } });
+            x.globalAlpha = 1; mono(x, Math.max(9, h * 0.036));
+          }
+        });
+        x.textAlign = 'center'; mono(x, Math.max(10, h * 0.042), 600);
+        s.C.forEach(([nm, cx, cy], c) => { const [px, py] = P({ x: cx, y: cy - 0.17 }); x.fillStyle = rgba(pal[c], 0.75 * (1 - a)); x.fillText(nm, px, py); });
+        x.textAlign = 'left';
+      }
+    },
     /* how-ai-actually-works: kelime vektörleri ve aralarındaki açının kosinüsü */
     vectors: {
       setup() { return { v: [0.2, 0.9, 1.5, 2.3, 3.6, 4.4, 5.2] }; },
@@ -235,7 +293,7 @@ window.GEN = (function () {
   function frame(o, now) {
     if (!size(o)) return;
     const x = o.cv.getContext('2d'); x.setTransform(o.d, 0, 0, o.d, 0, 0);
-    o.A.draw(x, o.w, o.h, reduce ? 12 : (now - o.t0) / 1000, o.st, o.col);
+    o.A.draw(x, o.w, o.h, reduce ? o.st.still || 12 : (now - o.t0) / 1000, o.st, o.col);
   }
   let raf = 0;
   function loop(now) {
@@ -247,6 +305,7 @@ window.GEN = (function () {
     const Akind = A[kind]; if (!cv || !Akind) return;
     const o = { cv, A: Akind, col: col || '#ffb53d', t0: performance.now(), vis: true };
     live.add(o); if (io) io.observe(cv);
+    if (reduce && window.ResizeObserver) new ResizeObserver(() => { if (cv.isConnected) frame(o, 0); }).observe(cv);   // döngü yok: boyut değişince (tam ekran) tek kare yeniden
     requestAnimationFrame(now => { frame(o, now); if (!raf && !reduce) raf = requestAnimationFrame(loop); });
   }
   return { mount, kinds: Object.keys(A) };

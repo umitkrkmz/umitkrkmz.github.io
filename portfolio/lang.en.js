@@ -583,6 +583,8 @@ L.add({
   "Etkinlik": "Activity",
   "Takımyıldızlar": "Constellations",
   "Bağımsız yıldız": "Lone star",
+  "Veritabanı şema dosyalarını tarayıcıda bir yıldız haritası olarak çizen görselleştirici: her tablo bir yıldız, her ilişki bir çizgi; yaklaşınca kolon listeli kartlar ve karga ayağı. Oracle, SQL Server, MySQL, PostgreSQL, SQLite, Cassandra ve MongoDB; migration klasörleri, tahmini ilişkiler. Bağımlılık yok, dosyalar tarayıcıdan çıkmaz.": "A viewer that draws database schema files as a star map in the browser: every table is a star, every relationship a line; zoom in for cards with columns and crow's foot ends. Oracle, SQL Server, MySQL, PostgreSQL, SQLite, Cassandra and MongoDB; migration folders, inferred relationships. No dependencies, and files never leave the browser.",
+  "Veri görselleştirme": "Data visualization",
   "takımyıldızı": "constellation",
   "Gökyüzünde gör": "See it in the sky",
   "Hiçbir takımyıldıza bağlı değil; kendi başına parlıyor.": "Part of no constellation; it shines on its own.",
