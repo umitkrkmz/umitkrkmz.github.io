@@ -1,7 +1,7 @@
 /* ===== details.js: projelerin detay sayfaları (blog gibi), app.js 'detailHtml' çizer. Yazılar burada, iki dilli; çeviri sözlüğünden geçmez.
    Her metin { tr, en }; görsel ve bağlantıda {l} dile göre tr ya da en. Bölüm blokları: h, p, quote, list, rows ([ad, açıklama]),
    code (komut, kopyalanır), diagram (kopyalanmaz), img / imgs ([görsel, açıklama, 'phone' | 'fit']), actions (kurulum kartları: t, d, code, links), after (bloktan sonra paragraf).
-   facts: [ad, değer, 'release' ise GitHub'dan son sürüm]; theme (renk), gen (gen.js kapak animasyonu), nums (öne çıkan rakamlar), related ([slug, neden]). links: [ad, adres]; '#projects/<slug>' başka bir projenin detayını açar.
+   facts: [ad, değer, 'release' ise GitHub'dan son sürüm]; theme (renk), gen (gen.js kapak animasyonu), nums (öne çıkan rakamlar), related ([slug, neden]: aynı takımyıldızındaki projeyle bağın nedeni; kimin hangi kümede olduğu app.js STARS'ta). links: [ad, adres]; '#projects/<slug>' başka bir projenin detayını açar.
    Görseller portfolio/img/<slug>/ altında WebP. Anahtar content.js'teki projenin 'slug'ı ===== */
 (function (P) {
 'use strict';
@@ -240,15 +240,6 @@ const D = {
     {
      "tr": "derleme adımı",
      "en": "build steps"
-    }
-   ]
-  ],
-  "related": [
-   [
-    "mediagrab",
-    {
-     "tr": "İkisi de sunucusuz, hesapsız, telemetrisiz; veri kullanıcıda kalır.",
-     "en": "Both need no server, no account and no telemetry; data stays with the user."
     }
    ]
   ]
@@ -547,22 +538,6 @@ const D = {
      "en": "ads and telemetry"
     }
    ]
-  ],
-  "related": [
-   [
-    "ai-context-mapping",
-    {
-     "tr": "MediaGrab, ai-context-mapping'in gerçek bir mimarideki vaka çalışması.",
-     "en": "MediaGrab is ai-context-mapping's case study in a real architecture."
-    }
-   ],
-   [
-    "mikro-sehir",
-    {
-     "tr": "İkisi de sunucusuz, hesapsız, telemetrisiz; veri kullanıcıda kalır.",
-     "en": "Both need no server, no account and no telemetry; data stays with the user."
-    }
-   ]
   ]
  },
  "kurumsal-bilgi": {
@@ -819,22 +794,6 @@ const D = {
     {
      "tr": "dil modeli, veri dışarı çıkmaz",
      "en": "language model, data stays in"
-    }
-   ]
-  ],
-  "related": [
-   [
-    "how-ai-actually-works",
-    {
-     "tr": "RAG: biri bir ürünün içinde çalışıyor, öbürü mekanizmayı sıfırdan kuruyor.",
-     "en": "RAG: one runs inside a product, the other builds the mechanism from scratch."
-    }
-   ],
-   [
-    "limbo",
-    {
-     "tr": "Aynı yığın: C# ve .NET 10.",
-     "en": "The same stack: C# and .NET 10."
     }
    ]
   ]
@@ -1727,13 +1686,6 @@ const D = {
      "tr": "Kardeş depolar: biri araç ve ölçülen kanıt, öbürü altındaki mekanizmalar.",
      "en": "Companion repositories: one is the tool and the measured evidence, the other the mechanisms underneath."
     }
-   ],
-   [
-    "mediagrab",
-    {
-     "tr": "MediaGrab, ai-context-mapping'in gerçek bir mimarideki vaka çalışması.",
-     "en": "MediaGrab is ai-context-mapping's case study in a real architecture."
-    }
    ]
   ]
  },
@@ -2057,13 +2009,6 @@ const D = {
      "tr": "Kardeş depolar: biri araç ve ölçülen kanıt, öbürü altındaki mekanizmalar.",
      "en": "Companion repositories: one is the tool and the measured evidence, the other the mechanisms underneath."
     }
-   ],
-   [
-    "kurumsal-bilgi",
-    {
-     "tr": "RAG: biri bir ürünün içinde çalışıyor, öbürü mekanizmayı sıfırdan kuruyor.",
-     "en": "RAG: one runs inside a product, the other builds the mechanism from scratch."
-    }
    ]
   ]
  },
@@ -2324,13 +2269,6 @@ const D = {
     {
      "tr": "İkisi de WinDivert ile DPI aşıyor: Limbo her site için ayrı strateji, ZeroDivert yalnızca Discord.",
      "en": "Both bypass DPI with WinDivert: Limbo with a strategy per site, ZeroDivert for Discord only."
-    }
-   ],
-   [
-    "kurumsal-bilgi",
-    {
-     "tr": "Aynı yığın: C# ve .NET 10.",
-     "en": "The same stack: C# and .NET 10."
     }
    ]
   ]

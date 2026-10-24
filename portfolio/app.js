@@ -108,9 +108,13 @@ function detailHtml(p) {
   for (const s of d.sections || []) { if (s.h) groups.push({ id: 'sec-' + groups.length, h: tx(s.h), html: '' }); groups[groups.length - 1].html += block(s); }
   if (p.repo) groups.push({ id: 'sec-rel', h: 'Sürümler', html: `<h3>Sürümler</h3><div class="tl" data-repo="${esc(p.repo)}"><p class="empty">Sürümler yükleniyor…</p></div>` });
   if (d.stack) groups.push({ id: 'sec-stack', h: 'Teknolojiler', html: `<h3>Teknolojiler</h3>${rowsOf(d.stack)}` });
-  if (d.related && d.related.length) groups.push({ id: 'sec-links', h: 'Bağlantılı projeler', html: `<h3>Bağlantılı projeler</h3><div class="rel">${d.related.map(([sl, why]) => {
-    const q = (P.projects || []).find(x => x.slug === sl); if (!q) return '';
-    return `<button type="button" class="relc" data-detail="${esc(sl)}" style="--rc:${esc((q.detail && q.detail.theme) || '#ffb53d')}"><b>${esc(q.title)}</b><span>${esc(tx(why))}</span></button>`; }).join('')}</div>` });
+  const sky = skyOf(p.slug);   // Bağlantılı projeler: takımyıldızındaki öbür projeler (nedeni details.js related'da), bağımsız yıldızda not
+  if (sky && sky.c) {
+    const sib = sky.c.nodes.filter(n => n[0] && n[0] !== p.slug).map(n => (P.projects || []).find(x => x.slug === n[0])).filter(Boolean);
+    const why = sl => { const r = (d.related || []).find(r => r[0] === sl); return r ? tx(r[1]) : tx(sky.c.sub); };
+    groups.push({ id: 'sec-links', h: 'Bağlantılı projeler', html: `<h3>Bağlantılı projeler</h3><p class="skyof"><b>${esc(sky.code)}</b> · ${esc(sky.c.name)} <span>takımyıldızı</span> · <button type="button" data-sky="${esc(p.slug)}">Gökyüzünde gör</button></p><div class="rel">${sib.map(q =>
+      `<button type="button" class="relc" data-detail="${esc(q.slug)}" style="--rc:${esc((q.detail && q.detail.theme) || '#ffb53d')}"><b>${esc(q.title)}</b><span>${esc(why(q.slug))}</span></button>`).join('')}</div>` });
+  } else if (sky) groups.push({ id: 'sec-links', h: 'Bağımsız yıldız', html: `<h3>Bağımsız yıldız</h3><p class="skyof"><b>${esc(sky.star)}</b> · <span>Hiçbir takımyıldıza bağlı değil; kendi başına parlıyor.</span> · <button type="button" data-sky="${esc(p.slug)}">Gökyüzünde gör</button></p>` });
   const toc = `<nav class="toc" aria-label="İçindekiler"><b>İçindekiler</b><ul>${groups.map(g => `<li><a href="#${g.id}" data-sec="${g.id}">${esc(g.h)}</a></li>`).join('')}</ul><div class="links">${detailLinks(p)}</div></nav>`;
   return `<div class="post-wrap">${toc}<article class="post">${groups.map(g => `<section class="sec" id="${g.id}">${g.html}</section>`).join('')}<div class="links">${detailLinks(p)}</div></article></div>`;
 }
@@ -165,7 +169,7 @@ function drawTimeline(el, list) {
    [slug | null, yıldız kodu, x, y, px, py, parlak], bağımsız yıldız [slug, ad, x, y, px, py, efekt], küme adı lab [x, y, px, py].
    Yıldız kodları gerçek (Bayer ya da Flamsteed). Dokununca proje açılır, üzerine gelince takımyıldızın adı belirir; kenara taşan etiketler
    ölçülüp içeri kaydırılır. Gökyüzü bütün Projeler ekranının arka planı (style.css #projects). Detay sayfalarındaki "Bağlantılı projeler"
-   (details.js related) ayrı: gerçek ilişkiler */
+   de buradan: aynı kümedeki projeler (skyOf), nedenleri details.js related'da */
 const STARS = {
   clusters: [
     { id: 'lynx', name: 'Lynx', sub: { tr: 'Steganografi ve analiz', en: 'Steganography and analysis' }, lab: [22, 20, 26, 11],
@@ -182,6 +186,19 @@ const STARS = {
   solo: [['mikro-sehir', 'Sirius', 62, 86, 26, 93, 'pulse'], ['mediagrab', 'Altair', 92, 84, 76, 93], ['kurumsal-bilgi', 'Regulus', 36, 13, 50, 3]]
 };
 const GHOST = [{ tr: 'Keşfedilmemiş sektör', en: 'Uncharted sector' }, { tr: 'Geliştirme aşamasında', en: 'In development' }];
+let constelHot = null;
+function skySpot(sl) {   // Gökyüzünde gör: göğe kaydır, takımyıldızını yak, yıldızı birkaç saniye parlat
+  const box = $('constel'), pb = $('projects').querySelector('.body'); if (!box || !pb) return;
+  pb.scrollTo({ top: Math.max(0, box.offsetTop - 12), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  const n = box.querySelector(`.cn[data-detail="${CSS.escape(sl)}"]`); if (!n) return;
+  box.querySelectorAll('.cn.spot').forEach(e => e.classList.remove('spot'));
+  void n.offsetWidth; n.classList.add('spot'); if (constelHot) constelHot(n.dataset.k || null);
+  clearTimeout(skySpot.t); skySpot.t = setTimeout(() => { n.classList.remove('spot'); if (constelHot) constelHot(null); }, 4400);
+}
+function skyOf(sl) {   // { c: küme, code } ya da { star } (bağımsız) ya da null
+  for (const c of STARS.clusters) { const n = c.nodes.find(n => n[0] === sl); if (n) return { c, code: n[1] }; }
+  const s = STARS.solo.find(n => n[0] === sl); return s ? { star: s[1] } : null;
+}
 function drawConstel() {
   const box = $('constel'); if (!box) return;
   const byS = new Map((P.projects || []).map(p => [p.slug, p])), col = sl => (byS.get(sl) && byS.get(sl).detail && byS.get(sl).detail.theme) || '#ffb53d';
@@ -213,11 +230,12 @@ function drawConstel() {
       e.style.setProperty('--dx', Math.round(Math.max(0, 6 - (x - hw)) - Math.max(0, x + hw - (W - 6))) + 'px');
     });
   };
-  const fit = () => { const t = box.clientWidth < 560; if (t !== tall) { tall = t; render(); } clamp(); };
+  // gizliyken (genişlik 0) yerleşim değişmesin: yoksa geri dönünce yeniden çizilir, Gökyüzünde gör parıltısı silinir
+  const fit = () => { if (!box.clientWidth) return; const t = box.clientWidth < 560; if (t !== tall) { tall = t; render(); } clamp(); };
   fit();
   if (window.ResizeObserver) new ResizeObserver(fit).observe(box);
   if (document.fonts) document.fonts.ready.then(clamp);
-  const hot = k => box.querySelectorAll('[class*="k-"]').forEach(e => e.classList.toggle('on', !!k && e.classList.contains('k-' + k)));
+  const hot = constelHot = k => box.querySelectorAll('[class*="k-"]').forEach(e => e.classList.toggle('on', !!k && e.classList.contains('k-' + k)));
   box.addEventListener('mouseover', e => { const n = e.target.closest('.cn'); hot(n && n.dataset.k); });
   box.addEventListener('focusin', e => { const n = e.target.closest('.cn'); hot(n && n.dataset.k); });
   box.addEventListener('mouseleave', () => hot(null));
@@ -903,6 +921,7 @@ function home() {
 document.addEventListener('click', e => {
   const o = e.target.closest('[data-open]'); if (o) { if (o.dataset.open === 'msgs') msgOpen = null; show(o.dataset.open, o); return; }
   const dt = e.target.closest('[data-detail]'); if (dt) { openDetail(dt.dataset.detail, dt); return; }
+  const sk = e.target.closest('[data-sky]'); if (sk) { show('projects'); skySpot(sk.dataset.sky); return; }
   const to = e.target.closest('[data-to]'); if (to) { show(to.dataset.to); return; }
   const sec = e.target.closest('.toc [data-sec]');
   if (sec) { e.preventDefault(); const t = $(sec.dataset.sec); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }

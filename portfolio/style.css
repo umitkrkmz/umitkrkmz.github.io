@@ -472,6 +472,9 @@ details.card p { margin-top: 8px; }
 .tlbar .d.lab { background: var(--pa); }
 .tlbar .d span { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); white-space: nowrap; font: 600 11px var(--f-mono); color: var(--fg); }
 .tlbar .d.dn span { bottom: auto; top: 18px; color: var(--muted); }
+.skyof { margin: -2px 0 12px; font: 500 12.5px var(--f-mono); color: var(--muted); }
+.skyof b { color: var(--pa, var(--accent)); font-weight: 600; }
+.skyof button { padding: 0; border: 0; background: none; color: var(--pa, var(--accent)); font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 .rel { display: grid; gap: 8px; }
 .relc { display: grid; gap: 3px; text-align: left; padding: 12px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--rc); color: var(--fg); cursor: pointer; font: inherit; }
 .relc:hover { border-color: var(--rc); }
@@ -519,7 +522,14 @@ details.card p { margin-top: 8px; }
 .cn.ghost small { color: rgba(170, 186, 220, .45); }
 .cn.ghost em { position: absolute; top: 26px; left: 50%; translate: calc(-50% + var(--dx, 0px)) 0; white-space: nowrap; font: 500 10.5px var(--f-mono); font-style: normal; color: rgba(190, 205, 240, .8); background: rgba(8, 12, 26, .85); padding: 2px 7px; border-radius: 6px; opacity: 0; transition: opacity .2s; pointer-events: none; }
 .cn.ghost:hover em, .cn.ghost:focus em { opacity: 1; }
-@media (prefers-reduced-motion: reduce) { .cn.pulse i { animation: none; } }
+/* Gökyüzünde gör (detaydan): yıldız büyür, üç kez nabız atar, çevresinde halka açılır */
+.cn.spot { z-index: 2; }
+.cn.spot i { transform: scale(1.5); animation: spot 1.4s ease-in-out 3; }
+.cn.spot span { color: #fff; text-shadow: 0 0 12px var(--rc), 0 1px 3px rgba(0, 0, 0, .9); }
+.cn.spot::before { content: ""; position: absolute; left: 50%; top: 6px; width: 14px; height: 14px; margin: -7px; border-radius: 50%; border: 1.5px solid var(--rc); opacity: 0; pointer-events: none; animation: ring 1.4s ease-out 3; }
+@keyframes spot { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--rc) 20%, transparent), 0 0 40px var(--rc), 0 0 80px color-mix(in srgb, var(--rc) 60%, transparent); } }
+@keyframes ring { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(5); } }
+@media (prefers-reduced-motion: reduce) { .cn.pulse i, .cn.spot i { animation: none; } .cn.spot::before { display: none; } }
 @media (hover: none) { .skyname { opacity: .55; } }               /* dokunmatikte takımyıldız adları hep silikçe görünür */
 @media (prefers-reduced-motion: reduce) { .sec.rv { opacity: 1; transform: none; transition: none; } }
 
