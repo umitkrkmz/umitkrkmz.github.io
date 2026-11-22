@@ -1,0 +1,195 @@
+{
+  "slug": "tablepeek",
+  "name": "TablePeek",
+  "order": 2,
+  "version": "0.1.1",
+  "releaseDate": "2026-11-14",
+  "storeId": "9NV50JZQDSHT",
+  "storeUrl": "https://apps.microsoft.com/detail/9nv50jzqdsht",
+  "githubUrl": "https://github.com/umitkrkmz/tablepeek",
+  "issuesUrl": "https://github.com/umitkrkmz/tablepeek/issues/new/choose",
+  "sourceModel": "closed-source-open-docs",
+  "licenseLabel": "Kapalı Kaynak · Belgeler CC BY 4.0",
+  "networkModel": "offline",
+  "icon": "/images/apps/tablepeek/icon.png",
+  "theme": {
+    "accent": "#046c4e",
+    "surfaceFrom": "#f5f7f6",
+    "surfaceTo": "#edf3f0",
+    "borderTint": "#e1e8e5",
+    "shadowTint": "rgba(8, 41, 31, 0.22)",
+    "badgeBg": "#e6f2ec",
+    "badgeText": "#045a41",
+    "backdropTone": "#08291f"
+  },
+  "tr": {
+    "tagline": "Ekrandaki tabloları okuyup Excel’e düzgünce yapıştıran Windows aracı.",
+    "shortDescription": "Web sayfasında, PDF’te, sunumda ya da kopyalanamayan bir uygulamada gördüğünüz tabloyu tek kısayolla seçin; sayıları, para birimleri ve tarihleriyle Excel’e gerçek değer olarak aktarın.",
+    "description": "TablePeek, Windows’un yerleşik yazı tanıma (OCR) motorunu kullanarak tabloları tamamen kendi bilgisayarınızda okur. Stüdyo penceresinde sütun sınırlarını sürükleyerek düzeltebilir, hücreleri yeniden okuyabilir ve filtreli .xlsx ya da biçimli Excel tablosu olarak aktarabilirsiniz. İnternete hiç bağlanmaz.",
+    "priceBadge": "₺320 · Tek seferlik",
+    "pricingSummary": "Microsoft Store üzerinden tek seferlik satın almadır; abonelik yoktur. Satın aldığınızda tüm özellikler sizindir. İsteğe bağlı teşekkür eklentileri yalnızca kozmetik renk temaları ve simge seçenekleri açar.",
+    "pricingTiers": [
+      {
+        "label": "TablePeek (Microsoft Store)",
+        "price": "₺320",
+        "note": "Tek seferlik satın alma. Tüm okuma, Stüdyo, biçimli yapıştırma ve .xlsx dışa aktarma özellikleri dâhil."
+      },
+      {
+        "label": "İsteğe Bağlı Teşekkür Eklentileri",
+        "price": "₺40 · ₺125 · ₺300",
+        "note": "Hiçbir özelliği kısıtlamaz; yalnızca renk temaları, bildirim alanı simgesi ve destekçi işareti açar."
+      }
+    ],
+    "requirements": [
+      "Windows 10 veya Windows 11 (x64 Masaüstü)",
+      "Windows yerleşik OCR dil paketi (Türkçe / İngilizce)",
+      "İnternet bağlantısı gerekmez (internete hiç bağlanmaz)",
+      "Türkçe ve İngilizce arayüz · Açık ve koyu tema"
+    ],
+    "features": [
+      "Tek kısayolla (Ctrl + Alt + Shift + T) ekrandan, resim dosyasından veya panodan tablo okuma",
+      "Kenarlıklı tablolar, çizgisiz tablolar ve e-tablo görüntülerinde otomatik satır/sütun tespiti",
+      "E-tablo ekran görüntülerinde satır numaraları ve sütun harflerinin kendiliğinden ayıklanması",
+      "Stüdyo düzenleyici: sütun sınırlarını sürükleyip ayarlama, hücre yeniden okuma, birleştirme, bölme ve geri alma",
+      "Sık OCR hatalarını (0/O, 1/I, kayıp nokta/virgül, ₺ ve %) akıllıca düzeltme; emin olunmayan hücreyi tahmin etmeme",
+      "Para, yüzde, sayı ve tarihleri Excel’e metin değil gerçek değer olarak aktarma (TR / EN / sistem biçimi)",
+      "Yalnızca değerler ya da dolgu, kalınlık, hizalama ve kenarlıkları koruyan biçimli yapıştırma",
+      "Filtreli Excel tablosu ve sabit başlık satırıyla doğrudan .xlsx dosyası kaydetme"
+    ],
+    "privacyHighlights": [
+      "İnternete hiç bağlanmaz; uygulamanın ağ kodu yoktur.",
+      "Ekran görüntüleri yalnızca bellekte işlenir; diske kaydedilmez ve gönderilmez.",
+      "Yazı tanıma yalnızca bu bilgisayarda Windows OCR bileşeniyle yapılır.",
+      "Hesap, reklam, analiz veya telemetri bulunmaz."
+    ],
+    "cardImage": "/images/apps/tablepeek/tr-1.webp",
+    "cardImageAlt": "TablePeek ile ekrandan tablo seçme ve Stüdyo görünümü",
+    "heroImage": "/images/apps/tablepeek/tr-1.webp",
+    "heroAlt": "TablePeek Stüdyo ekran görüntüsü ve sütun sınırları",
+    "screenshots": [
+      {
+        "src": "/images/apps/tablepeek/tr-1.webp",
+        "alt": "Ekrandaki tablonun seçilmesi ve TablePeek Stüdyo görünümü",
+        "caption": "Tek kısayolla tablo yakalama ve Stüdyo’da sütun sınırlarını düzenleme"
+      },
+      {
+        "src": "/images/apps/tablepeek/tr-2.webp",
+        "alt": "TablePeek biçimli yapıştırma önizlemesi",
+        "caption": "Dolgu, hizalama ve kenarlıkları koruyan biçimli yapıştırma"
+      },
+      {
+        "src": "/images/apps/tablepeek/tr-3.webp",
+        "alt": "TablePeek ana penceresi ve okuma ayarları",
+        "caption": "Sade ana pencere ve sayı/tarih biçimlendirme ayarları"
+      },
+      {
+        "src": "/images/apps/tablepeek/tr-4.webp",
+        "alt": "TablePeek yazı tanıma dil paketleri ve gizlilik özeti",
+        "caption": "Yerleşik OCR dil paketi denetimi ve tam çevrimdışı gizlilik"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Yazı tanıma dil paketi eksik uyarısı alıyorum, nasıl kurarım?",
+        "answer": "TablePeek içinde Ayarlar → Yazı tanıma ekranından Windows dil ayarlarını açın, ilgili dili ekleyin ve Dil seçenekleri altından Optik karakter tanıma (OCR) paketini indirin. Ardından TablePeek’te Yeniden denetle düğmesine basın."
+      },
+      {
+        "question": "Küçük yazılı veya yoğun tablolarda doğruluğu nasıl artırabilirim?",
+        "answer": "Tabloyu ekranda yakalamadan önce Ctrl + + ile biraz yakınlaştırmak OCR doğruluğunu belirgin şekilde artırır. Sütunlar yanlış bölünürse Stüdyo’da mavi sütun çizgilerini sürükleyip yeniden okuyabilirsiniz."
+      },
+      {
+        "question": "TablePeek internete bağlanıyor mu veya tablolarımı kaydediyor mu?",
+        "answer": "Hayır. TablePeek internete hiç bağlanmaz; ekran görüntüleri yalnızca bellekte işlenir ve pencere kapatıldığında temizlenir."
+      },
+      {
+        "question": "Teşekkür eklentilerini almadan tüm özellikler çalışıyor mu?",
+        "answer": "Evet. Uygulamayı satın aldığınızda tüm tablo okuma, Stüdyo ve Excel aktarım özellikleri sınırsız olarak açıktır. Teşekkür eklentileri yalnızca renk temaları ve simge seçenekleri gibi kozmetik ekstralar sunar."
+      }
+    ]
+  },
+  "en": {
+    "tagline": "Read tables right off your screen and paste them cleanly into Excel.",
+    "shortDescription": "Draw a box around any table in a web page, PDF, slide deck, or locked app; TablePeek reads it offline with Windows OCR and sends real numbers, currencies, and dates to Excel.",
+    "description": "TablePeek runs entirely on your PC using built-in Windows text recognition. Adjust column dividers right over the image in the Studio, re-read individual cells, and export formatted cells or a filtered .xlsx workbook—without ever connecting to the internet.",
+    "priceBadge": "$7.49 · One-time",
+    "pricingSummary": "One-time purchase on the Microsoft Store with no subscription. All table recognition, Studio editing, and Excel export features are included. Optional thank-you add-ons unlock cosmetic extras only.",
+    "pricingTiers": [
+      {
+        "label": "TablePeek (Microsoft Store)",
+        "price": "$7.49",
+        "note": "One-time purchase. Full access to capture, Studio editing, formatted paste, and .xlsx export."
+      },
+      {
+        "label": "Optional Thank-You Add-Ons",
+        "price": "$0.99 · $2.99 · $6.99",
+        "note": "No features locked behind add-ons; unlocks colour themes, tray icon choices, and a supporter mark."
+      }
+    ],
+    "requirements": [
+      "Windows 10 or Windows 11 (x64 Desktop)",
+      "Installed Windows OCR language pack (English / Turkish)",
+      "No internet connection required (never goes online)",
+      "English and Turkish interface · Light and dark themes"
+    ],
+    "features": [
+      "Capture any table on screen with one shortcut (Ctrl + Alt + Shift + T), or read from an image file or clipboard",
+      "Detects rows and columns across bordered tables, borderless tables, and spreadsheet screenshots",
+      "Automatically strips spreadsheet row numbers and column letters when reading sheet captures",
+      "Studio editor: drag column borders over the picture, re-read single cells, merge, split, and undo every step",
+      "Fixes common OCR errors (0/O, 1/I, missing separators, currency and % signs) without hallucinating uncertain cells",
+      "Sends money, percentages, numbers, and dates into Excel as real values rather than plain text",
+      "Copy values only or formatted paste preserving fills, bold text, alignment, borders, and merged cells",
+      "Save directly as an .xlsx workbook with a filtered Excel table and frozen header row"
+    ],
+    "privacyHighlights": [
+      "Never connects to the internet; contains no network upload code.",
+      "Screen captures are processed in memory only and never saved to disk.",
+      "Text recognition runs exclusively on your device via Windows OCR.",
+      "No accounts, ads, analytics, or telemetry."
+    ],
+    "cardImage": "/images/apps/tablepeek/en-1.webp",
+    "cardImageAlt": "Selecting a table on screen and editing it in TablePeek Studio",
+    "heroImage": "/images/apps/tablepeek/en-1.webp",
+    "heroAlt": "TablePeek Studio window with adjustable column borders",
+    "screenshots": [
+      {
+        "src": "/images/apps/tablepeek/en-1.webp",
+        "alt": "Table capture on screen and TablePeek Studio view",
+        "caption": "Capture any on-screen table with one shortcut and refine columns in the Studio"
+      },
+      {
+        "src": "/images/apps/tablepeek/en-2.webp",
+        "alt": "TablePeek formatted Excel paste preview",
+        "caption": "Formatted paste keeping fill colours, bold styling, alignment, and borders"
+      },
+      {
+        "src": "/images/apps/tablepeek/en-3.webp",
+        "alt": "TablePeek main window and reading settings",
+        "caption": "Compact main window with locale-aware number and date formatting"
+      },
+      {
+        "src": "/images/apps/tablepeek/en-4.webp",
+        "alt": "TablePeek text recognition settings and offline privacy summary",
+        "caption": "Built-in Windows OCR language pack check and strictly offline privacy"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "How do I install a missing Windows OCR language pack?",
+        "answer": "Open Settings → Text recognition inside TablePeek, click Open Windows language settings, add the language if needed, then open Language options → Optical character recognition → Download. Press Check again in TablePeek."
+      },
+      {
+        "question": "How can I get cleaner results on tables with small text?",
+        "answer": "Zooming in on the table (Ctrl + +) before capturing noticeably improves recognition quality. If columns split inaccurately, drag the blue column dividers in the Studio or right-click a cell to re-read it."
+      },
+      {
+        "question": "Does TablePeek ever connect to the internet or upload captures?",
+        "answer": "No. TablePeek never goes online; screenshots stay in memory only and are discarded as soon as the Studio closes."
+      },
+      {
+        "question": "Are any core features locked behind the thank-you add-ons?",
+        "answer": "No. Buying TablePeek gives you every recognition, Studio, and Excel export feature permanently. Thank-you add-ons only unlock cosmetic themes and tray icon options."
+      }
+    ]
+  }
+}

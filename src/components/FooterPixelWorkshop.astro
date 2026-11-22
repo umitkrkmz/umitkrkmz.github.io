@@ -1,0 +1,591 @@
+---
+/**
+ * FooterPixelWorkshop.astro
+ * Zero-JS, crisp-pixel (integer 2x scale), 4-station synchronized 16s diorama workshop.
+ * Decorative only (aria-hidden="true"), respects prefers-reduced-motion: reduce.
+ */
+---
+
+<div
+  aria-hidden="true"
+  class="pw-workshop relative mt-10 select-none overflow-hidden pt-2"
+>
+  <!-- Desktop full-width pixel conveyor belt / track + morphing traveling packages (16s loop) -->
+  <div class="pointer-events-none absolute inset-x-4 bottom-0 hidden h-[28px] md:block">
+    <!-- Conveyor rail base & animated subtle notches -->
+    <div class="pw-conveyor-rail absolute inset-x-0 bottom-0 h-[6px] rounded-[2px] border-t border-b border-black/[0.08] bg-[#eceef2]">
+      <div class="pw-conveyor-notches h-full w-full opacity-55"></div>
+    </div>
+    <!-- End rollers -->
+    <span class="absolute bottom-0 left-0 h-[6px] w-[6px] rounded-[1px] bg-[#c7ccd4]"></span>
+    <span class="absolute right-0 bottom-0 h-[6px] w-[6px] rounded-[1px] bg-[#c7ccd4]"></span>
+
+    <!-- Traveling Package 1 (18–26%): Folded Pixel Document (Amber / FolioPeek -> TablePeek) -->
+    <svg
+      width="18"
+      height="16"
+      viewBox="0 0 9 8"
+      shape-rendering="crispEdges"
+      class="pw-pkg pw-pkg-doc absolute bottom-[6px] left-0"
+    >
+      <rect x="1" y="1" width="6" height="7" fill="#c7bfb5" />
+      <rect x="1" y="1" width="5" height="6" fill="#fffdf9" />
+      <rect x="5" y="1" width="2" height="2" fill="#e5dfd5" />
+      <rect x="2" y="3" width="3" height="1" fill="#d97706" />
+      <rect x="2" y="5" width="4" height="1" fill="#ea8c2e" />
+    </svg>
+
+    <!-- Traveling Package 2 (43–51%): Aligned 2×2 Emerald Table Block (TablePeek -> QRPeek) -->
+    <svg
+      width="18"
+      height="16"
+      viewBox="0 0 9 8"
+      shape-rendering="crispEdges"
+      class="pw-pkg pw-pkg-table absolute bottom-[6px] left-0"
+    >
+      <rect x="1" y="1" width="7" height="7" fill="#065f46" />
+      <rect x="2" y="2" width="2" height="2" fill="#34d399" />
+      <rect x="5" y="2" width="2" height="2" fill="#10b981" />
+      <rect x="2" y="5" width="2" height="2" fill="#10b981" />
+      <rect x="5" y="5" width="2" height="2" fill="#6ee7b7" />
+    </svg>
+
+    <!-- Traveling Package 3 (68–76%): QR-Sealed Cobalt Package (QRPeek -> MediaGrab) -->
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 9 9"
+      shape-rendering="crispEdges"
+      class="pw-pkg pw-pkg-qr absolute bottom-[6px] left-0"
+    >
+      <rect x="1" y="1" width="7" height="7" fill="#1e40af" />
+      <rect x="2" y="2" width="5" height="5" fill="#eff6ff" />
+      <rect x="2" y="2" width="2" height="2" fill="#1d4ed8" />
+      <rect x="5" y="2" width="2" height="1" fill="#3b82f6" />
+      <rect x="3" y="4" width="2" height="2" fill="#1d4ed8" />
+      <rect x="5" y="5" width="2" height="2" fill="#2563eb" />
+    </svg>
+  </div>
+
+  <!-- 4 Crisp Fixed-Scale Pixel Stations + Desktop-Only Calm Environmental Props -->
+  <div class="relative z-10 grid grid-cols-2 items-end justify-items-center gap-x-2 gap-y-4 md:flex md:items-end md:justify-between md:gap-1 md:pb-[5px]">
+    <!-- Prop 0 (Desktop only, left of Station 1): Steaming Pixel Coffee Mug -->
+    <div class="hidden shrink-0 items-end pb-[1px] lg:flex">
+      <svg
+        width="28"
+        height="40"
+        viewBox="0 0 14 20"
+        shape-rendering="crispEdges"
+        class="block h-[40px] w-[28px] overflow-visible"
+      >
+        <rect x="2" y="19" width="9" height="1" fill="#1d1d1f" opacity="0.07" />
+        <!-- Rising 2px steam -->
+        <rect class="pw-steam-1" x="4" y="6" width="1" height="3" fill="#b8bec8" />
+        <rect class="pw-steam-2" x="7" y="4" width="1" height="3" fill="#c9cfd8" />
+        <!-- Mug body (calm warm porcelain) -->
+        <rect x="2" y="12" width="8" height="7" fill="#d4d7de" />
+        <rect x="3" y="12" width="6" height="6" fill="#ffffff" />
+        <rect x="3" y="12" width="6" height="1" fill="#a88b73" />
+        <rect x="3" y="17" width="6" height="1" fill="#e5e7eb" />
+        <!-- Handle -->
+        <rect x="10" y="13" width="2" height="1" fill="#c7ccd4" />
+        <rect x="11" y="14" width="1" height="2" fill="#c7ccd4" />
+        <rect x="10" y="16" width="2" height="1" fill="#c7ccd4" />
+      </svg>
+    </div>
+
+    <!-- Station 1 (0–4s · Amber · FolioPeek — Sketch, Sign & Send Paper) -->
+    <div class="pw-station pw-station-1 flex w-full flex-col items-center border-b border-black/[0.06] pb-0 md:w-auto md:border-b-0">
+      <svg
+        width="160"
+        height="84"
+        viewBox="0 0 80 42"
+        shape-rendering="crispEdges"
+        class="block h-[84px] w-[160px] overflow-visible"
+      >
+        <!-- Ground shadows -->
+        <rect x="12" y="40" width="18" height="2" fill="#1d1d1f" opacity="0.08" />
+        <rect x="46" y="40" width="24" height="2" fill="#1d1d1f" opacity="0.08" />
+
+        <!-- Pixel Draft Easel / Board -->
+        <rect x="50" y="34" width="2" height="6" fill="#8b7d70" />
+        <rect x="64" y="34" width="2" height="6" fill="#8b7d70" />
+        <rect x="57" y="34" width="2" height="5" fill="#a6988a" />
+        <rect x="46" y="14" width="24" height="20" fill="#c7bfb5" />
+        <rect x="47" y="15" width="22" height="18" fill="#fffdf9" />
+        <rect x="47" y="32" width="22" height="1" fill="#e8e2d8" />
+        <!-- Brass clip -->
+        <rect x="54" y="12" width="8" height="3" fill="#9a4506" />
+        <rect x="55" y="12" width="6" height="1" fill="#ea8c2e" />
+
+        <!-- Drawn amber plan lines + signature stroke (0–4s) -->
+        <rect class="pw-s1-line1" x="50" y="18" width="15" height="2" fill="#d97706" />
+        <rect class="pw-s1-line2" x="50" y="22" width="12" height="2" fill="#ea8c2e" />
+        <rect class="pw-s1-line3" x="50" y="26" width="16" height="2" fill="#b45309" />
+        <!-- Signature squiggle -->
+        <rect class="pw-s1-sig" x="57" y="30" width="8" height="1" fill="#9a4506" />
+
+        <!-- Completion ✓ + pixel star sparkle -->
+        <g class="pw-s1-spark">
+          <rect x="55" y="7" width="1" height="2" fill="#d97706" />
+          <rect x="56" y="8" width="1" height="2" fill="#d97706" />
+          <rect x="57" y="7" width="1" height="2" fill="#d97706" />
+          <rect x="58" y="6" width="1" height="2" fill="#d97706" />
+          <rect x="59" y="5" width="1" height="2" fill="#d97706" />
+          <rect x="64" y="7" width="2" height="2" fill="#fbbf24" />
+          <rect x="50" y="6" width="2" height="2" fill="#f59e0b" />
+        </g>
+
+        <!-- 3-Tone Detailed Amber Craftsman (FolioPeek) -->
+        <g class="pw-hover-hop">
+          <g class="pw-s1-char">
+            <!-- Animated walking legs -->
+            <g class="pw-s1-leg-l">
+              <rect x="16" y="36" width="3" height="4" fill="#7c2d12" />
+              <rect x="16" y="39" width="4" height="1" fill="#431407" />
+            </g>
+            <g class="pw-s1-leg-r">
+              <rect x="23" y="36" width="3" height="4" fill="#7c2d12" />
+              <rect x="23" y="39" width="4" height="1" fill="#431407" />
+            </g>
+            <!-- 3-Tone Body (highlight / mid / shadow) -->
+            <rect x="14" y="22" width="14" height="14" fill="#b45309" />
+            <rect x="15" y="21" width="12" height="13" fill="#ea7b24" />
+            <rect x="16" y="21" width="10" height="2" fill="#fbbf24" />
+            <rect x="15" y="33" width="12" height="2" fill="#9a4506" />
+            <!-- Cream drafting apron -->
+            <rect x="17" y="29" width="8" height="5" fill="#fef3c7" />
+            <rect x="18" y="33" width="6" height="1" fill="#fde68a" />
+            <!-- 3-Tone Pixel Hat / Cap -->
+            <rect x="15" y="17" width="12" height="4" fill="#7c2d12" />
+            <rect x="16" y="16" width="9" height="3" fill="#9a4506" />
+            <rect x="17" y="16" width="6" height="1" fill="#d97706" />
+            <rect x="25" y="19" width="4" height="2" fill="#7c2d12" />
+            <!-- Eyes -->
+            <g class="pw-blink-1">
+              <rect x="18" y="24" width="2" height="3" fill="#1d1d1f" />
+              <rect x="18" y="24" width="1" height="1" fill="#ffffff" />
+              <rect x="23" y="24" width="2" height="3" fill="#1d1d1f" />
+              <rect x="23" y="24" width="1" height="1" fill="#ffffff" />
+            </g>
+            <!-- Left arm -->
+            <rect x="12" y="26" width="2" height="5" fill="#b45309" />
+            <rect x="12" y="26" width="2" height="1" fill="#fbbf24" />
+            <!-- Right drawing arm + amber pencil -->
+            <g class="pw-s1-arm">
+              <rect x="28" y="26" width="5" height="2" fill="#c2590c" />
+              <rect x="28" y="26" width="4" height="1" fill="#fbbf24" />
+              <!-- Pencil -->
+              <rect x="33" y="25" width="5" height="2" fill="#78350f" />
+              <rect x="34" y="25" width="3" height="1" fill="#f59e0b" />
+              <rect x="38" y="24" width="2" height="2" fill="#fde68a" />
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Prop 1 (Desktop only, between Station 1 & 2): Potted Pixel Plant -->
+    <div class="hidden shrink-0 items-end pb-[1px] md:flex">
+      <svg
+        width="32"
+        height="44"
+        viewBox="0 0 16 22"
+        shape-rendering="crispEdges"
+        class="block h-[44px] w-[32px] overflow-visible"
+      >
+        <rect x="3" y="21" width="10" height="1" fill="#1d1d1f" opacity="0.07" />
+        <!-- Leaves (calm muted sage) -->
+        <g class="pw-plant-sway">
+          <rect x="7" y="10" width="2" height="5" fill="#82a692" />
+          <rect x="4" y="8" width="3" height="3" fill="#9bc0aa" />
+          <rect x="5" y="7" width="2" height="1" fill="#b7d6c3" />
+          <rect x="9" y="7" width="3" height="3" fill="#82a692" />
+          <rect x="10" y="6" width="2" height="1" fill="#a8cbb6" />
+          <rect x="6" y="4" width="3" height="3" fill="#9bc0aa" />
+          <rect x="7" y="3" width="2" height="1" fill="#b7d6c3" />
+        </g>
+        <!-- Terracotta pot (soft pastel clay) -->
+        <rect x="3" y="14" width="10" height="2" fill="#d9baa3" />
+        <rect x="4" y="16" width="8" height="5" fill="#cfa98e" />
+        <rect x="4" y="16" width="3" height="5" fill="#dfc2ac" />
+      </svg>
+    </div>
+
+    <!-- Station 2 (4–8s · Emerald · TablePeek — Glasses, Magnifier & 2×2 Table Build) -->
+    <div class="pw-station pw-station-2 flex w-full flex-col items-center border-b border-black/[0.06] pb-0 md:w-auto md:border-b-0">
+      <svg
+        width="160"
+        height="84"
+        viewBox="0 0 80 42"
+        shape-rendering="crispEdges"
+        class="block h-[84px] w-[160px] overflow-visible"
+      >
+        <!-- Ground shadows -->
+        <rect x="11" y="40" width="18" height="2" fill="#1d1d1f" opacity="0.08" />
+        <rect x="48" y="40" width="22" height="2" fill="#1d1d1f" opacity="0.08" />
+
+        <!-- Small workbench pedestal -->
+        <rect x="49" y="37" width="20" height="3" fill="#d1d8d4" />
+        <rect x="49" y="37" width="20" height="1" fill="#e5ebe8" />
+
+        <!-- 4 3-Tone Pixel Bricks aligning into a crisp 2×2 emerald table (4–8s) -->
+        <g class="pw-s2-b1">
+          <rect x="50" y="30" width="8" height="6" fill="#047857" />
+          <rect x="51" y="31" width="6" height="4" fill="#10b981" />
+          <rect x="51" y="31" width="6" height="1" fill="#6ee7b7" />
+        </g>
+        <g class="pw-s2-b2">
+          <rect x="59" y="30" width="8" height="6" fill="#065f46" />
+          <rect x="60" y="31" width="6" height="4" fill="#059669" />
+          <rect x="60" y="31" width="6" height="1" fill="#34d399" />
+        </g>
+        <g class="pw-s2-b3">
+          <rect x="50" y="23" width="8" height="6" fill="#059669" />
+          <rect x="51" y="24" width="6" height="4" fill="#34d399" />
+          <rect x="51" y="24" width="6" height="1" fill="#a7f3d0" />
+        </g>
+        <g class="pw-s2-b4">
+          <rect x="59" y="23" width="8" height="6" fill="#047857" />
+          <rect x="60" y="24" width="6" height="4" fill="#10b981" />
+          <rect x="60" y="24" width="6" height="1" fill="#6ee7b7" />
+        </g>
+
+        <!-- Emerald completion ✓ + star sparkle -->
+        <g class="pw-s2-spark">
+          <rect x="56" y="15" width="1" height="2" fill="#059669" />
+          <rect x="57" y="16" width="1" height="2" fill="#059669" />
+          <rect x="58" y="15" width="1" height="2" fill="#059669" />
+          <rect x="59" y="14" width="1" height="2" fill="#059669" />
+          <rect x="60" y="13" width="1" height="2" fill="#059669" />
+          <rect x="64" y="16" width="2" height="2" fill="#34d399" />
+          <rect x="51" y="14" width="2" height="2" fill="#6ee7b7" />
+        </g>
+
+        <!-- 3-Tone Detailed Emerald Technician with Pixel Glasses & Bright Magnifier -->
+        <g class="pw-hover-hop">
+          <g class="pw-s2-char">
+            <!-- Walking legs -->
+            <g class="pw-s2-leg-l">
+              <rect x="15" y="36" width="3" height="4" fill="#064e3b" />
+              <rect x="15" y="39" width="4" height="1" fill="#022c22" />
+            </g>
+            <g class="pw-s2-leg-r">
+              <rect x="22" y="36" width="3" height="4" fill="#064e3b" />
+              <rect x="22" y="39" width="4" height="1" fill="#022c22" />
+            </g>
+            <!-- 3-Tone Body -->
+            <rect x="13" y="20" width="14" height="16" fill="#047857" />
+            <rect x="14" y="19" width="12" height="15" fill="#10b981" />
+            <rect x="15" y="19" width="10" height="2" fill="#6ee7b7" />
+            <rect x="14" y="33" width="12" height="2" fill="#065f46" />
+            <!-- Chest mini spreadsheet badge -->
+            <rect x="17" y="29" width="6" height="4" fill="#d1fae5" />
+            <rect x="19" y="29" width="1" height="4" fill="#047857" />
+            <rect x="17" y="31" width="6" height="1" fill="#047857" />
+            <!-- Pixel Glasses (Dark frame + bright lenses + eyes) -->
+            <rect x="14" y="23" width="5" height="4" fill="#064e3b" />
+            <rect x="21" y="23" width="5" height="4" fill="#064e3b" />
+            <rect x="19" y="24" width="2" height="1" fill="#064e3b" />
+            <rect x="15" y="24" width="3" height="2" fill="#ecfdf5" />
+            <rect x="22" y="24" width="3" height="2" fill="#ecfdf5" />
+            <g class="pw-blink-2">
+              <rect x="16" y="24" width="1" height="2" fill="#0f172a" />
+              <rect x="23" y="24" width="1" height="2" fill="#0f172a" />
+            </g>
+            <!-- Left arm -->
+            <rect x="11" y="26" width="2" height="5" fill="#047857" />
+            <rect x="11" y="26" width="2" height="1" fill="#6ee7b7" />
+            <!-- Right arm + Bright Pixel Magnifying Glass -->
+            <g class="pw-s2-glass">
+              <rect x="27" y="26" width="6" height="2" fill="#047857" />
+              <rect x="27" y="26" width="5" height="1" fill="#6ee7b7" />
+              <rect x="33" y="25" width="3" height="2" fill="#064e3b" />
+              <!-- Magnifier rim -->
+              <rect x="36" y="20" width="7" height="1" fill="#064e3b" />
+              <rect x="36" y="27" width="7" height="1" fill="#064e3b" />
+              <rect x="35" y="21" width="1" height="6" fill="#064e3b" />
+              <rect x="43" y="21" width="1" height="6" fill="#064e3b" />
+              <!-- Glossy lens -->
+              <rect x="36" y="21" width="7" height="6" fill="#a7f3d0" opacity="0.82" />
+              <rect x="37" y="22" width="2" height="1" fill="#ffffff" />
+              <rect x="37" y="23" width="1" height="1" fill="#ffffff" />
+              <rect x="40" y="25" width="2" height="1" fill="#ecfdf5" />
+            </g>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Prop 2 (Desktop only, between Station 2 & 3): Pixel Signal Gate / Beacon Post -->
+    <div class="hidden shrink-0 items-end pb-[1px] md:flex">
+      <svg
+        width="24"
+        height="52"
+        viewBox="0 0 12 26"
+        shape-rendering="crispEdges"
+        class="block h-[52px] w-[24px] overflow-visible"
+      >
+        <rect x="2" y="25" width="8" height="1" fill="#1d1d1f" opacity="0.07" />
+        <!-- Base & pole -->
+        <rect x="3" y="23" width="6" height="2" fill="#b8c0cc" />
+        <rect x="5" y="11" width="2" height="12" fill="#cbd2dc" />
+        <rect x="5" y="11" width="1" height="12" fill="#dce1e8" />
+        <!-- Signal housing -->
+        <rect x="3" y="5" width="6" height="7" fill="#94a3b8" />
+        <rect x="4" y="6" width="4" height="5" fill="#334155" />
+        <!-- Beacon lamp (pulses emerald right as package 2 passes underneath at 46–50%) -->
+        <rect class="pw-gate-lamp" x="5" y="7" width="2" height="3" fill="#64748b" />
+        <g class="pw-gate-glow">
+          <rect x="5" y="2" width="2" height="2" fill="#34d399" />
+          <rect x="1" y="7" width="1" height="2" fill="#6ee7b7" />
+          <rect x="10" y="7" width="1" height="2" fill="#6ee7b7" />
+        </g>
+      </svg>
+    </div>
+
+    <!-- Station 3 (8–12s · Cobalt · QRPeek — Antenna, Visor, Laser & Status Lamp) -->
+    <div class="pw-station pw-station-3 flex w-full flex-col items-center pb-0 md:w-auto">
+      <svg
+        width="160"
+        height="84"
+        viewBox="0 0 80 42"
+        shape-rendering="crispEdges"
+        class="block h-[84px] w-[160px] overflow-visible"
+      >
+        <!-- Ground shadows -->
+        <rect x="11" y="40" width="18" height="2" fill="#1d1d1f" opacity="0.08" />
+        <rect x="48" y="40" width="26" height="2" fill="#1d1d1f" opacity="0.08" />
+
+        <!-- Dashed Cobalt Calibration Laser Beam (8–12s) -->
+        <line
+          class="pw-s3-beam"
+          x1="33"
+          y1="24"
+          x2="49"
+          y2="22"
+          stroke="#2563eb"
+          stroke-width="1.5"
+          stroke-dasharray="3 2"
+        />
+
+        <!-- Floating 3×3 QR Matrix Pedestal -->
+        <rect x="50" y="36" width="13" height="4" fill="#cbd5e1" />
+        <rect x="50" y="36" width="13" height="1" fill="#e2e8f0" />
+        <rect x="54" y="33" width="5" height="3" fill="#94a3b8" />
+        <g class="pw-s3-matrix">
+          <rect x="50" y="15" width="3" height="3" fill="#1d4ed8" />
+          <rect x="55" y="15" width="3" height="3" fill="#60a5fa" />
+          <rect x="60" y="15" width="3" height="3" fill="#1d4ed8" />
+          <rect x="50" y="20" width="3" height="3" fill="#60a5fa" />
+          <rect class="pw-s3-core" x="55" y="20" width="3" height="3" fill="#1e40af" />
+          <rect x="60" y="20" width="3" height="3" fill="#3b82f6" />
+          <rect x="50" y="25" width="3" height="3" fill="#1d4ed8" />
+          <rect x="55" y="25" width="3" height="3" fill="#3b82f6" />
+          <rect x="60" y="25" width="3" height="3" fill="#1d4ed8" />
+        </g>
+
+        <!-- Mini Control Status Lamp beside QR structure -->
+        <rect x="69" y="26" width="2" height="14" fill="#94a3b8" />
+        <rect x="67" y="38" width="6" height="2" fill="#cbd5e1" />
+        <rect x="68" y="22" width="4" height="4" fill="#334155" />
+        <rect class="pw-s3-lamp" x="69" y="23" width="2" height="2" fill="#64748b" />
+
+        <!-- Cobalt completion ✓ + spark -->
+        <g class="pw-s3-spark">
+          <rect x="54" y="9" width="1" height="2" fill="#2563eb" />
+          <rect x="55" y="10" width="1" height="2" fill="#2563eb" />
+          <rect x="56" y="9" width="1" height="2" fill="#2563eb" />
+          <rect x="57" y="8" width="1" height="2" fill="#2563eb" />
+          <rect x="58" y="7" width="1" height="2" fill="#2563eb" />
+          <rect x="63" y="10" width="2" height="2" fill="#60a5fa" />
+          <rect x="49" y="10" width="2" height="2" fill="#93c5fd" />
+        </g>
+
+        <!-- 3-Tone Detailed Cobalt Engineer with Signal Antenna & Scanner Visor -->
+        <g class="pw-hover-hop">
+          <g class="pw-s3-char">
+            <!-- Walking legs -->
+            <g class="pw-s3-leg-l">
+              <rect x="15" y="36" width="3" height="4" fill="#172554" />
+              <rect x="15" y="39" width="4" height="1" fill="#0f172a" />
+            </g>
+            <g class="pw-s3-leg-r">
+              <rect x="22" y="36" width="3" height="4" fill="#172554" />
+              <rect x="22" y="39" width="4" height="1" fill="#0f172a" />
+            </g>
+            <!-- Small Signal Antenna -->
+            <rect x="19" y="15" width="2" height="5" fill="#1e40af" />
+            <rect class="pw-s3-antenna-tip" x="18" y="13" width="4" height="3" fill="#60a5fa" />
+            <rect x="19" y="13" width="2" height="1" fill="#dbeafe" />
+            <!-- 3-Tone Body -->
+            <rect x="13" y="20" width="14" height="16" fill="#1d4ed8" />
+            <rect x="14" y="19" width="12" height="15" fill="#3b82f6" />
+            <rect x="15" y="19" width="10" height="2" fill="#93c5fd" />
+            <rect x="14" y="33" width="12" height="2" fill="#1e40af" />
+            <!-- Scanner Visor -->
+            <rect x="14" y="23" width="13" height="4" fill="#0f172a" />
+            <rect class="pw-s3-visor" x="16" y="24" width="9" height="2" fill="#7dd3fc" />
+            <rect x="16" y="24" width="3" height="1" fill="#ffffff" />
+            <!-- Chest QR core -->
+            <rect x="18" y="29" width="4" height="3" fill="#dbeafe" />
+            <rect x="19" y="30" width="2" height="1" fill="#1d4ed8" />
+            <!-- Left arm -->
+            <rect x="11" y="26" width="2" height="5" fill="#1d4ed8" />
+            <rect x="11" y="26" width="2" height="1" fill="#93c5fd" />
+            <!-- Right scanner emitter arm -->
+            <rect x="27" y="24" width="4" height="2" fill="#1e40af" />
+            <rect x="30" y="23" width="3" height="4" fill="#3b82f6" />
+            <rect x="32" y="24" width="1" height="2" fill="#bfdbfe" />
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Prop 3 (Desktop only, between Station 3 & 4): Pixel Tool / Floppy Disk Crate -->
+    <div class="hidden shrink-0 items-end pb-[1px] md:flex">
+      <svg
+        width="36"
+        height="34"
+        viewBox="0 0 18 17"
+        shape-rendering="crispEdges"
+        class="block h-[34px] w-[36px] overflow-visible"
+      >
+        <rect x="2" y="16" width="14" height="1" fill="#1d1d1f" opacity="0.07" />
+        <!-- Mini pixel floppy disk peeking out -->
+        <rect x="4" y="4" width="6" height="6" fill="#94a3b8" />
+        <rect x="5" y="4" width="4" height="2" fill="#e2e8f0" />
+        <rect x="5" y="7" width="4" height="2" fill="#cbd5e1" />
+        <!-- Small screwdriver handle peeking out -->
+        <rect x="12" y="5" width="2" height="5" fill="#cbd5e1" />
+        <rect x="11" y="3" width="4" height="2" fill="#a8b4c4" />
+        <!-- Open storage box -->
+        <rect x="2" y="9" width="14" height="7" fill="#b8c1ce" />
+        <rect x="3" y="10" width="12" height="5" fill="#dfe4ec" />
+        <rect x="3" y="10" width="12" height="1" fill="#eef1f5" />
+        <rect x="7" y="12" width="4" height="1" fill="#94a3b8" />
+      </svg>
+    </div>
+
+    <!-- Station 4 (12–16s · Blue-Slate · MediaGrab — Headphones, Multi-Tier Crates, Nap & Squash-Stretch Catch) -->
+    <div class="pw-station pw-station-4 flex w-full flex-col items-center pb-0 md:w-auto">
+      <svg
+        width="160"
+        height="84"
+        viewBox="0 0 80 42"
+        shape-rendering="crispEdges"
+        class="block h-[84px] w-[160px] overflow-visible"
+      >
+        <!-- Ground shadows -->
+        <rect x="12" y="40" width="18" height="2" fill="#1d1d1f" opacity="0.08" />
+        <rect x="44" y="40" width="28" height="2" fill="#1d1d1f" opacity="0.08" />
+
+        <!-- Multi-Tier Archive Crates (Bottom 2 + Middle 1) -->
+        <!-- Bottom-left crate -->
+        <rect x="45" y="32" width="12" height="8" fill="#64748b" />
+        <rect x="46" y="33" width="10" height="6" fill="#cbd5e1" />
+        <rect x="46" y="33" width="10" height="1" fill="#f1f5f9" />
+        <rect x="46" y="36" width="10" height="1" fill="#94a3b8" />
+        <!-- Bottom-right crate -->
+        <rect x="58" y="32" width="12" height="8" fill="#475569" />
+        <rect x="59" y="33" width="10" height="6" fill="#e2e8f0" />
+        <rect x="59" y="33" width="10" height="1" fill="#ffffff" />
+        <rect x="59" y="36" width="10" height="1" fill="#94a3b8" />
+        <!-- Second-tier archive crate -->
+        <rect x="51" y="25" width="12" height="7" fill="#526075" />
+        <rect x="52" y="26" width="10" height="5" fill="#dbe3ee" />
+        <rect x="52" y="26" width="10" height="1" fill="#f8fafc" />
+        <rect x="55" y="28" width="4" height="1" fill="#64748b" />
+
+        <!-- Incoming QR-Sealed Block caught & stacked onto 3rd tier (12–16s) -->
+        <g class="pw-s4-block">
+          <rect x="52" y="17" width="10" height="8" fill="#1e40af" />
+          <rect x="53" y="18" width="8" height="6" fill="#60a5fa" />
+          <rect x="53" y="18" width="8" height="1" fill="#bfdbfe" />
+          <rect x="55" y="20" width="4" height="3" fill="#eff6ff" />
+          <rect x="56" y="21" width="2" height="1" fill="#1d4ed8" />
+        </g>
+
+        <!-- Celebration Pixel Ring + Colorful Sparkles + Mini ✓ Checkmark -->
+        <g class="pw-s4-burst">
+          <!-- Ring -->
+          <rect x="54" y="8" width="6" height="1" fill="#3b82f6" />
+          <rect x="54" y="14" width="6" height="1" fill="#3b82f6" />
+          <rect x="53" y="9" width="1" height="5" fill="#3b82f6" />
+          <rect x="60" y="9" width="1" height="5" fill="#3b82f6" />
+          <!-- Mini checkmark inside ring -->
+          <rect x="55" y="11" width="1" height="1" fill="#10b981" />
+          <rect x="56" y="12" width="1" height="1" fill="#10b981" />
+          <rect x="57" y="11" width="1" height="1" fill="#10b981" />
+          <rect x="58" y="10" width="1" height="1" fill="#10b981" />
+          <!-- Colorful pixel particles -->
+          <rect x="48" y="7" width="2" height="2" fill="#f59e0b" />
+          <rect x="64" y="7" width="2" height="2" fill="#10b981" />
+          <rect x="56" y="4" width="2" height="2" fill="#60a5fa" />
+          <rect x="65" y="13" width="2" height="2" fill="#93c5fd" />
+          <rect x="47" y="13" width="2" height="2" fill="#fbbf24" />
+        </g>
+
+        <!-- Floating Sleep "z z" pixels (0–12s) -->
+        <g class="pw-s4-z1" fill="#64748b">
+          <rect x="29" y="14" width="3" height="1" />
+          <rect x="30" y="15" width="1" height="1" />
+          <rect x="29" y="16" width="3" height="1" />
+        </g>
+        <g class="pw-s4-z2" fill="#94a3b8">
+          <rect x="34" y="9" width="4" height="1" />
+          <rect x="36" y="10" width="1" height="1" />
+          <rect x="35" y="11" width="1" height="1" />
+          <rect x="34" y="12" width="4" height="1" />
+        </g>
+
+        <!-- 3-Tone Detailed Blue-Slate Operator with Headphones & Squash-Stretch Catch -->
+        <g class="pw-hover-hop">
+          <g class="pw-s4-char">
+            <!-- Legs -->
+            <g class="pw-s4-leg-l">
+              <rect x="16" y="36" width="3" height="4" fill="#1e293b" />
+              <rect x="16" y="39" width="4" height="1" fill="#0f172a" />
+            </g>
+            <g class="pw-s4-leg-r">
+              <rect x="23" y="36" width="3" height="4" fill="#1e293b" />
+              <rect x="23" y="39" width="4" height="1" fill="#0f172a" />
+            </g>
+            <!-- Pixel Headphones -->
+            <rect x="15" y="18" width="12" height="2" fill="#334155" />
+            <rect x="16" y="18" width="10" height="1" fill="#64748b" />
+            <rect x="12" y="21" width="3" height="5" fill="#1e293b" />
+            <rect x="13" y="22" width="1" height="3" fill="#94a3b8" />
+            <rect x="27" y="21" width="3" height="5" fill="#1e293b" />
+            <rect x="28" y="22" width="1" height="3" fill="#94a3b8" />
+            <!-- 3-Tone Body -->
+            <rect x="15" y="20" width="12" height="16" fill="#2c4c82" />
+            <rect x="16" y="20" width="10" height="14" fill="#4f7ec2" />
+            <rect x="16" y="20" width="10" height="2" fill="#93b4e8" />
+            <rect x="16" y="33" width="10" height="2" fill="#233d6b" />
+            <!-- Media play-triangle chest icon -->
+            <rect x="19" y="29" width="2" height="4" fill="#dbeafe" />
+            <rect x="21" y="30" width="2" height="2" fill="#dbeafe" />
+            <!-- Sleeping flat-line eyes (0–12s) -->
+            <g class="pw-s4-eyes-sleep">
+              <rect x="17" y="25" width="3" height="1" fill="#0f172a" />
+              <rect x="22" y="25" width="3" height="1" fill="#0f172a" />
+            </g>
+            <!-- Awake sparkling eyes (12–16s) -->
+            <g class="pw-s4-eyes-awake">
+              <rect x="17" y="23" width="3" height="3" fill="#ffffff" />
+              <rect x="18" y="24" width="2" height="2" fill="#0f172a" />
+              <rect x="18" y="24" width="1" height="1" fill="#ffffff" />
+              <rect x="22" y="23" width="3" height="3" fill="#ffffff" />
+              <rect x="23" y="24" width="2" height="2" fill="#0f172a" />
+              <rect x="23" y="24" width="1" height="1" fill="#ffffff" />
+            </g>
+            <!-- Arms -->
+            <rect x="13" y="28" width="2" height="5" fill="#2c4c82" />
+            <rect x="27" y="28" width="2" height="5" fill="#2c4c82" />
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>

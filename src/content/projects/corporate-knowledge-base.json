@@ -1,0 +1,32 @@
+{
+  "slug": "corporate-knowledge-base",
+  "order": 1,
+  "category": "engineering",
+  "repoUrl": "https://github.com/umitkrkmz/CorporateKnowledgeBase",
+  "license": "MIT",
+  "tags": [".NET 10", "ASP.NET Core", "Clean Architecture", "CQRS", "Ollama RAG", "SignalR", "Hangfire"],
+  "tr": {
+    "title": "Kurumsal Bilgi Yönetim Platformu",
+    "subtitle": "Clean Architecture, CQRS ve yerel Ollama RAG destekli kurumsal bilgi tabanı",
+    "badge": ".NET 10 · Yerel RAG",
+    "summary": "Kurumların dokümanlarını, blog yazılarını ve duyurularını tek merkezde yönetmesi için ASP.NET Core 10.0 MVC ve 4 katmanlı Clean Architecture ile geliştirilmiş platform. Yerel Ollama / Llama 3.2 RAG asistanı, SignalR gerçek zamanlı bildirimler ve Hangfire arka plan görevlerini bir araya getirir.",
+    "highlights": [
+      "4 katmanlı Clean Architecture (Domain, Application, Infrastructure, Web) ve MediatR CQRS deseni",
+      "Ollama ve Llama 3.2 tabanlı tamamen yerel RAG yapay zekâ asistanı ile semantik arama",
+      "SignalR anlık bildirimler, Hangfire zamanlanmış görevler, QuestPDF ve rol tabanlı erişim denetimi (RBAC)",
+      "İçerik onay iş akışı, sürümleme ve uyumluluk için denetim günlükleri"
+    ]
+  },
+  "en": {
+    "title": "Corporate Knowledge Base",
+    "subtitle": "Enterprise knowledge platform built with Clean Architecture, CQRS, and local Ollama RAG",
+    "badge": ".NET 10 · Local RAG",
+    "summary": "An enterprise-grade knowledge management platform built on ASP.NET Core 10.0 MVC and 4-layer Clean Architecture. Centralizes documents, announcements, and articles with a local Ollama / Llama 3.2 RAG assistant, SignalR real-time notifications, and Hangfire background jobs.",
+    "highlights": [
+      "4-layer Clean Architecture (Domain, Application, Infrastructure, Web) powered by MediatR CQRS",
+      "Local RAG AI Q&A assistant and semantic retrieval running on Ollama + Llama 3.2",
+      "SignalR real-time notifications, Hangfire scheduled maintenance jobs, QuestPDF, and granular RBAC",
+      "Document versioning, editorial approval workflows, and compliance audit logging"
+    ]
+  }
+}

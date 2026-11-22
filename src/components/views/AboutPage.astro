@@ -1,0 +1,514 @@
+---
+import { getCollection } from 'astro:content';
+import type { Locale } from '../../data/site';
+import { SITE_DATA, SITE_OWNER } from '../../data/site';
+import { UI_STRINGS, getLocalePath } from '../../data/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const data = SITE_DATA[locale];
+const ui = UI_STRINGS[locale];
+const apps = await getCollection('apps');
+const appCount = apps.length;
+
+const title =
+  locale === 'tr'
+    ? `Hakkımda ve İletişim · ${SITE_OWNER.fullName}`
+    : `About & Contact · ${SITE_OWNER.fullName}`;
+
+const copy =
+  locale === 'tr'
+    ? {
+        eyebrow: 'Bilgisayar Mühendisi · Ankara',
+        lead: 'Günlük işleri gerçekten kolaylaştıran, veriyi cihazda tutan sade yazılımlar geliştiriyorum.',
+        bio: 'Microsoft Store’da yayımladığım Windows uygulamalarının yanında, .NET ve Python tarafında yazılım mimarisi, yerel yapay zekâ ve ajan güvenilirliği üzerine açık kaynak çalışmalar yürütüyorum. Abartılı özellik listeleri yerine hızlı açılan, tahmin edilebilir ve bakımı kolay araçlar üretmeye odaklanıyorum.',
+        artworkAlt:
+          'Ankara Atakule gün batımı manzaralı çalışma masası, çift monitörlü geliştirme ortamı ve masaüstü uygulama maskotlarının piksel sanatı illüstrasyonu',
+        glanceHeading: 'Hızlı Bakış',
+        locationLabel: 'Konum',
+        locationValue: 'Ankara, Türkiye',
+        focusLabel: 'Odak',
+        focusValue: '.NET · WPF · Python · Yerel AI',
+        educationLabel: 'Eğitim',
+        educationValue: 'Kırıkkale Üniversitesi · Bilgisayar Mühendisliği (Lisans), 2020–2025',
+        educationSub: 'Kırıkkale, Türkiye',
+        publicationLabel: 'Yayın',
+        publicationValue: `${data.publication.title} (${data.publication.year})`,
+        publicationJournal: data.publication.journal,
+        storeLabel: 'Microsoft Store',
+        storeValue: `${appCount} Windows Uygulaması`,
+        approachTitle: 'Çalışma Yaklaşımım',
+        approachCards: [
+          {
+            id: 'local',
+            title: 'Yerel ve Sade Ürünler',
+            body: 'Arka planda sessizce çalışan, abonelik veya hesap gerektirmeyen, verinizi asla cihaz dışına çıkarmayan masaüstü araçları.',
+          },
+          {
+            id: 'architecture',
+            title: 'Temiz ve Sürdürülebilir Mimari',
+            body: 'Yazılımın ömrünü uzatan katmanlı mimariler (.NET / Clean Architecture), gevşek bağlı sistemler ve sınırları net, test edilebilir veri akışları.',
+          },
+          {
+            id: 'ai',
+            title: 'Doğrulanabilir Mühendislik ve AI',
+            body: 'Yapay zekâyı ve kod üreticilerini körü körüne kullanmak yerine; test, AST analizleri ve akademik temellerle her adımını kontrol altında tuttuğum bir geliştirme disiplini.',
+          },
+        ],
+        emailLabel: 'Doğrudan E-posta',
+        emailNote:
+          'Uygulama desteği, mühendislik rolleri, iş birlikleri veya akademik iletişim için en hızlı kanal.',
+        sendEmail: 'E-posta Gönder',
+        contactSubtitle:
+          'Uygulama desteği, mühendislik iş birlikleri veya akademik iletişim için doğrudan e-posta gönderebilir ya da aşağıdaki profillerden ulaşabilirsiniz.',
+        linkedinSub: 'linkedin.com/in/zeynel-umit-korkmaz',
+        githubSub: 'github.com/umitkrkmz',
+      }
+    : {
+        eyebrow: 'Computer Engineer · Ankara',
+        lead: 'I build simple, local-first software that makes everyday tasks easier.',
+        bio: 'Alongside my Windows apps on the Microsoft Store, I work on open-source projects in .NET and Python, focusing on software architecture, local AI, and agent reliability. Rather than bloated feature lists, my goal is to build fast, predictable, and maintainable tools.',
+        artworkAlt:
+          'Pixel art illustration of a dual-monitor developer desk overlooking the Ankara Atakule skyline at dusk with desktop app mascots',
+        glanceHeading: 'Quick Look',
+        locationLabel: 'Location',
+        locationValue: 'Ankara, Turkey',
+        focusLabel: 'Focus',
+        focusValue: '.NET · WPF · Python · Local AI',
+        educationLabel: 'Education',
+        educationValue: 'Kırıkkale University · B.S. Computer Engineering, 2020–2025',
+        educationSub: 'Kırıkkale, Türkiye',
+        publicationLabel: 'Publication',
+        publicationValue: `${data.publication.title} (${data.publication.year})`,
+        publicationJournal: data.publication.journal,
+        storeLabel: 'Microsoft Store',
+        storeValue: `${appCount} Windows Applications`,
+        approachTitle: 'How I Work',
+        approachCards: [
+          {
+            id: 'local',
+            title: 'Local & Lightweight Utilities',
+            body: 'Desktop utilities that run quietly in the background, require no accounts or subscriptions, and never send your data off-device.',
+          },
+          {
+            id: 'architecture',
+            title: 'Clean & Maintainable Architecture',
+            body: 'Layered architectures (.NET / Clean Architecture), loosely coupled systems, and testable data flows that extend software lifespan.',
+          },
+          {
+            id: 'ai',
+            title: 'Mindful AI & Verification',
+            body: 'Instead of blindly trusting AI generators; a development discipline where every step is verified through tests, AST analysis, and academic foundations.',
+          },
+        ],
+        emailLabel: 'Direct Email',
+        emailNote:
+          'The fastest way to reach me for app support, engineering roles, collaborations, or academic inquiries.',
+        sendEmail: 'Send Email',
+        contactSubtitle:
+          'Reach out directly by email for app support, engineering collaborations, or academic inquiries, or connect via the profiles below.',
+        linkedinSub: 'linkedin.com/in/zeynel-umit-korkmaz',
+        githubSub: 'github.com/umitkrkmz',
+      };
+
+const description = copy.lead;
+---
+
+<BaseLayout locale={locale} title={title} description={description} showClosingCard={false}>
+  <!-- Profile Summary: Editorial Bio + Custom Pixel Workspace Artwork + Consolidated Quick Look -->
+  <section class="mx-auto max-w-6xl px-5 pt-14 pb-10 sm:px-6 sm:pt-16 lg:px-8">
+    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-10">
+      <!-- Left Column: Biography + Uncropped Pixel-Art Workspace Illustration -->
+      <div class="flex flex-col justify-between gap-7 lg:col-span-7">
+        <div>
+          <p class="text-xs font-semibold tracking-wide text-ink-secondary">
+            {copy.eyebrow}
+          </p>
+          <h1 class="mt-2.5 text-balance text-3xl font-semibold tracking-[-0.03em] text-ink-primary sm:text-4xl">
+            {SITE_OWNER.fullName}
+          </h1>
+          <p class="mt-4 text-lg leading-relaxed text-ink-primary">
+            {copy.lead}
+          </p>
+          <p class="mt-4 text-[15px] leading-relaxed text-ink-secondary sm:text-base">
+            {copy.bio}
+          </p>
+        </div>
+
+        <figure class="overflow-hidden rounded-2xl border border-border-subtle bg-[#141a26] shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+          <img
+            src="/images/about_workspace.webp"
+            alt={copy.artworkAlt}
+            width="1024"
+            height="572"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="block h-auto w-full"
+          />
+        </figure>
+      </div>
+
+      <!-- Right Column: Consolidated Single Quick Look Panel -->
+      <aside
+        aria-label={copy.glanceHeading}
+        class="flex flex-col rounded-3xl border border-border-subtle bg-surface-google p-6 sm:p-7 lg:col-span-5"
+      >
+        <p class="text-xs font-semibold tracking-wider text-ink-secondary uppercase">
+          {copy.glanceHeading}
+        </p>
+
+        <dl class="mt-4 flex flex-1 flex-col justify-between divide-y divide-border-subtle rounded-2xl border border-border-subtle bg-white px-5">
+          <!-- Konum / Location -->
+          <div class="py-3.5">
+            <dt class="text-xs font-medium text-ink-secondary">
+              {copy.locationLabel}
+            </dt>
+            <dd class="mt-1 text-sm font-semibold text-ink-primary">
+              {copy.locationValue}
+            </dd>
+          </div>
+
+          <!-- Odak / Focus -->
+          <div class="py-3.5">
+            <dt class="text-xs font-medium text-ink-secondary">
+              {copy.focusLabel}
+            </dt>
+            <dd class="mt-1 text-sm font-semibold text-ink-primary">
+              {copy.focusValue}
+            </dd>
+          </div>
+
+          <!-- Eğitim / Education -->
+          <div class="py-3.5">
+            <dt class="text-xs font-medium text-ink-secondary">
+              {copy.educationLabel}
+            </dt>
+            <dd class="mt-1 text-sm font-semibold leading-snug text-ink-primary">
+              {copy.educationValue}
+            </dd>
+            <dd class="mt-1 text-xs text-ink-secondary">
+              {copy.educationSub}
+            </dd>
+          </div>
+
+          <!-- Yayın / Publication -->
+          <div class="py-3.5">
+            <dt class="text-xs font-medium text-ink-secondary">
+              {copy.publicationLabel}
+            </dt>
+            <dd class="mt-1 text-sm font-semibold leading-snug text-ink-primary">
+              {copy.publicationValue}
+            </dd>
+            <dd class="mt-1 text-xs italic text-ink-secondary">
+              {copy.publicationJournal}
+            </dd>
+            <dd class="mt-2 flex flex-wrap items-center gap-3.5 text-xs font-medium">
+              <a
+                href={data.publication.doiUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-0.5 text-accent-link hover:underline"
+              >
+                <span>DOI</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+              <a
+                href={SITE_OWNER.links.orcid}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-0.5 text-ink-secondary transition-colors hover:text-ink-primary"
+              >
+                <span>ORCID</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            </dd>
+          </div>
+
+          <!-- Microsoft Store -->
+          <div class="py-3.5">
+            <dt class="text-xs font-medium text-ink-secondary">
+              {copy.storeLabel}
+            </dt>
+            <dd class="mt-1 text-sm font-semibold text-ink-primary">
+              <a
+                href={getLocalePath(locale, '/apps/')}
+                class="inline-flex items-center gap-1 transition-colors hover:text-accent-link"
+              >
+                <span>{copy.storeValue}</span>
+                <span aria-hidden="true" class="text-xs text-ink-secondary">→</span>
+              </a>
+            </dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <!-- How I Work: 3 Calm Approach Cards -->
+  <section class="mx-auto max-w-6xl px-5 py-10 sm:px-6 lg:px-8">
+    <h2 class="text-2xl font-semibold tracking-[-0.02em] text-ink-primary">
+      {copy.approachTitle}
+    </h2>
+
+    <div class="mt-6 grid grid-cols-1 gap-5 md:grid-cols-3">
+      {copy.approachCards.map((card) => (
+        <article class="flex items-start gap-4 rounded-3xl border border-border-subtle bg-surface-google p-6">
+          <span
+            aria-hidden="true"
+            class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border-subtle bg-white text-ink-primary"
+          >
+            {card.id === 'local' && (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.65"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="12" rx="2" />
+                <path d="M8 20h8" />
+                <path d="M12 16v4" />
+              </svg>
+            )}
+            {card.id === 'architecture' && (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.65"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon points="12 3 2 8 12 13 22 8 12 3" />
+                <polyline points="2 12.5 12 17.5 22 12.5" />
+                <polyline points="2 17 12 22 22 17" />
+              </svg>
+            )}
+            {card.id === 'ai' && (
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.65"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+                <path d="m9 12 2 2 4-4" />
+              </svg>
+            )}
+          </span>
+
+          <div class="min-w-0">
+            <h3 class="text-base font-semibold tracking-[-0.015em] text-ink-primary">
+              {card.title}
+            </h3>
+            <p class="mt-2 text-sm leading-relaxed text-ink-secondary">
+              {card.body}
+            </p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- Clean 3-Card Contact Section: Wide Email Card + Stacked LinkedIn & GitHub -->
+  <section id="contact" class="mx-auto max-w-6xl scroll-mt-24 px-5 py-10 sm:px-6 lg:px-8">
+    <h2 class="text-2xl font-semibold tracking-[-0.02em] text-ink-primary">
+      {ui.sections.contactTitle}
+    </h2>
+    <p class="mt-2 max-w-2xl text-sm leading-relaxed text-ink-secondary sm:text-[15px]">
+      {copy.contactSubtitle}
+    </p>
+
+    <div class="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-12 lg:items-stretch">
+      <!-- Left Column: Wide Direct Email Card -->
+      <div class="flex flex-col justify-between rounded-3xl border border-border-subtle bg-surface-google p-6 sm:p-8 lg:col-span-7">
+        <div>
+          <div class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-border-subtle bg-white text-ink-primary">
+            <svg
+              aria-hidden="true"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.65"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2.5" />
+              <path d="m3 7 9 6 9-6" />
+            </svg>
+          </div>
+
+          <p class="mt-5 text-xs font-semibold tracking-wider text-ink-secondary uppercase">
+            {copy.emailLabel}
+          </p>
+          <a
+            href={`mailto:${SITE_OWNER.email}`}
+            class="mt-1.5 block break-all text-base font-semibold tracking-[-0.015em] text-ink-primary hover:underline sm:text-lg"
+          >
+            {SITE_OWNER.email}
+          </a>
+          <p class="mt-3 max-w-xl text-sm leading-relaxed text-ink-secondary">
+            {copy.emailNote}
+          </p>
+        </div>
+
+        <div class="mt-7 flex flex-wrap items-center gap-2.5">
+          <a
+            href={`mailto:${SITE_OWNER.email}`}
+            class="inline-flex items-center justify-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+          >
+            <svg
+              aria-hidden="true"
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2.5" />
+              <path d="m3 7 9 6 9-6" />
+            </svg>
+            <span>{copy.sendEmail}</span>
+          </a>
+
+          <button
+            type="button"
+            data-copy-email={SITE_OWNER.email}
+            data-label-default={ui.actions.copyEmail}
+            data-label-copied={ui.actions.emailCopied}
+            class="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border-subtle bg-white px-4 py-2.5 text-sm font-medium text-ink-primary transition-colors hover:bg-surface-apple"
+          >
+            {ui.actions.copyEmail}
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Stacked Equal-Height LinkedIn & GitHub Cards -->
+      <div class="flex flex-col gap-4 lg:col-span-5">
+        <!-- LinkedIn -->
+        <a
+          href={SITE_OWNER.links.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group flex flex-1 items-center justify-between gap-4 rounded-3xl border border-border-subtle bg-surface-google px-6 py-5 transition-colors hover:border-[#d2d7dd] hover:bg-white"
+        >
+          <div class="flex min-w-0 items-center gap-4">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border-subtle bg-white text-ink-primary">
+              <svg
+                aria-hidden="true"
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.65"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect x="2" y="9" width="4" height="12" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
+            </span>
+            <div class="min-w-0">
+              <p class="text-base font-semibold tracking-[-0.015em] text-ink-primary">
+                LinkedIn
+              </p>
+              <p class="mt-0.5 truncate text-xs text-ink-secondary">
+                {copy.linkedinSub}
+              </p>
+            </div>
+          </div>
+
+          <span
+            aria-hidden="true"
+            class="shrink-0 text-sm text-ink-secondary transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink-primary"
+          >
+            ↗
+          </span>
+        </a>
+
+        <!-- GitHub -->
+        <a
+          href={SITE_OWNER.links.github}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group flex flex-1 items-center justify-between gap-4 rounded-3xl border border-border-subtle bg-surface-google px-6 py-5 transition-colors hover:border-[#d2d7dd] hover:bg-white"
+        >
+          <div class="flex min-w-0 items-center gap-4">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-border-subtle bg-white text-ink-primary">
+              <svg
+                aria-hidden="true"
+                width="17"
+                height="17"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.65"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4" />
+                <path d="M9 18c-4.51 2-5-2-7-2" />
+              </svg>
+            </span>
+            <div class="min-w-0">
+              <p class="text-base font-semibold tracking-[-0.015em] text-ink-primary">
+                GitHub
+              </p>
+              <p class="mt-0.5 truncate text-xs text-ink-secondary">
+                {copy.githubSub}
+              </p>
+            </div>
+          </div>
+
+          <span
+            aria-hidden="true"
+            class="shrink-0 text-sm text-ink-secondary transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-ink-primary"
+          >
+            ↗
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    (() => {
+      const btn = document.querySelector('[data-copy-email]');
+      if (!btn || !navigator.clipboard) return;
+      btn.addEventListener('click', async () => {
+        const email = btn.getAttribute('data-copy-email');
+        const def = btn.getAttribute('data-label-default') || 'Copy';
+        const copied = btn.getAttribute('data-label-copied') || 'Copied';
+        if (!email) return;
+        try {
+          await navigator.clipboard.writeText(email);
+          btn.textContent = copied;
+          setTimeout(() => {
+            btn.textContent = def;
+          }, 2000);
+        } catch {}
+      });
+    })();
+  </script>
+</BaseLayout>

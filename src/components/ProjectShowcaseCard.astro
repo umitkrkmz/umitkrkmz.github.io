@@ -1,0 +1,186 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '../data/site';
+import { UI_STRINGS } from '../data/ui';
+
+interface Props {
+  project: CollectionEntry<'projects'>['data'];
+  locale: Locale;
+  /**
+   * 'card' (default): renders a standalone rounded-3xl article for vertical lists (/projects/).
+   * 'panel': renders the inner 2-column grid directly inside HomePage's shared tabbed stage.
+   */
+  variant?: 'card' | 'panel';
+}
+
+const { project, locale, variant = 'card' } = Astro.props;
+const ui = UI_STRINGS[locale];
+const loc = project[locale];
+const categoryLabel =
+  project.category === 'ai' ? ui.sections.aiCategory : ui.sections.engineeringCategory;
+
+const copy =
+  locale === 'tr'
+    ? {
+        highlightsHeading: 'Öne Çıkan Teknik Noktalar',
+        publicationHeading: 'Hakemli Dergi Yayını',
+        previewCaption: 'Tarayıcıda sıfır bağımlılıkla çalışan yıldız haritası görünümü',
+      }
+    : {
+        highlightsHeading: 'Key Engineering Highlights',
+        publicationHeading: 'Peer-Reviewed Journal Paper',
+        previewCaption: 'Zero-dependency in-browser star-map visualization',
+      };
+
+const isCard = variant === 'card';
+const Wrapper = isCard ? 'article' : 'div';
+const wrapperClass = isCard
+  ? 'scroll-mt-20 overflow-hidden rounded-3xl border border-border-subtle bg-surface-google p-6 sm:p-8 lg:p-10'
+  : undefined;
+const gridClass = isCard
+  ? 'grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center lg:gap-10'
+  : 'grid grid-cols-1 gap-8 lg:min-h-[320px] lg:grid-cols-12 lg:items-center lg:gap-10';
+---
+
+<Wrapper id={isCard ? project.slug : undefined} class={wrapperClass}>
+  <div class={gridClass}>
+    <!-- Left Column: Narrative, Tags & Actions -->
+    <div class="flex flex-col justify-between lg:col-span-6">
+      <div>
+        <div class="flex flex-wrap items-center gap-2 text-xs text-ink-secondary">
+          <span class="font-medium">{categoryLabel}</span>
+          {loc.badge && (
+            <span class="rounded-full border border-border-subtle bg-white px-2.5 py-0.5 text-[11px] font-medium text-ink-secondary">
+              {loc.badge}
+            </span>
+          )}
+        </div>
+
+        <h3 class="mt-3 text-2xl font-semibold tracking-[-0.025em] text-ink-primary sm:text-[26px]">
+          <a
+            href={project.repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="hover:underline decoration-1 underline-offset-4"
+          >
+            {loc.title}
+          </a>
+        </h3>
+
+        <p class="mt-1.5 text-sm font-medium text-ink-secondary sm:text-[15px]">
+          {loc.subtitle}
+        </p>
+
+        <p class="mt-4 text-sm leading-relaxed text-ink-secondary sm:text-[15px]">
+          {loc.summary}
+        </p>
+      </div>
+
+      <div class="mt-6">
+        <div class="flex flex-wrap gap-1.5">
+          {project.tags.map((tag) => (
+            <span class="rounded-md bg-white px-2.5 py-1 text-xs font-medium text-ink-secondary ring-1 ring-border-subtle">
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div class="mt-6 flex flex-wrap items-center gap-4 text-sm">
+          <a
+            href={project.repoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 rounded-full bg-ink-primary px-4 py-2 text-xs font-medium text-white transition-opacity hover:opacity-85 sm:text-sm"
+          >
+            <span>{ui.actions.viewOnGithub}</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+
+          {project.paper && (
+            <a
+              href={project.paper.doiUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1 font-medium text-accent-link hover:underline"
+            >
+              <span>{ui.actions.readPaper}</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Balanced Project-Specific Panel -->
+    <div class="lg:col-span-6">
+      {loc.previewImage ? (
+        <div class="overflow-hidden rounded-2xl border border-border-subtle bg-white p-3.5 sm:p-4">
+          <div class="overflow-hidden rounded-xl border border-black/10 bg-[#0d1117]">
+            <img
+              src={loc.previewImage}
+              alt={loc.previewAlt ?? loc.title}
+              width="1440"
+              height="900"
+              loading="lazy"
+              decoding="async"
+              class="aspect-16/10 w-full object-cover"
+            />
+          </div>
+          <p class="mt-3 px-1 text-xs text-ink-secondary">
+            {copy.previewCaption}
+          </p>
+        </div>
+      ) : project.paper ? (
+        <div class="rounded-2xl border border-border-subtle bg-white p-6">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-xs font-semibold tracking-wide text-ink-secondary uppercase">
+              {copy.publicationHeading}
+            </p>
+            <span class="rounded-full bg-surface-apple px-2.5 py-0.5 text-[11px] font-medium text-ink-secondary">
+              {project.paper.year}
+            </span>
+          </div>
+          <p class="mt-3 text-base font-semibold leading-snug text-ink-primary">
+            {project.paper.title}
+          </p>
+          <p class="mt-1.5 text-xs leading-relaxed text-ink-secondary sm:text-sm">
+            {project.paper.authors} — <em>{project.paper.journal}</em>, {project.paper.volumeIssuePages}
+          </p>
+          <a
+            href={project.paper.doiUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-3 inline-flex items-center gap-1 text-xs font-medium text-accent-link hover:underline sm:text-sm"
+          >
+            DOI: {project.paper.doi} ↗
+          </a>
+
+          <ul class="mt-5 space-y-2 border-t border-border-subtle pt-4 text-xs leading-relaxed text-ink-secondary sm:text-sm">
+            {loc.highlights.slice(0, 3).map((point) => (
+              <li class="flex gap-2.5">
+                <span aria-hidden="true" class="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-primary/40"></span>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <div class="rounded-2xl border border-border-subtle bg-white p-6">
+          <p class="text-xs font-semibold tracking-wide text-ink-secondary uppercase">
+            {copy.highlightsHeading}
+          </p>
+          <ul class="mt-4 space-y-3 text-sm leading-relaxed text-ink-secondary">
+            {loc.highlights.map((point, hIdx) => (
+              <li class="flex gap-3">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-surface-apple text-[11px] font-semibold text-ink-primary">
+                  {hIdx + 1}
+                </span>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </div>
+</Wrapper>

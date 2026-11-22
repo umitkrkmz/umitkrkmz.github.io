@@ -1,0 +1,161 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '../data/site';
+import { SITE_OWNER } from '../data/site';
+import { UI_STRINGS, getLocalePath } from '../data/ui';
+import BaseLayout from './BaseLayout.astro';
+import AppSubNav, { type AppTab } from '../components/AppSubNav.astro';
+import StoreBadge from '../components/StoreBadge.astro';
+
+interface Props {
+  app: CollectionEntry<'apps'>['data'];
+  locale: Locale;
+  activeTab: AppTab;
+  pageTitle?: string;
+  pageDescription?: string;
+  lastUpdated?: string;
+  isDocument?: boolean;
+}
+
+const {
+  app,
+  locale,
+  activeTab,
+  pageTitle,
+  pageDescription,
+  lastUpdated,
+  isDocument = false,
+} = Astro.props;
+
+const ui = UI_STRINGS[locale];
+const localized = app[locale];
+const { theme } = app;
+
+const fullTitle = pageTitle
+  ? `${pageTitle} · ${SITE_OWNER.fullName}`
+  : `${app.name} — ${localized.tagline} · ${SITE_OWNER.fullName}`;
+const fullDescription = pageDescription ?? localized.shortDescription;
+
+const networkBadge =
+  app.networkModel === 'offline' ? ui.badges.offline : ui.badges.localFirst;
+const backToAppsLabel = locale === 'tr' ? 'Tüm Uygulamalar' : 'All Applications';
+const showMascot = activeTab === 'overview';
+---
+
+<BaseLayout
+  locale={locale}
+  title={fullTitle}
+  description={fullDescription}
+  ogImage={localized.heroImage}
+>
+  <!-- Softly harmonized top wash that melts into white canvas -->
+  <div
+    style={`background: linear-gradient(180deg, ${theme.surfaceFrom} 0%, #ffffff 100%);`}
+    class="border-b border-border-subtle/70"
+  >
+    <div class="mx-auto max-w-6xl px-5 pt-7 pb-6 sm:px-6 sm:pt-9 lg:px-8">
+      <!-- Quiet Breadcrumb Back to Apps Catalog -->
+      <nav aria-label={locale === 'tr' ? 'Gezinti yolu' : 'Breadcrumb'} class="mb-5">
+        <a
+          href={getLocalePath(locale, '/apps/')}
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-ink-secondary transition-colors hover:text-ink-primary sm:text-[13px]"
+        >
+          <span aria-hidden="true">←</span>
+          <span>{backToAppsLabel}</span>
+        </a>
+      </nav>
+
+      <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-start gap-4 sm:items-center sm:gap-5">
+          <img
+            src={app.icon}
+            alt={app.name}
+            width="68"
+            height="68"
+            loading="eager"
+            decoding="async"
+            class="h-16 w-16 shrink-0 [filter:drop-shadow(0_8px_16px_rgba(0,0,0,0.16))] sm:h-[68px] sm:w-[68px]"
+          />
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="text-2xl font-semibold tracking-[-0.025em] text-ink-primary sm:text-3xl">
+                {app.name}
+              </h1>
+              <span
+                style={`background-color: ${theme.badgeBg}; color: ${theme.badgeText};`}
+                class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+              >
+                v{app.version}
+              </span>
+            </div>
+            <p class="mt-1.5 max-w-xl text-sm text-ink-secondary sm:text-[15px]">
+              {localized.tagline}
+            </p>
+            <ul class="mt-2.5 flex flex-wrap items-center gap-1.5 text-xs text-ink-secondary">
+              <li class="rounded-md bg-white/85 px-2.5 py-0.5 ring-1 ring-black/[0.06]">
+                {localized.priceBadge}
+              </li>
+              <li class="rounded-md bg-white/85 px-2.5 py-0.5 ring-1 ring-black/[0.06]">
+                {networkBadge}
+              </li>
+              <li class="rounded-md bg-white/85 px-2.5 py-0.5 ring-1 ring-black/[0.06]">
+                Windows 10 &amp; 11
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div
+          class:list={[
+            'flex flex-wrap items-center gap-3',
+            showMascot && 'pt-4 md:pt-2',
+          ]}
+        >
+          <StoreBadge
+            href={app.storeUrl}
+            locale={locale}
+            slug={app.slug}
+            accentColor={theme.accent}
+            showMascot={showMascot}
+          />
+          <a
+            href={app.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex h-[48px] items-center justify-center gap-1.5 rounded-[14px] border border-border-subtle bg-white px-4 text-sm font-medium text-ink-primary transition-colors hover:bg-surface-apple"
+          >
+            <span>{app.sourceModel === 'open-source' ? ui.actions.viewOnGithub : ui.actions.viewDocsOnGithub}</span>
+            <span aria-hidden="true" class="text-xs text-ink-secondary">↗</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <AppSubNav
+          slug={app.slug}
+          locale={locale}
+          activeTab={activeTab}
+          accentColor={theme.accent}
+          badgeBg={theme.badgeBg}
+          badgeText={theme.badgeText}
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content area -->
+  <div class="mx-auto max-w-6xl px-5 py-10 sm:px-6 sm:py-12 lg:px-8">
+    {isDocument ? (
+      <article class="doc-prose prose prose-neutral prose-headings:font-semibold prose-headings:text-ink-primary prose-p:text-ink-secondary prose-li:text-ink-secondary prose-strong:text-ink-primary prose-code:rounded prose-code:bg-surface-apple prose-code:px-1.5 prose-code:py-0.5 prose-code:font-normal prose-code:before:content-none prose-code:after:content-none">
+        {lastUpdated && (
+          <p class="not-prose mb-6 text-xs font-medium text-ink-secondary">
+            {locale === 'tr' ? `Son güncelleme: ${lastUpdated}` : `Last updated: ${lastUpdated}`}
+          </p>
+        )}
+        <slot />
+      </article>
+    ) : (
+      <slot />
+    )}
+  </div>
+</BaseLayout>

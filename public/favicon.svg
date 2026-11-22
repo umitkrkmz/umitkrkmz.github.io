@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="7" fill="#161618" />
+  <rect x="0.5" y="0.5" width="31" height="31" rx="6.5" fill="none" stroke="#ffffff" stroke-opacity="0.12" />
+  <g shape-rendering="crispEdges">
+    <!-- Top-Left: FolioPeek Amber -->
+    <rect x="6" y="6" width="8" height="8" fill="#ea7b24" />
+    <rect x="6" y="6" width="8" height="2" fill="#fbbf24" />
+    <!-- Top-Right: TablePeek Emerald -->
+    <rect x="18" y="6" width="8" height="8" fill="#10b981" />
+    <rect x="18" y="6" width="8" height="2" fill="#6ee7b7" />
+    <!-- Bottom-Left: QRPeek Cobalt -->
+    <rect x="6" y="18" width="8" height="8" fill="#3b82f6" />
+    <rect x="6" y="18" width="8" height="2" fill="#93c5fd" />
+    <!-- Bottom-Right: MediaGrab Blue-Slate -->
+    <rect x="18" y="18" width="8" height="8" fill="#4f7ec2" />
+    <rect x="18" y="18" width="8" height="2" fill="#93b4e8" />
+  </g>
+</svg>

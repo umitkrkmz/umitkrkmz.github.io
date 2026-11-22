@@ -1,0 +1,41 @@
+{
+  "slug": "chaotic-audio-steganography",
+  "order": 2,
+  "category": "engineering",
+  "repoUrl": "https://github.com/umitkrkmz/Chaotic_Audio_Steganography",
+  "license": "MIT",
+  "tags": ["Python", "NumPy", "PySide6", "Steganography", "Chaos Encryption", "Peer-Reviewed"],
+  "paper": {
+    "title": "Secure Audio Steganography Using Vectorized LSB and Chaos-Based Encryption",
+    "authors": "Korkmaz, Z. Ü., Horasan, F., & Çetinkaya, Z.",
+    "journal": "Electrical Engineering and Energy",
+    "year": "2025",
+    "volumeIssuePages": "4(3), 68–86",
+    "doi": "10.64470/elene.2025.12",
+    "doiUrl": "https://doi.org/10.64470/elene.2025.12"
+  },
+  "tr": {
+    "title": "Chaotic Audio Steganography",
+    "subtitle": "Hakemli dergi makalesinin resmi Python, NumPy ve PySide6 uygulaması",
+    "badge": "Hakemli Yayın · 2025",
+    "summary": "Electrical Engineering and Energy dergisinde yayımlanan makalenin resmi uygulaması. 7 kaotik harita ve NumPy matris işlemleriyle vektörleştirilmiş LSB gömme tekniğini birleştirerek 100 dB üzeri PSNR ile yüksek ses sadakati sunar.",
+    "highlights": [
+      "7 kaotik harita: Logistic, Lorenz, PWLCM, Tent, Hénon, Chua ve Chebyshev",
+      "Yavaş Python döngüleri yerine NumPy matris işlemleriyle vektörleştirilmiş LSB gömme",
+      "Deterministik bileşik anahtar üretimi, geçici ısınma (warm-up) adımları ve PSNR > 100 dB ses sadakati",
+      "PySide6 / Qt masaüstü arayüzü ve PSNR, SSIM, BER ölçümlerini yeniden üretmeye yönelik test verileri"
+    ]
+  },
+  "en": {
+    "title": "Chaotic Audio Steganography",
+    "subtitle": "Official Python, NumPy, and PySide6 implementation of the peer-reviewed paper",
+    "badge": "Peer-Reviewed · 2025",
+    "summary": "Official reference implementation of the journal article published in Electrical Engineering and Energy (2025). Combines seven chaotic encryption maps with NumPy vectorized LSB embedding to deliver imperceptible audio steganography above 100 dB PSNR.",
+    "highlights": [
+      "Seven chaotic maps: Logistic, Lorenz, PWLCM, Tent, Hénon, Chua, and Chebyshev",
+      "Vectorized LSB embedding via NumPy matrix operations instead of slow Python loops",
+      "Deterministic composite keys, transient warm-up periods, and PSNR > 100 dB acoustic fidelity",
+      "PySide6 / Qt desktop GUI bundled with benchmark test media to reproduce PSNR, SSIM, and BER results"
+    ]
+  }
+}

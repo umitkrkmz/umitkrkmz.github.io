@@ -1,0 +1,57 @@
+---
+import type { Locale } from '../data/site';
+import { UI_STRINGS, getLocalePath } from '../data/ui';
+
+export type AppTab = 'overview' | 'privacy' | 'support' | 'changelog';
+
+interface Props {
+  slug: string;
+  locale: Locale;
+  activeTab: AppTab;
+  accentColor: string;
+  badgeBg: string;
+  badgeText: string;
+}
+
+const { slug, locale, activeTab, accentColor, badgeBg, badgeText } = Astro.props;
+const ui = UI_STRINGS[locale];
+
+const tabs: { id: AppTab; label: string; href: string }[] = [
+  { id: 'overview', label: ui.appTabs.overview, href: getLocalePath(locale, `/apps/${slug}/`) },
+  { id: 'privacy', label: ui.appTabs.privacy, href: getLocalePath(locale, `/apps/${slug}/privacy/`) },
+  { id: 'support', label: ui.appTabs.support, href: getLocalePath(locale, `/apps/${slug}/support/`) },
+  { id: 'changelog', label: ui.appTabs.changelog, href: getLocalePath(locale, `/apps/${slug}/changelog/`) },
+];
+---
+
+<nav
+  aria-label={ui.appTabs.subNavLabel}
+  class="-mx-5 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+>
+  <ul class="inline-flex min-w-max items-center gap-1 border-b border-border-subtle pb-3 sm:gap-1.5">
+    {tabs.map((tab) => {
+      const isActive = tab.id === activeTab;
+      return (
+        <li>
+          <a
+            href={tab.href}
+            aria-current={isActive ? 'page' : undefined}
+            style={
+              isActive
+                ? `background-color: ${badgeBg}; color: ${badgeText}; box-shadow: inset 0 0 0 1px ${accentColor}24;`
+                : undefined
+            }
+            class:list={[
+              'inline-flex items-center rounded-full px-2.5 py-1.5 text-[13px] whitespace-nowrap transition-colors sm:px-3.5 sm:text-sm',
+              isActive
+                ? 'font-medium'
+                : 'text-ink-secondary hover:bg-surface-apple hover:text-ink-primary',
+            ]}
+          >
+            {tab.label}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>

@@ -1,0 +1,92 @@
+---
+/**
+ * StoreBadge.astro
+ * Zero-JS, zero-external-request local dark Microsoft Store badge
+ * locked strictly to page locale (TR/EN), with optional pixel mascot peek.
+ */
+import type { Locale } from '../data/site';
+import AppMascotPeek from './AppMascotPeek.astro';
+
+interface Props {
+  href: string;
+  locale: Locale;
+  slug: string;
+  accentColor: string;
+  showMascot?: boolean;
+}
+
+const { href, locale, slug, accentColor, showMascot = false } = Astro.props;
+
+const copy =
+  locale === 'tr'
+    ? {
+        eyebrow: 'Microsoft Store’dan',
+        label: 'İndirin',
+        aria: 'Microsoft Store’dan İndirin',
+      }
+    : {
+        eyebrow: 'Download from the',
+        label: 'Microsoft Store',
+        aria: 'Download from the Microsoft Store',
+      };
+---
+
+<span class="store-badge-wrap relative inline-flex overflow-visible">
+  {showMascot && <AppMascotPeek slug={slug} />}
+
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={copy.aria}
+    style={`--badge-accent: ${accentColor};`}
+    class="store-badge-btn relative z-10 inline-flex h-[48px] items-center gap-3 overflow-hidden rounded-[14px] border border-white/15 bg-gradient-to-b from-[#202124] to-[#141416] px-4 text-left text-white shadow-[0_6px_16px_-6px_rgba(0,0,0,0.28),0_2px_4px_-1px_rgba(0,0,0,0.16)] ring-1 ring-black/20"
+  >
+    <!-- Single-pass diagonal glass shimmer sheen on hover/focus -->
+    <span aria-hidden="true" class="store-badge-sheen pointer-events-none absolute inset-0"></span>
+
+    <!-- Official 4-Color Microsoft Store Shopping Bag Icon (Inline SVG, Zero External Requests) -->
+    <svg
+      aria-hidden="true"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      class="relative z-10 h-[22px] w-[22px] shrink-0"
+    >
+      <!-- Bag handle -->
+      <path
+        d="M8.5 7V5.6A3.5 3.5 0 0 1 12 2.1a3.5 3.5 0 0 1 3.5 3.5V7"
+        stroke="#e5e7eb"
+        stroke-width="1.75"
+        stroke-linecap="round"
+      />
+      <!-- Bag body -->
+      <rect
+        x="3"
+        y="7"
+        width="18"
+        height="15"
+        rx="2.2"
+        fill="#2b2d31"
+        stroke="#ffffff"
+        stroke-opacity="0.22"
+        stroke-width="1"
+      />
+      <!-- 4-color Microsoft emblem -->
+      <rect x="7.5" y="10.2" width="4" height="4" fill="#f25022" />
+      <rect x="12.5" y="10.2" width="4" height="4" fill="#7fba00" />
+      <rect x="7.5" y="15.2" width="4" height="4" fill="#00a4ef" />
+      <rect x="12.5" y="15.2" width="4" height="4" fill="#ffb900" />
+    </svg>
+
+    <span class="relative z-10 flex flex-col justify-center leading-none">
+      <span class="text-[10px] font-medium tracking-[0.015em] text-white/80">
+        {copy.eyebrow}
+      </span>
+      <span class="mt-0.5 text-[14.5px] font-semibold tracking-[-0.015em] text-white">
+        {copy.label}
+      </span>
+    </span>
+  </a>
+</span>

@@ -1,0 +1,37 @@
+{
+  "slug": "sqlschema",
+  "order": 3,
+  "category": "engineering",
+  "repoUrl": "https://github.com/umitkrkmz/sqlSchema",
+  "license": "MIT",
+  "version": "0.15.3",
+  "tags": ["JavaScript", "HTML/CSS", "Zero-Dependency", "Database", "ER Diagram", "SQL"],
+  "tr": {
+    "title": "sqlSchema",
+    "subtitle": "Sıfır bağımlılıklı, yerelde tarayıcıda çalışan yıldız haritası şema görselleştiricisi",
+    "badge": "v0.15.3 · Sıfır Bağımlılık",
+    "summary": "Saf HTML, CSS ve JavaScript ile yazılmış; hiçbir derleme veya sunucu gerektirmeden doğrudan indirip tarayıcıda çalıştırabileceğiniz veritabanı şema görselleştiricisi. 2 900 tablolu şemaları bile bir saniyenin altında Galaksi, Takımyıldız ve Yakın Plan katmanlarında çizer.",
+    "highlights": [
+      "8 veritabanı desteği: Oracle, SQL Server, MySQL, MariaDB, PostgreSQL, SQLite, Cassandra ve MongoDB",
+      "EF Core ModelSnapshot.cs / migration geçmişi ve PL/SQL paket çağrı haritası desteği",
+      "Tasarım denetimi, silme/değişiklik etki analizi, KVKK haritası, şema farkı ve zaman çizelgesi",
+      "Dosyalar tarayıcıdan hiç çıkmaz; sıfır bağımlılık, sıfır derleme, Türkçe ve İngilizce arayüz"
+    ],
+    "previewImage": "/images/projects/sqlschema/tr-overview.webp",
+    "previewAlt": "sqlSchema: 318 tablolu bir şemanın galaksi görünümü"
+  },
+  "en": {
+    "title": "sqlSchema",
+    "subtitle": "Zero-dependency, local in-browser database schema viewer drawn as a star map",
+    "badge": "v0.15.3 · Zero-Dependency",
+    "summary": "An open-source database schema explorer built purely in vanilla HTML, CSS, and JavaScript—download and open index.html locally with no build step or server upload. Parses and lays out 2,900-table schemas in under a second across Galaxy, Constellation, and Close-up zoom levels.",
+    "highlights": [
+      "Supports 8 database engines: Oracle, SQL Server, MySQL, MariaDB, PostgreSQL, SQLite, Cassandra, and MongoDB",
+      "Reads EF Core ModelSnapshot.cs / migrations and maps PL/SQL package call graphs",
+      "Built-in design audit, cascading impact analysis, schema diff, migration timeline, and PII mapping",
+      "Files never leave your browser; zero dependencies, bilingual English and Turkish interface"
+    ],
+    "previewImage": "/images/projects/sqlschema/en-overview.webp",
+    "previewAlt": "sqlSchema galaxy view of a 318-table database schema"
+  }
+}

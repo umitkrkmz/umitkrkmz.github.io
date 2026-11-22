@@ -1,0 +1,33 @@
+{
+  "slug": "how-ai-actually-works",
+  "order": 5,
+  "category": "ai",
+  "repoUrl": "https://github.com/umitkrkmz/how-ai-actually-works",
+  "license": "MIT",
+  "version": "1.0.0",
+  "tags": ["AI Engineering", "First Principles", "RAG", "MCP", "Quantization", "Python"],
+  "tr": {
+    "title": "how-ai-actually-works",
+    "subtitle": "Modern yapay zekâ sistemlerinin standart Python ile ilk ilkelerden mühendislik rehberi",
+    "badge": "v1.0.0 · 8 Modül",
+    "summary": "Embedding, BPE tokenizasyon, RAG, bağlam mühendisliği, MCP, ajan korumaları, eval/benchmark, decoding ve VRAM/quantization mekanizmalarını harici kütüphane kullanmadan yalnızca standart Python ve doğrulanmış kodla açıklayan 8 modüllük rehber.",
+    "highlights": [
+      "8 kapsamlı modül: BPE ve vektör matematiğinden KV cache, GQA ve INT8 quantization’a kadar",
+      "Üçüncü taraf bağımlılık olmadan çalışan 15 bağımsız Python betiği ve tüm kod bloklarını doğrulayan test koşucusu",
+      "Her modülde görsel zihinsel modeller ve zorunlu “Ne Zaman Kullanılmamalı” (anti-pattern) karar matrisleri",
+      "ai-context-mapping eşlikçi deposundaki gerçek deneyler ve MCP/AST uygulamalarıyla birebir bağlantılı"
+    ]
+  },
+  "en": {
+    "title": "how-ai-actually-works",
+    "subtitle": "A first-principles engineering guide to modern AI mechanisms in standard-library Python",
+    "badge": "v1.0.0 · 8 Modules",
+    "summary": "Strips away framework magic across 8 modules—covering BPE tokenization, embeddings, RAG, context engineering, MCP, agent guardrails, evals, constrained decoding, and VRAM/quantization—using only Python 3.10+ standard library and asserted runnable code.",
+    "highlights": [
+      "8 self-contained modules from vector math and BPE to KV cache sizing, GQA, and affine INT8 quantization",
+      "15 standalone standard-library scripts plus verify_all.py asserting every runnable README block",
+      "Visual mental models and mandatory “When NOT to Use This” cost/latency anti-pattern matrices",
+      "Direct companion to ai-context-mapping, pairing each theoretical mechanism with real agent tooling"
+    ]
+  }
+}

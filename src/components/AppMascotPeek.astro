@@ -1,0 +1,197 @@
+---
+/**
+ * AppMascotPeek.astro
+ * Zero-JS, 3-tone crisp-pixel mascot peeking above the dark Microsoft Store badge.
+ * Uses the exact same pixel art language as FooterPixelWorkshop.astro.
+ * Gracefully renders nothing for future apps without a dedicated mascot.
+ */
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+const supported = ['foliopeek', 'tablepeek', 'qrpeek', 'mediagrab'] as const;
+const hasMascot = (supported as readonly string[]).includes(slug);
+---
+
+{hasMascot && (
+  <span
+    aria-hidden="true"
+    class="peek-mascot pointer-events-none absolute right-2.5 bottom-[calc(100%-15px)] z-0 block select-none"
+  >
+    {slug === 'foliopeek' && (
+      <svg
+        width="48"
+        height="38"
+        viewBox="0 0 24 19"
+        shape-rendering="crispEdges"
+        class="block h-[38px] w-[48px] overflow-visible"
+      >
+        <!-- Hover amber sparkles -->
+        <g class="peek-sparks">
+          <rect x="4" y="1" width="2" height="2" fill="#f59e0b" />
+          <rect x="11" y="0" width="2" height="2" fill="#fbbf24" />
+          <rect x="18" y="2" width="2" height="2" fill="#d97706" />
+        </g>
+
+        <g class="peek-body">
+          <!-- 3-Tone Amber Cap -->
+          <rect x="6" y="4" width="11" height="3" fill="#7c2d12" />
+          <rect x="7" y="3" width="8" height="3" fill="#9a4506" />
+          <rect x="8" y="3" width="5" height="1" fill="#d97706" />
+          <rect x="15" y="6" width="3" height="1" fill="#7c2d12" />
+          <!-- 3-Tone Upper Body / Head -->
+          <rect x="5" y="7" width="13" height="11" fill="#b45309" />
+          <rect x="6" y="7" width="11" height="10" fill="#ea7b24" />
+          <rect x="7" y="7" width="9" height="1" fill="#fbbf24" />
+          <!-- Cream apron top -->
+          <rect x="8" y="14" width="7" height="4" fill="#fef3c7" />
+          <!-- Curious eyes with gentle idle blink -->
+          <g class="peek-blink">
+            <rect x="8" y="9" width="2" height="3" fill="#1d1d1f" />
+            <rect x="8" y="9" width="1" height="1" fill="#ffffff" />
+            <rect x="13" y="9" width="2" height="3" fill="#1d1d1f" />
+            <rect x="13" y="9" width="1" height="1" fill="#ffffff" />
+          </g>
+          <!-- Little paw holding amber pencil (lifts on hover) -->
+          <g class="peek-tool">
+            <rect x="17" y="11" width="3" height="2" fill="#c2590c" />
+            <rect x="19" y="8" width="2" height="5" fill="#78350f" />
+            <rect x="19" y="9" width="1" height="3" fill="#f59e0b" />
+            <rect x="19" y="7" width="2" height="1" fill="#fde68a" />
+          </g>
+        </g>
+      </svg>
+    )}
+
+    {slug === 'tablepeek' && (
+      <svg
+        width="48"
+        height="38"
+        viewBox="0 0 24 19"
+        shape-rendering="crispEdges"
+        class="block h-[38px] w-[48px] overflow-visible"
+      >
+        <!-- Hover emerald sparkles -->
+        <g class="peek-sparks">
+          <rect x="4" y="1" width="2" height="2" fill="#10b981" />
+          <rect x="11" y="0" width="2" height="2" fill="#34d399" />
+          <rect x="18" y="1" width="2" height="2" fill="#059669" />
+        </g>
+
+        <g class="peek-body">
+          <!-- 3-Tone Emerald Head / Body -->
+          <rect x="5" y="5" width="13" height="13" fill="#047857" />
+          <rect x="6" y="4" width="11" height="13" fill="#10b981" />
+          <rect x="7" y="4" width="9" height="2" fill="#6ee7b7" />
+          <!-- Pixel Glasses -->
+          <rect x="6" y="8" width="5" height="4" fill="#064e3b" />
+          <rect x="12" y="8" width="5" height="4" fill="#064e3b" />
+          <rect x="11" y="9" width="1" height="1" fill="#064e3b" />
+          <rect x="7" y="9" width="3" height="2" fill="#ecfdf5" />
+          <rect x="13" y="9" width="3" height="2" fill="#ecfdf5" />
+          <g class="peek-blink">
+            <rect x="8" y="9" width="1" height="2" fill="#0f172a" />
+            <rect x="14" y="9" width="1" height="2" fill="#0f172a" />
+          </g>
+          <!-- Mini chest grid -->
+          <rect x="9" y="14" width="5" height="3" fill="#d1fae5" />
+          <rect x="11" y="14" width="1" height="3" fill="#047857" />
+          <!-- Raised bright magnifier (lifts on hover) -->
+          <g class="peek-tool">
+            <rect x="17" y="11" width="2" height="3" fill="#064e3b" />
+            <rect x="18" y="6" width="5" height="5" fill="#064e3b" />
+            <rect x="19" y="7" width="3" height="3" fill="#a7f3d0" />
+            <rect x="19" y="7" width="1" height="1" fill="#ffffff" />
+          </g>
+        </g>
+      </svg>
+    )}
+
+    {slug === 'qrpeek' && (
+      <svg
+        width="48"
+        height="38"
+        viewBox="0 0 24 19"
+        shape-rendering="crispEdges"
+        class="block h-[38px] w-[48px] overflow-visible"
+      >
+        <!-- Hover cobalt signal sparkles -->
+        <g class="peek-sparks">
+          <rect x="5" y="1" width="2" height="2" fill="#3b82f6" />
+          <rect x="16" y="1" width="2" height="2" fill="#60a5fa" />
+          <rect x="20" y="4" width="2" height="2" fill="#2563eb" />
+        </g>
+
+        <g class="peek-body">
+          <!-- Small Signal Antenna -->
+          <rect x="11" y="3" width="2" height="3" fill="#1e40af" />
+          <rect x="10" y="1" width="4" height="2" fill="#60a5fa" />
+          <rect x="11" y="1" width="2" height="1" fill="#dbeafe" />
+          <!-- 3-Tone Cobalt Head / Body -->
+          <rect x="5" y="6" width="13" height="12" fill="#1d4ed8" />
+          <rect x="6" y="5" width="11" height="12" fill="#3b82f6" />
+          <rect x="7" y="5" width="9" height="2" fill="#93c5fd" />
+          <!-- Scanner Visor -->
+          <rect x="6" y="9" width="11" height="3" fill="#0f172a" />
+          <rect class="peek-visor" x="8" y="10" width="7" height="1" fill="#7dd3fc" />
+          <rect x="8" y="10" width="2" height="1" fill="#ffffff" />
+          <!-- Chest QR mark -->
+          <rect x="9" y="14" width="4" height="3" fill="#dbeafe" />
+          <rect x="10" y="15" width="2" height="1" fill="#1d4ed8" />
+          <!-- Little scanner emitter + signal pulse -->
+          <g class="peek-tool">
+            <rect x="18" y="10" width="3" height="3" fill="#1e40af" />
+            <rect x="20" y="11" width="2" height="1" fill="#93c5fd" />
+          </g>
+        </g>
+      </svg>
+    )}
+
+    {slug === 'mediagrab' && (
+      <svg
+        width="48"
+        height="38"
+        viewBox="0 0 24 19"
+        shape-rendering="crispEdges"
+        class="block h-[38px] w-[48px] overflow-visible"
+      >
+        <!-- Hover colorful archive sparkles -->
+        <g class="peek-sparks">
+          <rect x="4" y="1" width="2" height="2" fill="#f59e0b" />
+          <rect x="11" y="0" width="2" height="2" fill="#60a5fa" />
+          <rect x="18" y="1" width="2" height="2" fill="#10b981" />
+        </g>
+
+        <g class="peek-body">
+          <!-- Pixel Headphones -->
+          <rect x="6" y="4" width="11" height="2" fill="#334155" />
+          <rect x="7" y="4" width="9" height="1" fill="#64748b" />
+          <rect x="4" y="7" width="2" height="5" fill="#1e293b" />
+          <rect x="4" y="8" width="1" height="3" fill="#94a3b8" />
+          <rect x="17" y="7" width="2" height="5" fill="#1e293b" />
+          <rect x="18" y="8" width="1" height="3" fill="#94a3b8" />
+          <!-- 3-Tone Blue-Slate Body -->
+          <rect x="6" y="6" width="11" height="12" fill="#2c4c82" />
+          <rect x="7" y="6" width="9" height="11" fill="#4f7ec2" />
+          <rect x="7" y="6" width="9" height="2" fill="#93b4e8" />
+          <!-- Curious bright eyes -->
+          <g class="peek-blink">
+            <rect x="8" y="9" width="2" height="3" fill="#ffffff" />
+            <rect x="9" y="10" width="1" height="2" fill="#0f172a" />
+            <rect x="13" y="9" width="2" height="3" fill="#ffffff" />
+            <rect x="14" y="10" width="1" height="2" fill="#0f172a" />
+          </g>
+          <!-- Media play icon on chest -->
+          <rect x="10" y="14" width="2" height="3" fill="#dbeafe" />
+          <rect x="12" y="15" width="1" height="1" fill="#dbeafe" />
+          <!-- Mini glowing spark cube lifted on hover -->
+          <g class="peek-tool">
+            <rect x="19" y="9" width="3" height="3" fill="#2558c7" />
+            <rect x="20" y="10" width="1" height="1" fill="#eff6ff" />
+          </g>
+        </g>
+      </svg>
+    )}
+  </span>
+)}

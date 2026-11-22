@@ -1,0 +1,16 @@
+---
+import { getCollection } from 'astro:content';
+import AppOverviewPage from '../../../../components/views/AppOverviewPage.astro';
+
+export async function getStaticPaths() {
+  const apps = await getCollection('apps');
+  return apps.map((entry) => ({
+    params: { slug: entry.data.slug },
+    props: { app: entry.data },
+  }));
+}
+
+const { app } = Astro.props;
+---
+
+<AppOverviewPage app={app} locale="en" />

@@ -1,0 +1,54 @@
+---
+import type { Locale } from '../data/site';
+import { UI_STRINGS, getAlternatePath } from '../data/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const ui = UI_STRINGS[locale];
+const trHref = getAlternatePath(Astro.url.pathname, 'tr');
+const enHref = getAlternatePath(Astro.url.pathname, 'en');
+---
+
+<nav
+  aria-label={ui.nav.languageSwitchLabel}
+  class="inline-flex items-center rounded-full border border-border-subtle bg-surface-apple p-0.5 text-xs font-medium"
+>
+  {locale === 'tr' ? (
+    <span
+      aria-current="true"
+      class="rounded-full bg-white px-2.5 py-1 text-ink-primary shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+    >
+      TR
+    </span>
+  ) : (
+    <a
+      href={trHref}
+      hreflang="tr"
+      lang="tr"
+      class="rounded-full px-2.5 py-1 text-ink-secondary transition-colors hover:text-ink-primary"
+    >
+      TR
+    </a>
+  )}
+
+  {locale === 'en' ? (
+    <span
+      aria-current="true"
+      class="rounded-full bg-white px-2.5 py-1 text-ink-primary shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
+    >
+      EN
+    </span>
+  ) : (
+    <a
+      href={enHref}
+      hreflang="en"
+      lang="en"
+      class="rounded-full px-2.5 py-1 text-ink-secondary transition-colors hover:text-ink-primary"
+    >
+      EN
+    </a>
+  )}
+</nav>

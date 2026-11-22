@@ -1,0 +1,64 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import type { Locale } from '../data/site';
+import { SITE_DATA } from '../data/site';
+import { UI_STRINGS, getLocalePath } from '../data/ui';
+
+interface Props {
+  locale: Locale;
+  apps?: CollectionEntry<'apps'>[];
+}
+
+const { locale } = Astro.props;
+const data = SITE_DATA[locale];
+const ui = UI_STRINGS[locale];
+---
+
+<section
+  aria-label={locale === 'tr' ? 'Giriş' : 'Introduction'}
+  class="mx-auto max-w-6xl px-5 pt-4 pb-10 sm:px-6 lg:px-8 lg:pt-5 lg:pb-12"
+>
+  <!-- Single Editorial Cover Artwork -->
+  <div class="mx-auto h-[185px] w-full overflow-hidden rounded-[24px] border border-black/[0.06] bg-[#f5f5f7] sm:h-[245px] sm:rounded-[28px] lg:h-[300px] lg:rounded-3xl">
+    <img
+      src="/images/hero/cover.webp"
+      alt=""
+      width="1600"
+      height="520"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      class="h-full w-full object-cover object-center"
+    />
+  </div>
+
+  <!-- Spacious Editorial Typography Block directly on pure white canvas -->
+  <div class="mx-auto mt-7 max-w-3xl text-center sm:mt-8 lg:mt-9">
+    <p class="text-xs font-medium tracking-wide text-ink-secondary sm:text-sm">
+      {data.heroEyebrow}
+    </p>
+
+    <h1 class="mx-auto mt-2.5 max-w-[24ch] text-balance text-3xl font-semibold leading-[1.08] tracking-[-0.03em] text-ink-primary sm:text-4xl lg:text-[42px]">
+      {data.heroTitle}
+    </h1>
+
+    <p class="mx-auto mt-3.5 max-w-[54ch] text-balance text-[15px] leading-relaxed text-ink-secondary sm:text-base">
+      {data.heroSubtitle}
+    </p>
+
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+      <a
+        href={getLocalePath(locale, '/apps/')}
+        class="inline-flex items-center justify-center rounded-full bg-accent px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+      >
+        {ui.actions.exploreApps}
+      </a>
+      <a
+        href={getLocalePath(locale, '/projects/')}
+        class="inline-flex items-center justify-center rounded-full border border-border-subtle bg-white px-6 py-2.5 text-sm font-medium text-ink-primary transition-colors hover:bg-surface-apple"
+      >
+        {ui.actions.viewProjects}
+      </a>
+    </div>
+  </div>
+</section>

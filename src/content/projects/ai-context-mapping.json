@@ -1,0 +1,33 @@
+{
+  "slug": "ai-context-mapping",
+  "order": 4,
+  "category": "ai",
+  "repoUrl": "https://github.com/umitkrkmz/ai-context-mapping",
+  "license": "MIT",
+  "version": "1.5.2",
+  "tags": ["AI Agents", "MCP", "AST", "Mutation Testing", "Python", "Zero-Dependency"],
+  "tr": {
+    "title": "ai-context-mapping",
+    "subtitle": "AI kodlama ajanları için bağlam koruma, AST denetimi ve mutasyon testi çerçevesi",
+    "badge": "v1.5.2 · AI Guardrails",
+    "summary": "Claude Code, Cursor ve GitHub Copilot gibi AI kodlama ajanlarının bağlamdan kopmasını, gereksiz token harcamasını ve koruyucu kodu bozmasını önlemek için Python 3.9+ standart kütüphanesiyle yazılmış, sıfır bağımlılıklı doğrulama araç takımı.",
+    "highlights": [
+      "Üç sütun: Bağlam haritalama (project-map + MCP sunucusu), kısıt kodlama (negatif değişmezler & ADR) ve doğrulama",
+      "AST tabanlı mimari kural denetleyicisi, bağımlılık bütçesi kontrolü ve pre-commit / CI kancaları",
+      "Regresyon testlerinin gerçekten başarısız olabildiğini kanıtlayan mutasyon testi (mutation_guard.py)",
+      "Claude Code eklentisi, Cursor ve Copilot kuralları ile ön-kayıtlı deney sonuçları"
+    ]
+  },
+  "en": {
+    "title": "ai-context-mapping",
+    "subtitle": "Context preservation, AST verification, and mutation testing framework for AI coding agents",
+    "badge": "v1.5.2 · AI Guardrails",
+    "summary": "A dependency-free Python 3.9+ toolkit that keeps Claude Code, Cursor, and GitHub Copilot from drifting, burning tokens on blind searches, or deleting protective code—enforced through scripts, hooks, and CI rather than prompts alone.",
+    "highlights": [
+      "Three pillars: Map the Context (project maps + MCP server), Encode Constraints (negative invariants & ADRs), Verify Changes",
+      "AST invariant checker, dependency budget gate, and automated pre-commit / CI enforcement",
+      "Mutation guard proving regression tests actually turn red when protective logic breaks",
+      "Native Claude Code plugin, Cursor/Copilot rules, and pre-registered agent benchmark experiments"
+    ]
+  }
+}

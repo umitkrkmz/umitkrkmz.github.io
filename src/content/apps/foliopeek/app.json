@@ -1,0 +1,215 @@
+{
+  "slug": "foliopeek",
+  "name": "FolioPeek",
+  "order": 1,
+  "version": "1.0.0",
+  "releaseDate": "2026-11-20",
+  "storeId": "9N345C2XQVXB",
+  "storeUrl": "https://apps.microsoft.com/detail/9N345C2XQVXB",
+  "githubUrl": "https://github.com/umitkrkmz/FolioPeek",
+  "issuesUrl": "https://github.com/umitkrkmz/FolioPeek/issues",
+  "sourceModel": "closed-source-open-docs",
+  "licenseLabel": "Kapalı Kaynak · Belgeler CC BY 4.0",
+  "networkModel": "offline",
+  "icon": "/images/apps/foliopeek/icon.png",
+  "theme": {
+    "accent": "#9a4506",
+    "surfaceFrom": "#f7f6f4",
+    "surfaceTo": "#f2efe9",
+    "borderTint": "#e7e3dc",
+    "shadowTint": "rgba(36, 25, 17, 0.22)",
+    "badgeBg": "#f4ede2",
+    "badgeText": "#853b05",
+    "backdropTone": "#241911"
+  },
+  "tr": {
+    "tagline": "PDF’leriniz için hızlı, sade ve tamamen yerel bir çalışma masası.",
+    "shortDescription": "PDF’lerinizi açın, not alın, imzalayın, birleştirin ve düzenleyin; hepsi ücretsiz ve tamamen bu bilgisayarda. Kalıcı karartma, yazı tanıma ve parola tek seferlik Pro’da.",
+    "description": "Bir sözleşmeyi imzalamak, iki dosyayı tek PDF yapmak ya da bir rapora not düşmek için belgelerinizi bir web sitesine yüklemeniz, hesap açmanız veya abonelik ödemeniz gerekmez. FolioPeek internete hiç bağlanmaz; uygulama paketinde ağ erişim yetkisi bile yoktur.",
+    "priceBadge": "Ücretsiz · Pro ₺350",
+    "pricingSummary": "Temel PDF okuma, not alma, imzalama, birleştirme tuvali ve sayfa düzenleme araçları ücretsiz ve sınırsızdır. İş belgeleri için Pro eklentisi tek seferlik satın almadır; abonelik yoktur.",
+    "pricingTiers": [
+      {
+        "label": "FolioPeek (Microsoft Store)",
+        "price": "Ücretsiz",
+        "note": "Sekmeli okuma, not alma, form doldurma & imza, birleştirme tuvali, sayfa düzenleme, görsel dönüşümleri ve yazdırma sınırsız."
+      },
+      {
+        "label": "FolioPeek Pro (Tek Seferlik)",
+        "price": "₺350",
+        "note": "Doğrulanmış kalıcı karartma, çevrimdışı yazı tanıma (OCR) ve aranabilir PDF, AES-128 parola, meta veri temizleme, filigran ve sayfa numarası."
+      }
+    ],
+    "requirements": [
+      "Windows 10 (sürüm 2004 / 19041) veya Windows 11",
+      "Yaklaşık 3 MB disk alanı",
+      "İnternet bağlantısı gerekmez (paket ağ izni istemez)",
+      "Türkçe ve İngilizce arayüz · Açık ve koyu tema"
+    ],
+    "features": [
+      "Sekmeli hızlı okuma, içindekiler, Ctrl + F arama; Özgün, Koyu ve Sepya okuma modları",
+      "Vurgulama, serbest çizim ve gerçek PDF metin notları; renk kapsülü sayfanın hemen üstünde",
+      "Form doldurma; çizilen, yazılan veya görselden eklenen imza ve bugünün tarihi",
+      "Görsel birleştirme tuvali: PDF’leri deste deste yerleştirin, sayfaları sürükleyin, sırayı kablolarla kurun",
+      "Sayfa döndürme, sıralama, silme, ayırma ve başka PDF’lerden sayfa ekleme",
+      "Görsellerden PDF oluşturma ve PDF sayfalarını PNG / JPEG (150 veya 300 DPI) olarak kaydetme",
+      "Pro: Doğrulanmış kalıcı karartma (altındaki metin ve görseller gerçekten silinir)",
+      "Pro: Windows’un yerleşik yazı tanımasıyla çevrimdışı OCR ve aranabilir PDF, AES-128 parola, meta veri temizleme ve filigran"
+    ],
+    "privacyHighlights": [
+      "İnternete hiç bağlanmaz; uygulama paketinde internetClient izni bulunmaz.",
+      "Hesap, oturum açma, reklam, analiz veya telemetri yoktur.",
+      "İmzanız diske kaydedilmez; yalnızca uygulama açıkken bellekte tutulur.",
+      "Siz kaydetmedikçe açık PDF belgeniz değiştirilmez."
+    ],
+    "cardImage": "/images/apps/foliopeek/tr-hero.webp",
+    "cardImageAlt": "FolioPeek belge ekranı ve okuma modları önizlemesi",
+    "heroImage": "/images/apps/foliopeek/tr-1.webp",
+    "heroAlt": "FolioPeek koyu temada belge ekranı, vurgular ve renk kapsülü",
+    "screenshots": [
+      {
+        "src": "/images/apps/foliopeek/tr-1.webp",
+        "alt": "FolioPeek belge ekranı, vurgular ve renk kapsülü",
+        "caption": "Belge ekranı, sekmeler, vurgular ve sayfa üstü renk kapsülü"
+      },
+      {
+        "src": "/images/apps/foliopeek/tr-2.webp",
+        "alt": "FolioPeek görsel birleştirme tuvali",
+        "caption": "Desteler ve kablolarla görsel birleştirme tuvali"
+      },
+      {
+        "src": "/images/apps/foliopeek/tr-3.webp",
+        "alt": "FolioPeek Özgün, Sepya ve Koyu okuma modları",
+        "caption": "Tek tıkla Özgün, Sepya ve Koyu okuma modları"
+      },
+      {
+        "src": "/images/apps/foliopeek/tr-4.webp",
+        "alt": "FolioPeek form doldurma ve imza ekleme",
+        "caption": "Form doldurma ve çizim, yazı ya da görselle imza"
+      },
+      {
+        "src": "/images/apps/foliopeek/tr-5.webp",
+        "alt": "FolioPeek Pro kalıcı karartma ve belge özellikleri",
+        "caption": "Pro: Doğrulanmış kalıcı karartma ve meta veri düzenleme"
+      },
+      {
+        "src": "/images/apps/foliopeek/tr-6.webp",
+        "alt": "FolioPeek giriş ekranı ve gizlilik sözleri",
+        "caption": "Hızlı giriş ekranı ve çevrimdışı gizlilik mimarisi"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Pro satın aldım ama uygulama etkinleşmedi, ne yapmalıyım?",
+        "answer": "Microsoft Store’a satın alırken kullandığınız Microsoft hesabıyla giriş yaptığınızdan emin olun, ardından FolioPeek içinde PRO → Satın alımı geri yükle yolunu izleyin. Bu doğrulamayı Microsoft Store yürütür; sorun devam ederse e-posta ile ulaşabilirsiniz."
+      },
+      {
+        "question": "Oluşturduğum imza bilgisayarıma kaydediliyor mu?",
+        "answer": "Hayır. İmza yalnızca uygulama açıkken bellekte tutulur ve uygulamayı kapattığınızda silinir. Yalnızca bir belgeye yerleştirip kaydettiğinizde o belgenin parçası olur."
+      },
+      {
+        "question": "Yazı tanıma (OCR) çalışmıyor veya yüklü dil yok uyarısı veriyor.",
+        "answer": "FolioPeek, Windows’un yerleşik çevrimdışı OCR bileşenini kullanır. Windows Ayarları → Saat ve dil → Dil ve bölge bölümünden ilgili dil paketini ekledikten sonra FolioPeek içinde Ayarlar → Yazı tanıma menüsünden seçebilirsiniz."
+      },
+      {
+        "question": "PDF’ler çift tıklayınca FolioPeek ile nasıl açılır?",
+        "answer": "Ayarlar → Genel → Varsayılan PDF uygulaması düğmesiyle Windows ayarlarını açın ve .pdf dosya türü için FolioPeek’i seçin."
+      }
+    ]
+  },
+  "en": {
+    "tagline": "A fast, simple, local-first desk for your PDFs.",
+    "shortDescription": "Open, annotate, sign, merge, and organize PDFs—all free and entirely on your PC. Permanent redaction, offline OCR, and passwords come with a one-time Pro upgrade.",
+    "description": "Signing a contract, merging two files into one PDF, or marking up a report should not require uploading documents to a website, creating an account, or paying a monthly subscription. FolioPeek never connects to the internet—its package does not even declare network capability.",
+    "priceBadge": "Free · Pro $14.99",
+    "pricingSummary": "Core PDF reading, notes, fill and sign, visual merge board, and page organization are free without limits. Pro for business documents is a one-time purchase with no subscription.",
+    "pricingTiers": [
+      {
+        "label": "FolioPeek (Microsoft Store)",
+        "price": "Free",
+        "note": "Tabbed reading, annotations, fill & sign, visual merge board, page editing, image conversion, and printing without limits."
+      },
+      {
+        "label": "FolioPeek Pro (One-Time)",
+        "price": "$14.99",
+        "note": "Verified permanent redaction, offline OCR & searchable PDFs, AES-128 password protection, metadata cleanup, watermarks, and page numbers."
+      }
+    ],
+    "requirements": [
+      "Windows 10 (version 2004 / 19041) or Windows 11",
+      "About 3 MB of disk space",
+      "No internet connection needed (no network capability declared)",
+      "English and Turkish interface · Light and dark themes"
+    ],
+    "features": [
+      "Fast tabbed reading, bookmarks, Ctrl + F search; Original, Dark, and Sepia reading modes",
+      "Highlights, freehand ink, and standard PDF text notes with a floating colour pill above the page",
+      "Form filling plus drawn, typed, or image-based signatures and quick date stamps",
+      "Visual merge board: lay out PDFs as decks, drag pages between them, and wire the order with cables",
+      "Rotate, reorder, delete, extract, and insert pages from other PDF documents",
+      "Images to PDF and export PDF pages to PNG / JPEG at 150 or 300 DPI",
+      "Pro: Verified permanent redaction that removes underlying text, drawings, and images",
+      "Pro: Offline Windows OCR and searchable PDFs, AES-128 encryption, metadata editing, and watermarks"
+    ],
+    "privacyHighlights": [
+      "Never connects to the internet; declares no internetClient capability.",
+      "No account, sign-in, ads, tracking, analytics, or telemetry.",
+      "Signatures stay in memory only while the app is open and are cleared on exit.",
+      "Your open PDF file never changes until you explicitly save."
+    ],
+    "cardImage": "/images/apps/foliopeek/en-hero.webp",
+    "cardImageAlt": "FolioPeek document desk and reading modes preview",
+    "heroImage": "/images/apps/foliopeek/en-1.webp",
+    "heroAlt": "FolioPeek dark theme document view with highlights and colour pill",
+    "screenshots": [
+      {
+        "src": "/images/apps/foliopeek/en-1.webp",
+        "alt": "FolioPeek document view with highlights and colour pill",
+        "caption": "Document view with tabs, highlights, and the floating colour pill"
+      },
+      {
+        "src": "/images/apps/foliopeek/en-2.webp",
+        "alt": "FolioPeek visual merge board",
+        "caption": "Visual merge board with decks and wired page ordering"
+      },
+      {
+        "src": "/images/apps/foliopeek/en-3.webp",
+        "alt": "FolioPeek Original, Sepia, and Dark reading modes",
+        "caption": "Switch between Original, Sepia, and Dark reading modes in one click"
+      },
+      {
+        "src": "/images/apps/foliopeek/en-4.webp",
+        "alt": "FolioPeek form filling and signing",
+        "caption": "Fill in forms and add a drawn, typed, or photo signature"
+      },
+      {
+        "src": "/images/apps/foliopeek/en-5.webp",
+        "alt": "FolioPeek Pro permanent redaction and document properties",
+        "caption": "Pro: Verified permanent redaction and metadata management"
+      },
+      {
+        "src": "/images/apps/foliopeek/en-6.webp",
+        "alt": "FolioPeek home screen and privacy commitments",
+        "caption": "Clean home screen and strictly offline privacy design"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "I bought Pro, but the app does not recognize it.",
+        "answer": "Make sure you are signed in to the Microsoft Store with the same Microsoft account used for the purchase, then run PRO → Restore purchase inside FolioPeek. This verification is handled by Microsoft Store; contact me by email if it still does not activate."
+      },
+      {
+        "question": "Is my signature saved on my computer?",
+        "answer": "No. Your signature is held in memory only while FolioPeek is open and is discarded when you close the app. It becomes part of a document only after you place it and save."
+      },
+      {
+        "question": "Text recognition does not work or says no language is installed.",
+        "answer": "FolioPeek uses Windows built-in offline OCR. Add the document’s language pack under Windows Settings → Time & language → Language & region, then select it in FolioPeek under Settings → Text recognition."
+      },
+      {
+        "question": "How do I make PDFs open in FolioPeek by default?",
+        "answer": "Open Settings → General → Default PDF app inside FolioPeek to launch Windows default apps settings, then pick FolioPeek for .pdf files."
+      }
+    ]
+  }
+}

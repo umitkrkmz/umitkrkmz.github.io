@@ -1,0 +1,225 @@
+{
+  "slug": "qrpeek",
+  "name": "QRPeek",
+  "order": 3,
+  "version": "0.3.0",
+  "releaseDate": "2026-11-12",
+  "storeId": "9NX5T90F6DQK",
+  "storeUrl": "https://apps.microsoft.com/detail/9NX5T90F6DQK",
+  "githubUrl": "https://github.com/umitkrkmz/qrpeek",
+  "issuesUrl": "https://github.com/umitkrkmz/qrpeek/issues/new/choose",
+  "sourceModel": "open-source",
+  "licenseLabel": "GPL-3.0-or-later (Açık Kaynak)",
+  "networkModel": "local-first",
+  "icon": "/images/apps/qrpeek/icon.png",
+  "theme": {
+    "accent": "#1a4ec4",
+    "surfaceFrom": "#f5f6f9",
+    "surfaceTo": "#edf0f7",
+    "borderTint": "#e2e7f0",
+    "shadowTint": "rgba(13, 31, 82, 0.22)",
+    "badgeBg": "#e8eefb",
+    "badgeText": "#1841a3",
+    "backdropTone": "#0d1f52"
+  },
+  "tr": {
+    "tagline": "Ekrandaki QR kodlarını kamera ya da telefon olmadan okuyan ve oluşturan Windows aracı.",
+    "shortDescription": "Tek kısayolla tüm ekranlardaki QR kodlarını okuyun, şüpheli bağlantı uyarılarını görün, QR’ı olmayan makbuzları okuyun ve telefonunuzla yerel ağ üzerinden güvenle dosya aktarın.",
+    "description": "QRPeek, web sayfasında, PDF’te, toplantı sunumunda ya da videoda gördüğünüz QR kodlarını tek kısayolla çözer. Hiçbir bağlantı kendiliğinden açılmaz; gerçek hedef ve güvenlik uyarıları önce gösterilir. Kod yoksa Windows’un yerleşik OCR motoruyla makbuz ve yazıları okur, logolu QR kodları üretir ve yerel ağdan telefonla dosya alıp verir.",
+    "priceBadge": "Store ₺75 · GitHub’da ücretsiz",
+    "pricingSummary": "GitHub’daki taşınabilir sürüm ve kaynak kod tamamen ücretsizdir (GPL-3.0). Microsoft Store sürümü aynı uygulamadır; tek tıkla kurulum ve otomatik Store güncellemeleri sunar, satın almak projeye destek olur.",
+    "pricingTiers": [
+      {
+        "label": "Microsoft Store (Otomatik Güncelleme)",
+        "price": "₺75",
+        "note": "Tek seferlik satın alma. Tek tıkla MSIX kurulumu, otomatik güncellemeler; projeyi destekler."
+      },
+      {
+        "label": "GitHub Sürümü (Açık Kaynak)",
+        "price": "Ücretsiz",
+        "note": "QRPeek-portable.zip ve tam kaynak kodu GPL-3.0-or-later lisansıyla herkese açık."
+      }
+    ],
+    "requirements": [
+      "Windows 10 (sürüm 2004 / 19041) veya üzeri (x64) · Windows 11 (ARM64)",
+      "Yaklaşık 2 MB disk alanı",
+      "İnternet bağlantısı gerekmez (tüm okuma ve OCR yerelde çalışır)",
+      "Türkçe ve İngilizce arayüz · Açık ve koyu tema"
+    ],
+    "features": [
+      "Tek kısayol (Ctrl + Alt + Q) ile tüm monitörlerdeki QR kodlarını aynı anda tarama; küçük kodlarda ekran dondurup alan seçme",
+      "Güvenli bağlantılar: hiçbir şey kendiliğinden açılmaz; gerçek hedef ve şüpheli link (HTTP, IP, kısaltıcı, benzer alan adı, @) uyarıları",
+      "Akıllı kartlar: tek tıkla Wi-Fi bağlantısı, maskeli 2FA kurulum kodları, e-Fatura / e-Arşiv (CSV), kişi (.vcf) ve konum",
+      "QR yoksa yazı ve makbuz okuma: Windows yerleşik OCR ile makbuz kartı, seçilebilir alanlar, Excel/CSV ve özet QR",
+      "Telefona gönder (Ctrl + Alt + W) ve Telefondan al: bulutsuz, tek kullanımlık 10 dakikalık yerel ağ aktarımı",
+      "Logolu, renkli ve desenli QR oluşturucu: tasarlarken okunabilirlik doğrulaması; PNG, SVG ve pano çıktısı",
+      "İsteğe bağlı ekranı izleme modu ve görselden sürükle-bırak / Ctrl + V ile okuma",
+      "Hesap yok, reklam yok, telemetri yok; açık kaynak (GPL-3.0)"
+    ],
+    "privacyHighlights": [
+      "Ekran görüntüleri yalnızca bellekte işlenir; kaydedilmez ve hiçbir yere gönderilmez.",
+      "2FA gizli anahtarları geçmişe yazılmaz; Wi-Fi şifreleri ve 2FA kodları otomatik panoya kopyalanmaz.",
+      "Telefonla aktarım yalnızca yerel ağda, 10 dakika geçerli tek kullanımlık adres ve onayınızla çalışır.",
+      "Hesap, reklam, analiz veya telemetri bulunmaz."
+    ],
+    "cardImage": "/images/apps/qrpeek/tr-1.webp",
+    "cardImageAlt": "QRPeek ile ekrandan tek kısayolla QR okuma ve bağlantı güvenlik kartı",
+    "heroImage": "/images/apps/qrpeek/tr-1.webp",
+    "heroAlt": "QRPeek ekrandan QR okuma ve şüpheli bağlantı uyarı kartı",
+    "screenshots": [
+      {
+        "src": "/images/apps/qrpeek/tr-1.webp",
+        "alt": "QRPeek ekrandan QR okuma ve güvenlik kartı",
+        "caption": "Tek kısayolla ekrandaki QR kodunu okuma ve güvenlik uyarıları"
+      },
+      {
+        "src": "/images/apps/qrpeek/tr-2.webp",
+        "alt": "QRPeek QR’sız makbuz okuma ve makbuz kartı",
+        "caption": "QR kodu olmayan makbuzları Windows OCR ile alanlara ayırma"
+      },
+      {
+        "src": "/images/apps/qrpeek/tr-3.webp",
+        "alt": "QRPeek telefondan dosya alma ve bilgisayar onayı",
+        "caption": "Uygulama kurmadan yerel ağdan telefondan dosya alma"
+      },
+      {
+        "src": "/images/apps/qrpeek/tr-4.webp",
+        "alt": "QRPeek Wi-Fi ve e-Fatura akıllı kartları",
+        "caption": "Tek tıkla Wi-Fi bağlantısı ve e-Fatura / e-Arşiv CSV aktarımı"
+      },
+      {
+        "src": "/images/apps/qrpeek/tr-5.webp",
+        "alt": "QRPeek telefona gönder ve ana pencere",
+        "caption": "Link, metin ve dosyaları yerel ağdan telefona gönderme"
+      },
+      {
+        "src": "/images/apps/qrpeek/tr-6.webp",
+        "alt": "QRPeek logolu ve desenli QR oluşturucu",
+        "caption": "Tasarlarken okunabilirliği doğrulanan logolu QR oluşturucu"
+      },
+      {
+        "src": "/images/apps/qrpeek/tr-7.webp",
+        "alt": "QRPeek ana pencere ve gizlilik ilkeleri",
+        "caption": "Bildirim alanında hafif çalışma ve gizlilik ilkeleri"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Wi-Fi’a bağlanırken Windows neden konum izni istiyor?",
+        "answer": "Windows 11 (24H2 ve sonrası) Wi-Fi ağ bilgilerini konum verisi olarak sınıflandırır. QRPeek konumunuzu okumaz veya saklamaz; bu izni yalnızca seçtiğiniz ağa gerçekten bağlanılıp bağlanılmadığını doğrulamak için kullanır."
+      },
+      {
+        "question": "Telefondan dosya alırken dosyalar buluta yükleniyor mu?",
+        "answer": "Hayır. Aktarım yalnızca aynı yerel ağ üzerinden, tahmin edilemeyen tek kullanımlık ve 10 dakika geçerli bir adresle yapılır. Dosyalar yalnızca bilgisayarda onay verdiğinizde kaydedilir ve hiçbiri kendiliğinden açılmaz."
+      },
+      {
+        "question": "Microsoft Store sürümü ile GitHub sürümü arasındaki fark nedir?",
+        "answer": "Özellikler tamamen aynıdır. GitHub sürümü ücretsizdir ve taşınabilir olarak çalışır; Store sürümü tek tıkla kurulur, güncellemeleri otomatik alır ve projeye maddi destek sağlar."
+      },
+      {
+        "question": "2FA kurulum kodları ve Wi-Fi şifreleri geçmişe kaydediliyor mu?",
+        "answer": "Hayır. 2FA kodları geçmişe hiç yazılmaz, Wi-Fi kodları şifresiz kaydedilir ve her ikisi de Windows pano geçmişi ile bulut eşitlemesinin dışında tutulur."
+      }
+    ]
+  },
+  "en": {
+    "tagline": "Read QR codes right off your Windows screen without a camera or phone, and create new ones.",
+    "shortDescription": "One shortcut scans every monitor, warns about suspicious links before opening, reads receipts that have no QR code via Windows OCR, and swaps files with your phone over local Wi-Fi.",
+    "description": "QRPeek decodes QR codes in web pages, PDFs, meetings, or videos with a single shortcut. Nothing opens automatically—you see the real destination and security warnings first. When there is no QR code, built-in Windows OCR turns receipts into structured cards, alongside a verified QR generator and cloud-free local phone transfers.",
+    "priceBadge": "Store $2.49 · Free on GitHub",
+    "pricingSummary": "The portable GitHub build and full source code are free under GPL-3.0-or-later. The Microsoft Store version is the exact same app with one-click installation and automatic updates to support development.",
+    "pricingTiers": [
+      {
+        "label": "Microsoft Store (Auto-Updates)",
+        "price": "$2.49",
+        "note": "One-time purchase. One-click MSIX install, automatic updates, supports ongoing development."
+      },
+      {
+        "label": "GitHub Release (Open Source)",
+        "price": "Free",
+        "note": "Portable zip build and full source code published under GPL-3.0-or-later."
+      }
+    ],
+    "requirements": [
+      "Windows 10 (version 2004 / 19041) or later (x64) · Windows 11 (ARM64)",
+      "About 2 MB of disk space",
+      "No internet connection needed for scanning, OCR, or generation",
+      "English and Turkish interface · Light and dark themes"
+    ],
+    "features": [
+      "Scan every monitor at once with Ctrl + Alt + Q, or freeze the screen to select tiny and dense codes",
+      "Safe links: nothing opens automatically; warnings for HTTP, bare IPs, shorteners, look-alike domains, and @ tricks",
+      "Smart cards: one-click Wi-Fi join, masked 2FA setup keys, Turkish e-invoices (CSV), contacts (.vcf), and locations",
+      "No QR? On-device Windows OCR reads text and turns receipts into editable cards with CSV, Excel, or summary QR export",
+      "Send to phone (Ctrl + Alt + W) and Receive from phone over local network only, with 10-minute one-off links and explicit approval",
+      "QR generator with colours, patterns, and logos—automatically verified for scannability; PNG, SVG, and clipboard",
+      "Optional screen watch mode plus drag-and-drop or Ctrl + V image decoding",
+      "No account, no ads, no telemetry; open source (GPL-3.0)"
+    ],
+    "privacyHighlights": [
+      "Screen captures are decoded in memory only and discarded immediately.",
+      "2FA secret keys are never logged to history; Wi-Fi passwords and 2FA codes are never auto-copied.",
+      "Phone transfers stay strictly on your local network via 10-minute one-off URLs with explicit PC approval.",
+      "No account, ads, analytics, or telemetry."
+    ],
+    "cardImage": "/images/apps/qrpeek/en-1.webp",
+    "cardImageAlt": "QRPeek scanning a QR code on screen with link safety warnings",
+    "heroImage": "/images/apps/qrpeek/en-1.webp",
+    "heroAlt": "QRPeek link card and suspicious URL warnings",
+    "screenshots": [
+      {
+        "src": "/images/apps/qrpeek/en-1.webp",
+        "alt": "QRPeek screen scan and link safety card",
+        "caption": "Read any on-screen QR code with one shortcut and inspect real link destinations"
+      },
+      {
+        "src": "/images/apps/qrpeek/en-2.webp",
+        "alt": "QRPeek offline OCR receipt card",
+        "caption": "Read receipts with no QR code locally using Windows OCR"
+      },
+      {
+        "src": "/images/apps/qrpeek/en-3.webp",
+        "alt": "QRPeek receive files from phone with PC approval",
+        "caption": "Receive photos and files from your phone over local Wi-Fi with explicit approval"
+      },
+      {
+        "src": "/images/apps/qrpeek/en-4.webp",
+        "alt": "QRPeek Wi-Fi and e-invoice smart cards",
+        "caption": "One-click Wi-Fi joining and structured e-invoice export"
+      },
+      {
+        "src": "/images/apps/qrpeek/en-5.webp",
+        "alt": "QRPeek send to phone and main window",
+        "caption": "Send links, text, and files to your phone without touching the cloud"
+      },
+      {
+        "src": "/images/apps/qrpeek/en-6.webp",
+        "alt": "QRPeek verified QR generator with logos",
+        "caption": "Design branded QR codes verified live for scannability"
+      },
+      {
+        "src": "/images/apps/qrpeek/en-7.webp",
+        "alt": "QRPeek main window and privacy overview",
+        "caption": "Lightweight notification-area utility built around privacy"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Why does Windows ask for location permission when joining Wi-Fi?",
+        "answer": "Windows 11 (24H2 and later) classifies Wi-Fi network metadata as location data. QRPeek never reads or stores your location; it only checks whether the requested Wi-Fi connection succeeded."
+      },
+      {
+        "question": "Are files uploaded to the cloud during phone transfers?",
+        "answer": "No. Transfers run solely over your local network using an unguessable one-off link valid for 10 minutes. Incoming files are saved only after you press Accept on your PC, and nothing opens automatically."
+      },
+      {
+        "question": "What is the difference between the Microsoft Store and GitHub versions?",
+        "answer": "They have the exact same features. The GitHub portable build is free; the Store version adds one-click installation and automatic updates while supporting the project."
+      },
+      {
+        "question": "Are 2FA keys or Wi-Fi passwords stored in scan history?",
+        "answer": "No. 2FA codes are never written to history, Wi-Fi entries omit the password, and secrets you copy manually are flagged to stay out of Windows clipboard history and cloud sync."
+      }
+    ]
+  }
+}

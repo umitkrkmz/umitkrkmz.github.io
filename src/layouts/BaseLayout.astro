@@ -1,0 +1,114 @@
+---
+import '../styles/global.css';
+import type { Locale } from '../data/site';
+import { SITE_OWNER } from '../data/site';
+import { UI_STRINGS, getAlternatePath } from '../data/ui';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  ogImage?: string;
+  noindex?: boolean;
+  showClosingCard?: boolean;
+}
+
+const { locale, title, description, ogImage, noindex = false, showClosingCard = true } = Astro.props;
+const ui = UI_STRINGS[locale];
+
+const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? SITE_OWNER.siteUrl;
+const trPath = getAlternatePath(Astro.url.pathname, 'tr');
+const enPath = getAlternatePath(Astro.url.pathname, 'en');
+const currentPath = locale === 'tr' ? trPath : enPath;
+
+const canonicalUrl = `${siteOrigin}${currentPath}`;
+const trUrl = `${siteOrigin}${trPath}`;
+const enUrl = `${siteOrigin}${enPath}`;
+const resolvedOgImage = ogImage
+  ? ogImage.startsWith('http')
+    ? ogImage
+    : `${siteOrigin}${ogImage}`
+  : `${siteOrigin}/og-${locale}.png`;
+const isDefaultOgCard = !ogImage;
+const ogImageAlt =
+  locale === 'tr'
+    ? `${SITE_OWNER.fullName} — Sade masaüstü araçları ve mühendislik projeleri.`
+    : `${SITE_OWNER.fullName} — Simple desktop tools and engineering projects.`;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={SITE_OWNER.fullName} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    {noindex ? (
+      <meta name="robots" content="noindex" />
+    ) : (
+      <>
+        <!-- Canonical & Hreflang -->
+        <link rel="canonical" href={canonicalUrl} />
+        <link rel="alternate" hreflang="tr" href={trUrl} />
+        <link rel="alternate" hreflang="en" href={enUrl} />
+        <link rel="alternate" hreflang="x-default" href={trUrl} />
+      </>
+    )}
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_OWNER.fullName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={locale === 'tr' ? 'tr_TR' : 'en_US'} />
+    <meta property="og:locale:alternate" content={locale === 'tr' ? 'en_US' : 'tr_TR'} />
+    <meta property="og:image" content={resolvedOgImage} />
+    {isDefaultOgCard && (
+      <>
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={ogImageAlt} />
+      </>
+    )}
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={resolvedOgImage} />
+
+    <!-- Inter Font (non-blocking display swap) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="min-h-screen bg-canvas text-ink-primary antialiased selection:bg-accent/15 selection:text-ink-primary">
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-ink-primary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
+    >
+      {ui.nav.skipToContent}
+    </a>
+
+    <Header locale={locale} />
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <Footer locale={locale} showClosingCard={showClosingCard} />
+  </body>
+</html>

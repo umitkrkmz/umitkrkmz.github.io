@@ -1,0 +1,24 @@
+---
+import { getCollection } from 'astro:content';
+import AppDocPage from '../../../../components/views/AppDocPage.astro';
+
+export async function getStaticPaths() {
+  const apps = await getCollection('apps');
+  const docs = await getCollection('appDocs', ({ data }) => data.docType === 'privacy' && data.lang === 'en');
+
+  return apps.map((appEntry) => {
+    const doc = docs.find((d) => d.data.appSlug === appEntry.data.slug);
+    if (!doc) {
+      throw new Error(`Missing EN privacy doc for app: ${appEntry.data.slug}`);
+    }
+    return {
+      params: { slug: appEntry.data.slug },
+      props: { app: appEntry.data, doc },
+    };
+  });
+}
+
+const { app, doc } = Astro.props;
+---
+
+<AppDocPage app={app} doc={doc} locale="en" activeTab="privacy" />

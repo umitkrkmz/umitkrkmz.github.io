@@ -1,0 +1,824 @@
+---
+import { getCollection } from 'astro:content';
+import type { Locale } from '../../data/site';
+import { SITE_DATA, SITE_OWNER } from '../../data/site';
+import { UI_STRINGS, getLocalePath } from '../../data/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../Hero.astro';
+import ProjectShowcaseCard from '../ProjectShowcaseCard.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const data = SITE_DATA[locale];
+const ui = UI_STRINGS[locale];
+
+const apps = (await getCollection('apps')).sort((a, b) => a.data.order - b.data.order);
+const featuredEntry = apps.find((entry) => entry.data.featured) ?? apps[0];
+const featuredApp = featuredEntry?.data;
+const shelfApps = apps.filter((entry) => entry.data.slug !== featuredApp?.slug);
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+
+const copy =
+  locale === 'tr'
+    ? {
+        featuredEyebrow: 'Öne Çıkan Uygulama',
+        otherAppsLabel: 'Diğer Windows Uygulamaları',
+        prevApp: 'Önceki uygulamalar',
+        nextApp: 'Sonraki uygulamalar',
+        prevProject: 'Önceki proje',
+        nextProject: 'Sonraki proje',
+        pauseAutoplay: 'Otomatik geçişi duraklat',
+        playAutoplay: 'Otomatik geçişi başlat',
+        projectTabsLabel: 'Seçilmiş projeler',
+      }
+    : {
+        featuredEyebrow: 'Featured Application',
+        otherAppsLabel: 'More Windows Applications',
+        prevApp: 'Previous apps',
+        nextApp: 'Next apps',
+        prevProject: 'Previous project',
+        nextProject: 'Next project',
+        pauseAutoplay: 'Pause autoplay',
+        playAutoplay: 'Resume autoplay',
+        projectTabsLabel: 'Selected projects',
+      };
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${data.title} — ${data.tagline}`}
+  description={data.heroSubtitle}
+>
+  <Hero locale={locale} apps={apps} />
+
+  <!-- Windows Applications: 1 Wide Featured Stage + Seamless Circular Horizontal Shelf -->
+  <section id="apps" class="mx-auto max-w-6xl scroll-mt-16 px-5 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div class="max-w-2xl">
+        <p class="text-xs font-semibold tracking-wide text-ink-secondary">
+          {ui.sections.storeAppsEyebrow}
+        </p>
+        <h2 class="mt-2 text-2xl font-semibold tracking-[-0.025em] text-ink-primary sm:text-3xl">
+          {ui.sections.storeAppsTitle}
+        </h2>
+        <p class="mt-2.5 text-[15px] leading-relaxed text-ink-secondary sm:text-base">
+          {ui.sections.storeAppsSubtitle}
+        </p>
+      </div>
+
+      <a
+        href={getLocalePath(locale, '/apps/')}
+        class="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-accent-link transition-opacity hover:opacity-80"
+      >
+        <span>{ui.actions.exploreApps}</span>
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    <!-- 1. Wide Featured App Stage -->
+    {featuredApp && (() => {
+      const fLoc = featuredApp[locale];
+      const fTheme = featuredApp.theme;
+      const fOverview = getLocalePath(locale, `/apps/${featuredApp.slug}/`);
+      const fPrivacy = getLocalePath(locale, `/apps/${featuredApp.slug}/privacy/`);
+      const fSupport = getLocalePath(locale, `/apps/${featuredApp.slug}/support/`);
+      const fNetwork =
+        featuredApp.networkModel === 'offline' ? ui.badges.offline : ui.badges.localFirst;
+
+      return (
+        <article
+          style={`background: linear-gradient(150deg, ${fTheme.surfaceFrom} 0%, ${fTheme.surfaceTo} 100%); border-color: ${fTheme.borderTint};`}
+          class="group mt-8 overflow-hidden rounded-3xl border p-6 sm:p-8 lg:p-10"
+        >
+          <div class="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-10">
+            <!-- Left Info Column -->
+            <div class="lg:col-span-5">
+              <div class="flex items-center gap-3.5">
+                <a href={fOverview} tabindex="-1" aria-hidden="true" class="shrink-0">
+                  <img
+                    src={featuredApp.icon}
+                    alt=""
+                    width="56"
+                    height="56"
+                    loading="lazy"
+                    decoding="async"
+                    class="h-14 w-14 [filter:drop-shadow(0_8px_16px_rgba(0,0,0,0.16))]"
+                  />
+                </a>
+                <div class="min-w-0">
+                  <p
+                    style={`color: ${fTheme.accent};`}
+                    class="text-xs font-semibold tracking-wide"
+                  >
+                    {copy.featuredEyebrow}
+                  </p>
+                  <h3 class="mt-0.5 text-2xl font-semibold tracking-[-0.025em] text-ink-primary sm:text-[28px]">
+                    <a href={fOverview} class="hover:underline decoration-1 underline-offset-4">
+                      {featuredApp.name}
+                    </a>
+                  </h3>
+                </div>
+              </div>
+
+              <ul class="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-ink-secondary">
+                <li class="rounded-md bg-white/85 px-2 py-0.5 ring-1 ring-black/[0.06]">
+                  v{featuredApp.version}
+                </li>
+                <li class="rounded-md bg-white/85 px-2 py-0.5 ring-1 ring-black/[0.06]">
+                  {fLoc.priceBadge}
+                </li>
+                <li class="rounded-md bg-white/85 px-2 py-0.5 ring-1 ring-black/[0.06]">
+                  {fNetwork}
+                </li>
+              </ul>
+
+              <p class="mt-4 text-base font-medium leading-snug text-ink-primary">
+                {fLoc.tagline}
+              </p>
+
+              <p class="mt-2.5 text-sm leading-relaxed text-ink-secondary">
+                {fLoc.shortDescription}
+              </p>
+
+              <div class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2.5 text-sm">
+                <a
+                  href={fOverview}
+                  style={`color: ${fTheme.accent};`}
+                  class="inline-flex items-center gap-1 font-semibold transition-opacity hover:opacity-80"
+                >
+                  <span>{ui.actions.learnMore}</span>
+                  <span aria-hidden="true" class="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+                </a>
+
+                <div class="flex items-center gap-2.5 text-xs font-medium text-ink-secondary">
+                  <a href={fPrivacy} class="transition-colors hover:text-ink-primary">
+                    {ui.appTabs.privacy}
+                  </a>
+                  <span aria-hidden="true" class="opacity-45">·</span>
+                  <a href={fSupport} class="transition-colors hover:text-ink-primary">
+                    {ui.appTabs.support}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Wide Screenshot Column -->
+            <a
+              href={fOverview}
+              aria-label={`${featuredApp.name} — ${ui.actions.learnMore}`}
+              class="relative block lg:col-span-7"
+            >
+              <div
+                aria-hidden="true"
+                style={`background: radial-gradient(70% 60% at 50% 85%, ${fTheme.backdropTone}24 0%, transparent 75%);`}
+                class="pointer-events-none absolute -inset-x-4 -bottom-4 top-6 rounded-2xl"
+              ></div>
+              <div
+                style={`background-color: ${fTheme.backdropTone}; box-shadow: 0 28px 54px -22px ${fTheme.shadowTint}, 0 8px 18px -6px rgba(0, 0, 0, 0.14);`}
+                class="relative overflow-hidden rounded-2xl p-[1.5px] ring-1 ring-black/10 transition-transform duration-300 group-hover:scale-[1.01]"
+              >
+                <div class="relative overflow-hidden rounded-[14.5px]">
+                  <img
+                    src={fLoc.cardImage}
+                    alt={fLoc.cardImageAlt}
+                    width="1600"
+                    height="900"
+                    loading="lazy"
+                    decoding="async"
+                    class="aspect-video w-full object-cover"
+                  />
+                  <div
+                    aria-hidden="true"
+                    class="pointer-events-none absolute inset-0 rounded-[14.5px] ring-1 ring-inset ring-white/12"
+                  ></div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </article>
+      );
+    })()}
+
+    <!-- 2. Seamless Circular Horizontal Scroll-Snap App Shelf -->
+    {shelfApps.length > 0 && (
+      <div class="mt-8" data-app-shelf-wrapper>
+        <div class="mb-4 flex items-center justify-between gap-4">
+          <h3 class="text-sm font-semibold tracking-tight text-ink-primary">
+            {copy.otherAppsLabel}
+          </h3>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              data-shelf-prev
+              aria-label={copy.prevApp}
+              class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border-subtle bg-white text-ink-primary transition-colors hover:bg-surface-apple"
+            >
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              data-shelf-next
+              aria-label={copy.nextApp}
+              class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border-subtle bg-white text-ink-primary transition-colors hover:bg-surface-apple"
+            >
+              <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div
+          data-app-shelf
+          class="relative flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {shelfApps.map(({ data: app }) => {
+            const loc = app[locale];
+            const t = app.theme;
+            const overviewHref = getLocalePath(locale, `/apps/${app.slug}/`);
+            const privacyHref = getLocalePath(locale, `/apps/${app.slug}/privacy/`);
+            const supportHref = getLocalePath(locale, `/apps/${app.slug}/support/`);
+
+            return (
+              <article
+                data-shelf-original={app.slug}
+                style={`background: linear-gradient(160deg, ${t.surfaceFrom} 0%, ${t.surfaceTo} 100%); border-color: ${t.borderTint};`}
+                class="group flex w-[84%] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-3xl border p-5 transition-transform duration-300 hover:-translate-y-0.5 sm:w-[62%] md:w-[46%] lg:w-[39%] lg:p-6"
+              >
+                <div>
+                  <div class="flex items-center gap-3">
+                    <a href={overviewHref} tabindex="-1" aria-hidden="true" class="shrink-0">
+                      <img
+                        src={app.icon}
+                        alt=""
+                        width="44"
+                        height="44"
+                        loading="lazy"
+                        decoding="async"
+                        class="h-11 w-11 [filter:drop-shadow(0_5px_10px_rgba(0,0,0,0.14))]"
+                      />
+                    </a>
+                    <div class="min-w-0">
+                      <h4 class="text-lg font-semibold tracking-[-0.02em] text-ink-primary">
+                        <a href={overviewHref} class="hover:underline decoration-1 underline-offset-4">
+                          {app.name}
+                        </a>
+                      </h4>
+                      <p class="mt-0.5 truncate text-xs text-ink-secondary">
+                        v{app.version} · {loc.priceBadge}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p class="mt-3.5 line-clamp-2 text-sm leading-relaxed text-ink-secondary">
+                    {loc.tagline}
+                  </p>
+                </div>
+
+                <a
+                  href={overviewHref}
+                  aria-label={`${app.name} — ${ui.actions.learnMore}`}
+                  class="mt-5 block"
+                >
+                  <div
+                    style={`background-color: ${t.backdropTone}; box-shadow: 0 18px 34px -16px ${t.shadowTint}, 0 4px 12px -4px rgba(0, 0, 0, 0.1);`}
+                    class="overflow-hidden rounded-xl p-[1.5px] ring-1 ring-black/10 transition-transform duration-300 group-hover:scale-[1.015]"
+                  >
+                    <img
+                      src={loc.cardImage}
+                      alt={loc.cardImageAlt}
+                      width="1600"
+                      height="900"
+                      loading="lazy"
+                      decoding="async"
+                      class="aspect-video w-full rounded-[10.5px] object-cover"
+                    />
+                  </div>
+                </a>
+
+                <div class="mt-4 flex items-center justify-between gap-3 pt-1 text-xs sm:text-sm">
+                  <a
+                    href={overviewHref}
+                    style={`color: ${t.accent};`}
+                    class="inline-flex items-center gap-1 font-medium transition-opacity hover:opacity-80"
+                  >
+                    <span>{ui.actions.learnMore}</span>
+                    <span aria-hidden="true">→</span>
+                  </a>
+                  <div class="flex items-center gap-2.5 text-xs text-ink-secondary">
+                    <a href={privacyHref} class="transition-colors hover:text-ink-primary">
+                      {ui.appTabs.privacy}
+                    </a>
+                    <span aria-hidden="true" class="opacity-45">·</span>
+                    <a href={supportHref} class="transition-colors hover:text-ink-primary">
+                      {ui.appTabs.support}
+                    </a>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    )}
+  </section>
+
+  <!-- Selected Projects: Single-Stage Accessible Tabbed Showcase with Controlled Autoplay -->
+  <section
+    id="projects"
+    class="mx-auto max-w-6xl scroll-mt-16 px-5 py-12 sm:px-6 sm:py-16 lg:px-8"
+    data-project-showcase
+  >
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div class="max-w-2xl">
+        <p class="text-xs font-semibold tracking-wide text-ink-secondary">
+          {ui.sections.projectsEyebrow}
+        </p>
+        <h2 class="mt-2 text-2xl font-semibold tracking-[-0.025em] text-ink-primary sm:text-3xl">
+          {ui.sections.projectsTitle}
+        </h2>
+        <p class="mt-2.5 text-[15px] leading-relaxed text-ink-secondary sm:text-base">
+          {ui.sections.projectsSubtitle}
+        </p>
+      </div>
+
+      <a
+        href={getLocalePath(locale, '/projects/')}
+        class="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-accent-link transition-opacity hover:opacity-80"
+      >
+        <span>{ui.footer.allProjects}</span>
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    <!-- Tab Strip + Prev / Next / Pause-Play Controls -->
+    <div class="mt-8 flex items-center justify-between gap-3">
+      <div
+        role="tablist"
+        aria-label={copy.projectTabsLabel}
+        class="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {projects.map(({ data: project }, idx) => (
+          <button
+            type="button"
+            role="tab"
+            id={`project-tab-${project.slug}`}
+            aria-selected={idx === 0 ? 'true' : 'false'}
+            aria-controls={`project-panel-${project.slug}`}
+            tabindex={idx === 0 ? '0' : '-1'}
+            data-project-tab={idx}
+            class:list={[
+              'relative shrink-0 cursor-pointer overflow-hidden rounded-full px-3.5 py-2 text-xs font-medium whitespace-nowrap transition-colors sm:text-sm',
+              idx === 0
+                ? 'bg-ink-primary text-white'
+                : 'border border-border-subtle bg-white text-ink-secondary hover:bg-surface-apple hover:text-ink-primary',
+            ]}
+          >
+            <span class="relative z-10">{project[locale].title}</span>
+            <span
+              aria-hidden="true"
+              data-tab-progress
+              class="project-tab-progress pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-[#60a5fa]"
+            ></span>
+          </button>
+        ))}
+      </div>
+
+      <div class="flex shrink-0 items-center gap-2">
+        <button
+          type="button"
+          data-project-prev
+          aria-label={copy.prevProject}
+          class="hidden h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border-subtle bg-white text-ink-primary transition-colors hover:bg-surface-apple sm:flex"
+        >
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          data-project-next
+          aria-label={copy.nextProject}
+          class="hidden h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border-subtle bg-white text-ink-primary transition-colors hover:bg-surface-apple sm:flex"
+        >
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          data-project-toggle
+          data-label-pause={copy.pauseAutoplay}
+          data-label-play={copy.playAutoplay}
+          aria-pressed="false"
+          aria-label={copy.pauseAutoplay}
+          class="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border-subtle bg-white text-ink-primary transition-colors hover:bg-surface-apple"
+        >
+          <svg
+            data-icon-pause
+            aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <rect x="6" y="4" width="4" height="16" rx="1" />
+            <rect x="14" y="4" width="4" height="16" rx="1" />
+          </svg>
+          <svg
+            data-icon-play
+            aria-hidden="true"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            class="hidden"
+          >
+            <path d="M8 5.14v13.72a1 1 0 0 0 1.53.85l10.6-6.86a1 1 0 0 0 0-1.7L9.53 4.29A1 1 0 0 0 8 5.14Z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Single Wide 2-Column Project Stage -->
+    <div
+      data-project-stage
+      class="mt-4 overflow-hidden rounded-3xl border border-border-subtle bg-surface-google p-6 sm:p-8 lg:p-10"
+    >
+      {projects.map(({ data: project }, idx) => (
+        <div
+          role="tabpanel"
+          id={`project-panel-${project.slug}`}
+          aria-labelledby={`project-tab-${project.slug}`}
+          data-project-panel={idx}
+          hidden={idx !== 0}
+        >
+          <ProjectShowcaseCard project={project} locale={locale} variant="panel" />
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-6">
+      <a
+        href={SITE_OWNER.links.github}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-1.5 text-sm font-medium text-accent-link transition-opacity hover:opacity-80"
+      >
+        <span>{ui.actions.allProjectsOnGithub}</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Minimal Home-only Vanilla JS: Circular App Shelf & Controlled Autoplay Project Showcase -->
+  <script is:inline>
+    (() => {
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const scrollBehavior = reducedMotion ? 'auto' : 'smooth';
+
+      // 1. Seamless Circular Horizontal App Shelf ([left-clones, originals, right-clones])
+      const shelf = document.querySelector('[data-app-shelf]');
+      const shelfPrev = document.querySelector('[data-shelf-prev]');
+      const shelfNext = document.querySelector('[data-shelf-next]');
+      if (shelf && shelfPrev && shelfNext) {
+        const originals = [...shelf.querySelectorAll('[data-shelf-original]')];
+
+        if (originals.length > 1) {
+          const makeClone = (node) => {
+            const clone = node.cloneNode(true);
+            clone.removeAttribute('data-shelf-original');
+            clone.setAttribute('data-shelf-clone', 'true');
+            clone.setAttribute('aria-hidden', 'true');
+            clone.querySelectorAll('a, button, input, select, textarea, [tabindex]').forEach((el) => {
+              el.setAttribute('tabindex', '-1');
+            });
+            clone.querySelectorAll('img').forEach((img) => {
+              img.setAttribute('loading', 'eager');
+            });
+            return clone;
+          };
+
+          const leftFrag = document.createDocumentFragment();
+          const rightFrag = document.createDocumentFragment();
+          originals.forEach((card) => {
+            leftFrag.appendChild(makeClone(card));
+            rightFrag.appendChild(makeClone(card));
+          });
+
+          const firstOriginal = originals[0];
+          shelf.insertBefore(leftFrag, firstOriginal);
+          shelf.appendChild(rightFrag);
+
+          const allCards = [...shelf.children];
+          const firstRightClone = allCards[originals.length * 2];
+
+          const getMetrics = () => {
+            const origin = shelf.children[0].offsetLeft;
+            const base = firstOriginal.offsetLeft - origin;
+            const span = firstRightClone.offsetLeft - firstOriginal.offsetLeft;
+            const step = originals[1].offsetLeft - firstOriginal.offsetLeft;
+            return { base, span, step: step > 0 ? step : 360 };
+          };
+
+          const jumpSilent = (targetLeft) => {
+            const prevSnap = shelf.style.scrollSnapType;
+            const prevBehav = shelf.style.scrollBehavior;
+            shelf.style.scrollSnapType = 'none';
+            shelf.style.scrollBehavior = 'auto';
+            shelf.scrollLeft = targetLeft;
+            void shelf.offsetWidth;
+            shelf.style.scrollSnapType = prevSnap;
+            shelf.style.scrollBehavior = prevBehav;
+          };
+
+          const normalizeLoop = () => {
+            const { base, span } = getMetrics();
+            if (span <= 0) return;
+            const left = shelf.scrollLeft;
+            if (left < base - 2) {
+              jumpSilent(left + span);
+            } else if (left >= base + span - 2) {
+              jumpSilent(left - span);
+            }
+          };
+
+          // Position seamlessly on first real card
+          jumpSilent(getMetrics().base);
+
+          let settleTimer = null;
+          shelf.addEventListener(
+            'scroll',
+            () => {
+              if (settleTimer) clearTimeout(settleTimer);
+              settleTimer = setTimeout(normalizeLoop, 140);
+            },
+            { passive: true }
+          );
+          if ('onscrollend' in shelf) {
+            shelf.addEventListener('scrollend', () => {
+              if (settleTimer) clearTimeout(settleTimer);
+              normalizeLoop();
+            });
+          }
+
+          const stepBy = (dir) => {
+            normalizeLoop();
+            const { step } = getMetrics();
+            shelf.scrollBy({ left: dir * step, behavior: scrollBehavior });
+          };
+
+          shelfPrev.addEventListener('click', () => stepBy(-1));
+          shelfNext.addEventListener('click', () => stepBy(1));
+          window.addEventListener('resize', normalizeLoop, { passive: true });
+        }
+      }
+
+      // 2. Single-Stage Tabbed Project Showcase with Smooth Transition & Reliable 6s Autoplay
+      const showcase = document.querySelector('[data-project-showcase]');
+      if (showcase) {
+        const tabs = [...showcase.querySelectorAll('[data-project-tab]')];
+        const panels = [...showcase.querySelectorAll('[data-project-panel]')];
+        const stage = showcase.querySelector('[data-project-stage]');
+        const prevBtn = showcase.querySelector('[data-project-prev]');
+        const nextBtn = showcase.querySelector('[data-project-next]');
+        const toggleBtn = showcase.querySelector('[data-project-toggle]');
+        const pauseIcon = toggleBtn?.querySelector('[data-icon-pause]');
+        const playIcon = toggleBtn?.querySelector('[data-icon-play]');
+
+        const DURATION = 6000;
+        let current = 0;
+        let userPaused = reducedMotion;
+        let isHovered = false;
+        let isKeyboardFocused = false;
+        let isInView = (() => {
+          const r = showcase.getBoundingClientRect();
+          return r.bottom > 0 && r.top < window.innerHeight;
+        })();
+        let isPageVisible = !document.hidden;
+        let timerId = null;
+
+        const activeClasses = ['bg-ink-primary', 'text-white'];
+        const idleClasses = [
+          'border',
+          'border-border-subtle',
+          'bg-white',
+          'text-ink-secondary',
+          'hover:bg-surface-apple',
+          'hover:text-ink-primary',
+        ];
+
+        const shouldRun = () =>
+          !userPaused &&
+          !isHovered &&
+          !isKeyboardFocused &&
+          isInView &&
+          isPageVisible &&
+          tabs.length > 1;
+
+        const getProgressBar = (idx) => tabs[idx]?.querySelector('[data-tab-progress]');
+
+        const resetAllProgress = () => {
+          tabs.forEach((_, i) => {
+            const bar = getProgressBar(i);
+            if (!bar) return;
+            bar.style.animation = 'none';
+            bar.style.transform = 'scaleX(0)';
+          });
+        };
+
+        const clearTimer = () => {
+          if (timerId) {
+            clearTimeout(timerId);
+            timerId = null;
+          }
+        };
+
+        const updateToggleUi = () => {
+          if (!toggleBtn) return;
+          const pauseLabel = toggleBtn.getAttribute('data-label-pause') || 'Pause';
+          const playLabel = toggleBtn.getAttribute('data-label-play') || 'Play';
+          const showPlayIcon = userPaused;
+          toggleBtn.setAttribute('aria-pressed', showPlayIcon ? 'true' : 'false');
+          toggleBtn.setAttribute('aria-label', showPlayIcon ? playLabel : pauseLabel);
+          if (pauseIcon && playIcon) {
+            pauseIcon.classList.toggle('hidden', showPlayIcon);
+            playIcon.classList.toggle('hidden', !showPlayIcon);
+          }
+        };
+
+        const startCycle = () => {
+          clearTimer();
+          resetAllProgress();
+          if (!shouldRun()) {
+            showcase.setAttribute('data-autoplay-state', 'paused');
+            return;
+          }
+
+          showcase.setAttribute('data-autoplay-state', 'running');
+          const bar = getProgressBar(current);
+          if (bar) {
+            void bar.offsetWidth;
+            bar.style.transform = '';
+            bar.style.animation = `projectTabProgress ${DURATION}ms linear forwards`;
+          }
+
+          timerId = setTimeout(() => {
+            timerId = null;
+            activate(current + 1, false);
+          }, DURATION);
+        };
+
+        const pauseCycle = () => {
+          clearTimer();
+          showcase.setAttribute('data-autoplay-state', 'paused');
+          const bar = getProgressBar(current);
+          if (bar) {
+            if (userPaused) {
+              bar.style.animation = 'none';
+              bar.style.transform = 'scaleX(0)';
+            } else if (bar.style.animation && bar.style.animation !== 'none') {
+              bar.style.animationPlayState = 'paused';
+            }
+          }
+        };
+
+        const syncState = () => {
+          if (shouldRun()) {
+            startCycle();
+          } else {
+            pauseCycle();
+          }
+        };
+
+        const activate = (index, moveFocus = false) => {
+          const total = tabs.length;
+          const next = ((index % total) + total) % total;
+          const changed = next !== current;
+          current = next;
+
+          tabs.forEach((tab, i) => {
+            const isActive = i === current;
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            tab.setAttribute('tabindex', isActive ? '0' : '-1');
+            if (isActive) {
+              tab.classList.remove(...idleClasses);
+              tab.classList.add(...activeClasses);
+              if (moveFocus) tab.focus();
+            } else {
+              tab.classList.remove(...activeClasses);
+              tab.classList.add(...idleClasses);
+            }
+          });
+
+          panels.forEach((panel, i) => {
+            const isActive = i === current;
+            panel.hidden = !isActive;
+            panel.classList.remove('project-panel-enter');
+            if (isActive && changed && !reducedMotion) {
+              void panel.offsetWidth;
+              panel.classList.add('project-panel-enter');
+            }
+          });
+
+          syncState();
+        };
+
+        tabs.forEach((tab, i) => {
+          tab.addEventListener('click', () => {
+            isKeyboardFocused = false;
+            activate(i, false);
+          });
+          tab.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+              e.preventDefault();
+              activate(current + 1, true);
+            } else if (e.key === 'ArrowLeft') {
+              e.preventDefault();
+              activate(current - 1, true);
+            } else if (e.key === 'Home') {
+              e.preventDefault();
+              activate(0, true);
+            } else if (e.key === 'End') {
+              e.preventDefault();
+              activate(tabs.length - 1, true);
+            }
+          });
+        });
+
+        prevBtn?.addEventListener('click', () => {
+          isKeyboardFocused = false;
+          activate(current - 1, false);
+        });
+        nextBtn?.addEventListener('click', () => {
+          isKeyboardFocused = false;
+          activate(current + 1, false);
+        });
+
+        toggleBtn?.addEventListener('click', () => {
+          isKeyboardFocused = false;
+          userPaused = !userPaused;
+          updateToggleUi();
+          syncState();
+        });
+
+        // Pause on hover ONLY over the project stage card (not the whole section whitespace)
+        if (stage) {
+          stage.addEventListener('mouseenter', () => {
+            isHovered = true;
+            pauseCycle();
+          });
+          stage.addEventListener('mouseleave', () => {
+            isHovered = false;
+            syncState();
+          });
+        }
+
+        // Pause on focus ONLY for keyboard navigation (:focus-visible), never mouse clicks
+        showcase.addEventListener('focusin', (e) => {
+          const target = e.target;
+          if (target instanceof Element && target.matches(':focus-visible')) {
+            isKeyboardFocused = true;
+            pauseCycle();
+          }
+        });
+        showcase.addEventListener('focusout', (e) => {
+          if (!showcase.contains(e.relatedTarget)) {
+            if (isKeyboardFocused) {
+              isKeyboardFocused = false;
+              syncState();
+            }
+          }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+          isPageVisible = !document.hidden;
+          syncState();
+        });
+
+        if ('IntersectionObserver' in window) {
+          const io = new IntersectionObserver(
+            (entries) => {
+              const visible = entries[0]?.isIntersecting ?? true;
+              if (visible !== isInView) {
+                isInView = visible;
+                syncState();
+              }
+            },
+            { threshold: 0.1 }
+          );
+          io.observe(showcase);
+        }
+
+        updateToggleUi();
+        syncState();
+      }
+    })();
+  </script>
+</BaseLayout>

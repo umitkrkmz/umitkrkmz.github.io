@@ -1,0 +1,202 @@
+---
+import { render, type CollectionEntry } from 'astro:content';
+import type { Locale } from '../../data/site';
+import { SITE_OWNER } from '../../data/site';
+import { UI_STRINGS } from '../../data/ui';
+import AppLayout from '../../layouts/AppLayout.astro';
+import type { AppTab } from '../AppSubNav.astro';
+
+interface Props {
+  app: CollectionEntry<'apps'>['data'];
+  doc: CollectionEntry<'appDocs'>;
+  locale: Locale;
+  activeTab: Exclude<AppTab, 'overview'>;
+}
+
+const { app, doc, locale, activeTab } = Astro.props;
+const ui = UI_STRINGS[locale];
+const localized = app[locale];
+const { Content, headings } = await render(doc);
+
+const h2Headings = headings.filter((h) => h.depth === 2);
+const faqAnchorId = 'faq';
+const hasFaqSection = activeTab === 'support' && localized.faqs.length > 0;
+const tocItems = [
+  ...h2Headings.map((h) => ({ slug: h.slug, text: h.text })),
+  ...(hasFaqSection ? [{ slug: faqAnchorId, text: ui.sections.faqTitle }] : []),
+];
+
+const docTypeLabel =
+  activeTab === 'privacy'
+    ? ui.appTabs.privacy
+    : activeTab === 'support'
+      ? ui.appTabs.support
+      : ui.appTabs.changelog;
+
+const copy =
+  locale === 'tr'
+    ? {
+        summaryHeading: 'Belge Özeti',
+        lastUpdatedLabel: 'Son güncelleme',
+        versionLabel: 'Güncel sürüm',
+        tocHeading: 'Bu Sayfada',
+        quickAccessHeading: 'Hızlı Erişim',
+        storeLink: 'Microsoft Store',
+        reportIssue: 'Sorun Bildir',
+        emailLink: 'E-posta Gönder',
+      }
+    : {
+        summaryHeading: 'Document Summary',
+        lastUpdatedLabel: 'Last updated',
+        versionLabel: 'Current version',
+        tocHeading: 'On This Page',
+        quickAccessHeading: 'Quick Access',
+        storeLink: 'Microsoft Store',
+        reportIssue: 'Report an Issue',
+        emailLink: 'Send Email',
+      };
+
+const emailHref = `mailto:${SITE_OWNER.email}?subject=${encodeURIComponent(app.name)}`;
+---
+
+<AppLayout
+  app={app}
+  locale={locale}
+  activeTab={activeTab}
+  pageTitle={doc.data.title}
+  pageDescription={doc.data.description}
+  lastUpdated={doc.data.lastUpdated}
+  isDocument={false}
+>
+  <div class="grid grid-cols-1 gap-10 lg:grid-cols-[minmax(0,68ch)_260px] lg:items-start lg:justify-between lg:gap-12">
+    <!-- Left Reading Column: Strictly max-w-[68ch], 0 KB Client JS -->
+    <div class="min-w-0 max-w-[68ch]">
+      <article
+        class:list={[
+          'doc-prose prose prose-neutral prose-headings:font-semibold prose-headings:text-ink-primary prose-p:text-ink-secondary prose-li:text-ink-secondary prose-strong:text-ink-primary prose-code:rounded prose-code:bg-surface-apple prose-code:px-1.5 prose-code:py-0.5 prose-code:font-normal prose-code:before:content-none prose-code:after:content-none',
+          activeTab === 'changelog' && 'doc-changelog',
+        ]}
+      >
+        {doc.data.lastUpdated && (
+          <p class="not-prose mb-6 text-xs font-medium text-ink-secondary lg:hidden">
+            {copy.lastUpdatedLabel}: {doc.data.lastUpdated}
+          </p>
+        )}
+        <Content />
+      </article>
+
+      {hasFaqSection && (
+        <section id={faqAnchorId} class="mt-12 scroll-mt-24 border-t border-border-subtle pt-10">
+          <h2 class="text-xl font-semibold tracking-[-0.02em] text-ink-primary">
+            {ui.sections.faqTitle}
+          </h2>
+          <div class="mt-5 divide-y divide-border-subtle rounded-3xl border border-border-subtle bg-white">
+            {localized.faqs.map((faq) => (
+              <details class="group p-5">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-ink-primary sm:text-[15px] [&::-webkit-details-marker]:hidden">
+                  <span>{faq.question}</span>
+                  <span
+                    aria-hidden="true"
+                    class="shrink-0 text-ink-secondary transition-transform duration-200 group-open:rotate-45"
+                  >
+                    +
+                  </span>
+                </summary>
+                <p class="mt-3 text-sm leading-relaxed text-ink-secondary">
+                  {faq.answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+
+    <!-- Right Sticky Document Summary, Auto TOC & Quick Access Card -->
+    <aside
+      aria-label={copy.summaryHeading}
+      class="w-full lg:sticky lg:top-24 lg:w-[260px]"
+    >
+      <div class="rounded-3xl border border-border-subtle bg-surface-google p-5">
+        <p class="text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+          {copy.summaryHeading}
+        </p>
+
+        <dl class="mt-3 space-y-2.5 border-b border-border-subtle pb-4 text-xs">
+          <div class="flex items-center justify-between gap-2">
+            <dt class="text-ink-secondary">{docTypeLabel}</dt>
+            <dd class="font-medium text-ink-primary">{app.name}</dd>
+          </div>
+          {doc.data.lastUpdated && (
+            <div class="flex items-center justify-between gap-2">
+              <dt class="text-ink-secondary">{copy.lastUpdatedLabel}</dt>
+              <dd class="font-medium text-ink-primary tabular-nums">{doc.data.lastUpdated}</dd>
+            </div>
+          )}
+          <div class="flex items-center justify-between gap-2">
+            <dt class="text-ink-secondary">{copy.versionLabel}</dt>
+            <dd class="font-medium text-ink-primary">v{app.version}</dd>
+          </div>
+        </dl>
+
+        {tocItems.length >= 2 && (
+          <nav aria-label={copy.tocHeading} class="mt-4 border-b border-border-subtle pb-4">
+            <p class="text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+              {copy.tocHeading}
+            </p>
+            <ul class="mt-2.5 space-y-2 text-xs">
+              {tocItems.map((item) => (
+                <li>
+                  <a
+                    href={`#${item.slug}`}
+                    class="block leading-snug text-ink-secondary transition-colors hover:text-ink-primary"
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+
+        <div class="mt-4">
+          <p class="text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+            {copy.quickAccessHeading}
+          </p>
+          <ul class="mt-2.5 space-y-2 text-xs font-medium">
+            <li>
+              <a
+                href={app.storeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 text-accent-link hover:underline"
+              >
+                <span>{copy.storeLink}</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href={app.issuesUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-1.5 text-ink-secondary transition-colors hover:text-ink-primary"
+              >
+                <span>{copy.reportIssue}</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            </li>
+            <li>
+              <a
+                href={emailHref}
+                class="inline-flex items-center gap-1.5 text-ink-secondary transition-colors hover:text-ink-primary"
+              >
+                <span>{copy.emailLink}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+  </div>
+</AppLayout>

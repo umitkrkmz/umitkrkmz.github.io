@@ -1,0 +1,217 @@
+{
+  "slug": "mediagrab",
+  "name": "MediaGrab",
+  "order": 4,
+  "version": "2.5.1",
+  "releaseDate": "2026-11-14",
+  "storeId": "9PPKZMBMHTH9",
+  "storeUrl": "https://apps.microsoft.com/detail/9PPKZMBMHTH9",
+  "githubUrl": "https://github.com/umitkrkmz/mediagrab",
+  "issuesUrl": "https://github.com/umitkrkmz/mediagrab/issues/new/choose",
+  "sourceModel": "open-source",
+  "licenseLabel": "GPL-3.0-or-later (Açık Kaynak)",
+  "networkModel": "local-first",
+  "icon": "/images/apps/mediagrab/icon.png",
+  "theme": {
+    "accent": "#2558c7",
+    "surfaceFrom": "#f5f6f8",
+    "surfaceTo": "#eef1f5",
+    "borderTint": "#e3e7ef",
+    "shadowTint": "rgba(17, 21, 29, 0.24)",
+    "badgeBg": "#eaeff9",
+    "badgeText": "#1e49a8",
+    "backdropTone": "#11151d"
+  },
+  "tr": {
+    "tagline": "1700’den fazla siteden kendi bilgisayarınızda düzenli kişisel video ve ses arşivi kurun.",
+    "shortDescription": "Bağlantıyı yapıştırın, kaliteyi seçin ve indirin. Çalma listeleri, altyazılar, kanal takibi, yerleşik oynatıcı ve yerel ağdan telefon desteği — hesap yok, reklam yok, telemetri yok.",
+    "description": "MediaGrab, yt-dlp ve FFmpeg gücünü sade ve yerel çalışan bir arayüzde toplar. Her indirme kanala göre kendi klasörüne kaydedilir; indirme geçmişi, istatistikler, yerleşik oynatıcı ve aynı ağdaki telefonunuzdan QR kodla kullanım dâhildir. Verileriniz kendi cihazınızda kalır.",
+    "priceBadge": "Store ₺100 · GitHub’da ücretsiz",
+    "pricingSummary": "GitHub’daki Windows kurulum dosyası (MediaGrabSetup.exe), Docker imajı ve kaynak kod tamamen ücretsizdir (GPL-3.0). Microsoft Store sürümü aynı uygulamadır; tek tıkla kurulum, SmartScreen uyarısız çalıştırma ve otomatik güncellemeler sunar.",
+    "pricingTiers": [
+      {
+        "label": "Microsoft Store (Otomatik Güncelleme)",
+        "price": "₺100",
+        "note": "Tek seferlik satın alma. Tek tıkla kurulum, SmartScreen uyarısı yok, güncellemeler Store’dan gelir."
+      },
+      {
+        "label": "GitHub & Docker (Açık Kaynak)",
+        "price": "Ücretsiz",
+        "note": "MediaGrabSetup.exe, Docker Compose (amd64/arm64) ve tam kaynak kodu GPL-3.0-or-later lisansıyla açık."
+      }
+    ],
+    "requirements": [
+      "Windows 10 (sürüm 2004 / 19041) veya üzeri (x64) · Ayrıca Linux, macOS ve Raspberry Pi (Docker)",
+      "Yaklaşık 450 MB disk alanı (Python, FFmpeg ve Deno dâhil)",
+      "İçerik indirmek için internet bağlantısı",
+      "Türkçe ve İngilizce arayüz · Açık ve koyu tema"
+    ],
+    "features": [
+      "1700’den fazla video, müzik, podcast ve arşiv sitesinden (yt-dlp motoruyla) indirme",
+      "Mevcut her çözünürlükte sesle birleştirilmiş MP4 video; kapak resmi ve etiketleriyle Opus, M4A veya MP3 ses",
+      "Çalma listelerinden istenen aralığı tek tıkla kuyruğa ekleme ve altyazı / metin dökümü indirme",
+      "Kanal takibi: yeni içerik geldiğinde bildirim veya otomatik indirme",
+      "Kanala göre klasörlere ayrılan düzenli arşiv ve yanlarında .json bilgi dosyaları",
+      "Aranabilir indirme geçmişi, istatistikler ve uygulama içi yerleşik video/ses oynatıcı",
+      "Aynı ağdaki telefonunuzun tarayıcısından QR kodla uzaktan kullanım (telefon uygulaması gerekmez)",
+      "Hesap yok, reklam yok, telemetri yok; açık kaynak (GPL-3.0)"
+    ],
+    "privacyHighlights": [
+      "Geliştiriciye ait hiçbir sunucu yoktur; indirmeleriniz, geçmişiniz ve ayarlarınız yalnızca cihazınızda kalır.",
+      "Hesap, reklam, analiz veya telemetri bulunmaz.",
+      "Uzaktan Erişim açıldığında parola düz metin değil PBKDF2 özetiyle saklanır ve erişim yerel ağla sınırlıdır.",
+      "İsteğe bağlı çerezler yalnızca ilgili siteye istek yaparken kullanılır; başka yere gönderilmez."
+    ],
+    "cardImage": "/images/apps/mediagrab/tr-1-home.webp",
+    "cardImageAlt": "MediaGrab ana ekranı ve video kalite seçenekleri",
+    "heroImage": "/images/apps/mediagrab/tr-1-home.webp",
+    "heroAlt": "MediaGrab koyu temada bağlantı çözümleme ve kalite listesi",
+    "screenshots": [
+      {
+        "src": "/images/apps/mediagrab/tr-1-home.webp",
+        "alt": "MediaGrab bağlantı çözümleme ve kalite seçenekleri",
+        "caption": "Bağlantı çözümleme, ses parçaları, çözünürlük ve altyazı seçimi"
+      },
+      {
+        "src": "/images/apps/mediagrab/tr-2-downloads.webp",
+        "alt": "MediaGrab son indirilenler ve aktif indirme çubuğu",
+        "caption": "Son indirilenler ve canlı indirme ilerleme paneli"
+      },
+      {
+        "src": "/images/apps/mediagrab/tr-3-history.webp",
+        "alt": "MediaGrab indirme geçmişi kartları",
+        "caption": "Aranabilir, kanala ve türe göre filtrelenebilir indirme arşivi"
+      },
+      {
+        "src": "/images/apps/mediagrab/tr-4-player.webp",
+        "alt": "MediaGrab yerleşik video oynatıcı ve dosya ayrıntıları",
+        "caption": "Uygulama içi yerleşik oynatıcı, gerçek çözünürlük ve kodek bilgileri"
+      },
+      {
+        "src": "/images/apps/mediagrab/tr-5-stats.webp",
+        "alt": "MediaGrab indirme istatistikleri",
+        "caption": "Yerel indirme istatistikleri ve arşiv özeti"
+      },
+      {
+        "src": "/images/apps/mediagrab/tr-6-light.webp",
+        "alt": "MediaGrab açık tema görünümü",
+        "caption": "Açık ve koyu tema desteği"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "Microsoft Store sürümü ile GitHub sürümü arasındaki fark nedir?",
+        "answer": "İndirme, çalma listesi, kanal takibi ve yerleşik oynatıcı gibi tüm özellikler aynıdır. Store sürümü tek tıkla kurulur, SmartScreen uyarısı göstermez ve güncellemeleri (yt-dlp dâhil) Store üzerinden otomatik alır. GitHub sürümü ücretsizdir ve yt-dlp’yi uygulama içinden güncelleyebilir."
+      },
+      {
+        "question": "Telefondan nasıl kullanabilirim?",
+        "answer": "Bilgisayarda Ayarlar → Uzaktan Erişim bölümünden bir parola belirleyip erişimi açın. Ekranda çıkan QR kodu aynı Wi-Fi ağındaki telefonunuzla okutun; hiçbir mobil uygulama kurmadan tarayıcıdan indirme yapabilirsiniz."
+      },
+      {
+        "question": "Android telefonda mediagrab.local adresi açılmıyor, ne yapmalıyım?",
+        "answer": "Bazı Android tarayıcılarında .local çözümlemesi güvenilir çalışmayabilir. Bunun yerine Ayarlar → Uzaktan Erişim ekranındaki yerel IP adresini veya QR kodu doğrudan kullanın."
+      },
+      {
+        "question": "Yasal kullanım kapsamı nedir?",
+        "answer": "MediaGrab yalnızca kişisel arşivleme amaçlıdır. İndirdiğiniz içeriğin telif durumundan ve ilgili platformun kullanım koşullarına uyumdan kullanıcı sorumludur."
+      }
+    ],
+    "mediaCredit": "Ekran görüntülerindeki filmler: Big Buck Bunny, Sintel, Tears of Steel, Spring, Agent 327, Cosmos Laundromat — © Blender Foundation, CC BY 3.0 / 4.0 (studio.blender.org)."
+  },
+  "en": {
+    "tagline": "Build a tidy personal video and audio archive from 1700+ sites, right on your own PC.",
+    "shortDescription": "Paste a link, pick the quality, and download. Playlists, subtitles, channel following, a built-in player, and local phone access via QR code—no account, no ads, no telemetry.",
+    "description": "MediaGrab wraps yt-dlp and FFmpeg in a clean, local-first interface. Downloads are neatly organized into channel folders with searchable history, statistics, a built-in media player, and optional QR-code access from your phone on the same Wi-Fi—all staying on your own machine.",
+    "priceBadge": "Store $4.99 · Free on GitHub",
+    "pricingSummary": "The Windows installer (MediaGrabSetup.exe), Docker image, and full source code on GitHub are free under GPL-3.0-or-later. The Microsoft Store edition is the same app with one-click install, no SmartScreen warning, and automatic updates.",
+    "pricingTiers": [
+      {
+        "label": "Microsoft Store (Auto-Updates)",
+        "price": "$4.99",
+        "note": "One-time purchase. One-click install, no SmartScreen warning, automatic updates through the Store."
+      },
+      {
+        "label": "GitHub & Docker (Open Source)",
+        "price": "Free",
+        "note": "Windows installer, Docker Compose (amd64/arm64), and full source code under GPL-3.0-or-later."
+      }
+    ],
+    "requirements": [
+      "Windows 10 (version 2004 / 19041) or later (x64) · Also Linux, macOS, and Raspberry Pi via Docker",
+      "About 450 MB of disk space (includes Python, FFmpeg, and Deno)",
+      "Internet connection for downloading media",
+      "English and Turkish interface · Light and dark themes"
+    ],
+    "features": [
+      "Download video and audio from 1700+ supported sites powered by yt-dlp",
+      "Merged MP4 video at any available resolution; Opus, M4A, or MP3 audio with cover art and metadata tags",
+      "One-click range queuing for playlists plus matching subtitle and transcript downloads",
+      "Channel following with new-upload notifications or automatic archiving",
+      "Tidy folder structure grouped by channel alongside .json metadata records",
+      "Searchable download history, local statistics, and a built-in video and audio player",
+      "Use from your phone’s browser on the same local network via QR code—no phone app required",
+      "No account, no ads, no telemetry; open source (GPL-3.0)"
+    ],
+    "privacyHighlights": [
+      "No developer-operated server; your downloads, history, and settings stay strictly on your device.",
+      "No accounts, ads, analytics, or telemetry.",
+      "Remote Access stores only a PBKDF2 password hash and listens strictly on your local network.",
+      "Optional cookies are sent only to the matching source site and nowhere else."
+    ],
+    "cardImage": "/images/apps/mediagrab/en-1-home.webp",
+    "cardImageAlt": "MediaGrab home screen showing resolved video quality options",
+    "heroImage": "/images/apps/mediagrab/en-1-home.webp",
+    "heroAlt": "MediaGrab dark theme link resolver and format picker",
+    "screenshots": [
+      {
+        "src": "/images/apps/mediagrab/en-1-home.webp",
+        "alt": "MediaGrab link resolution and quality selector",
+        "caption": "Resolve links and choose audio tracks, video resolutions, and subtitles"
+      },
+      {
+        "src": "/images/apps/mediagrab/en-2-downloads.webp",
+        "alt": "MediaGrab recent downloads and live progress bar",
+        "caption": "Recent downloads and live queue progress panel"
+      },
+      {
+        "src": "/images/apps/mediagrab/en-3-history.webp",
+        "alt": "MediaGrab searchable download history",
+        "caption": "Searchable personal archive filterable by channel and format"
+      },
+      {
+        "src": "/images/apps/mediagrab/en-4-player.webp",
+        "alt": "MediaGrab built-in player and codec details",
+        "caption": "Built-in media player with actual resolution and codec inspection"
+      },
+      {
+        "src": "/images/apps/mediagrab/en-5-stats.webp",
+        "alt": "MediaGrab local download statistics",
+        "caption": "Local download statistics and storage overview"
+      },
+      {
+        "src": "/images/apps/mediagrab/en-6-light.webp",
+        "alt": "MediaGrab light theme list view",
+        "caption": "Clean light and dark themes"
+      }
+    ],
+    "faqs": [
+      {
+        "question": "What is the difference between the Microsoft Store and GitHub versions?",
+        "answer": "All downloading, playlist, channel following, and player features are identical. The Store edition offers one-click installation, no SmartScreen warning, and automatic Store updates (including yt-dlp). The GitHub edition is free and supports in-app yt-dlp updates."
+      },
+      {
+        "question": "How do I use MediaGrab from my phone?",
+        "answer": "On your PC, open Settings → Remote Access, set a password, and enable access. Scan the QR code with your phone on the same Wi-Fi network—files download straight to your phone’s browser with nothing to install."
+      },
+      {
+        "question": "mediagrab.local does not open on my Android phone.",
+        "answer": "Some Android browsers do not resolve .local addresses reliably. Use the direct local IP address or QR code shown under Settings → Remote Access instead."
+      },
+      {
+        "question": "What is the intended legal use?",
+        "answer": "MediaGrab is designed strictly for personal use. You are responsible for copyright compliance and respecting each platform’s terms of service."
+      }
+    ],
+    "mediaCredit": "Films shown in screenshots: Big Buck Bunny, Sintel, Tears of Steel, Spring, Agent 327, Cosmos Laundromat — © Blender Foundation, CC BY 3.0 / 4.0 (studio.blender.org)."
+  }
+}

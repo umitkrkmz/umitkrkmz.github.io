@@ -1,0 +1,32 @@
+# Build & Astro output
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Logs & OS artifacts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Environment & local secrets
+.env
+.env.*
+!.env.example
+
+# Internal planning, preview reports & temporary scratch files (never publish)
+BUILD_PLAN.md
+docs/
+docs/INVENTORY.md
+*_preview.md
+phase*_report.md
+scratch/
+
+# Editor directories
+.vscode/*
+!.vscode/extensions.json
+.idea/

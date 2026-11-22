@@ -1,0 +1,890 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --color-canvas: #ffffff;
+  --color-surface-apple: #f5f5f7;
+  --color-surface-google: #f8f9fa;
+  --color-border-subtle: #e8eaed;
+  --color-ink-primary: #1d1d1f;
+  --color-ink-secondary: #5f6368;
+  --color-accent: #0071e3;
+  --color-accent-hover: #0060c4;
+  --color-accent-link: #0066cc;
+}
+
+@layer base {
+  html {
+    background-color: var(--color-canvas);
+    color: var(--color-ink-primary);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    overflow-x: clip;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *:not(.project-tab-progress),
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent-link);
+    outline-offset: 2px;
+  }
+}
+
+/* Harmonized editorial prose measure for Privacy, Support, and Changelog docs */
+.doc-prose {
+  max-width: 68ch;
+}
+
+.doc-prose :where(h2):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  letter-spacing: -0.02em;
+  margin-top: 2.25em;
+  margin-bottom: 0.75em;
+  scroll-margin-top: 6rem;
+}
+
+.doc-prose > h2:first-child {
+  margin-top: 0;
+}
+
+/* Changelog version heading hierarchy */
+.doc-changelog :where(h2):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-top: 1.75rem;
+  padding-bottom: 0.6rem;
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+  color: var(--color-ink-primary);
+}
+
+.doc-changelog > h2:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.doc-changelog :where(h3):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-ink-primary);
+  margin-top: 1.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.doc-prose :where(a):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  color: var(--color-accent-link);
+  text-decoration-color: rgba(0, 102, 204, 0.35);
+  text-underline-offset: 3px;
+}
+
+.doc-prose :where(a:hover):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  text-decoration-color: var(--color-accent-link);
+}
+
+.doc-prose :where(table):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Selected Projects stage enter transition & quiet autoplay progress bar */
+@keyframes projectPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-panel-enter {
+  animation: projectPanelIn 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes projectTabProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.project-tab-progress {
+  transform-origin: left center;
+  transform: scaleX(0);
+  will-change: transform;
+}
+
+/* ==========================================================================
+   Footer 4-Station Synchronized 16s Pixel Diorama Workshop (Zero-JS, Pure CSS)
+   ========================================================================== */
+.pw-station {
+  cursor: default;
+}
+
+.pw-hover-hop {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+.pw-station:hover .pw-hover-hop {
+  animation: pwHoverHop 460ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pwHoverHop {
+  0% { transform: translateY(0) scale(1, 1); }
+  22% { transform: translateY(1px) scale(1.1, 0.9); }
+  55% { transform: translateY(-6px) scale(0.92, 1.12); }
+  82% { transform: translateY(1px) scale(1.06, 0.94); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* Slow subtle pixel conveyor belt notches */
+.pw-conveyor-notches {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 10px,
+    #c4c9d1 10px 14px
+  );
+  background-size: 28px 100%;
+  animation: pwConveyorMove 1.8s linear infinite;
+}
+
+@keyframes pwConveyorMove {
+  from { background-position: 0 0; }
+  to { background-position: 28px 0; }
+}
+
+/* Morphing pixel packages traveling along the conveyor (16s synchronized loop) */
+.pw-pkg {
+  opacity: 0;
+  will-change: left, opacity;
+}
+
+/* Package 1 (18–26%): Folded Pixel Document from Station 1 -> Station 2 */
+.pw-pkg-doc {
+  animation: pwPkgDoc 16s linear infinite;
+}
+@keyframes pwPkgDoc {
+  0%, 17.5% { left: 13%; opacity: 0; }
+  18.5% { left: 14%; opacity: 1; }
+  25% { left: 32%; opacity: 1; }
+  26.2%, 100% { left: 33%; opacity: 0; }
+}
+
+/* Package 2 (43–51%): 2×2 Emerald Table Block from Station 2 -> Station 3 (passes signal gate ~47%) */
+.pw-pkg-table {
+  animation: pwPkgTable 16s linear infinite;
+}
+@keyframes pwPkgTable {
+  0%, 42.5% { left: 39%; opacity: 0; }
+  43.5% { left: 40%; opacity: 1; }
+  50% { left: 60%; opacity: 1; }
+  51.2%, 100% { left: 61%; opacity: 0; }
+}
+
+/* Package 3 (68–76%): QR-Sealed Cobalt Package from Station 3 -> Station 4 */
+.pw-pkg-qr {
+  animation: pwPkgQr 16s linear infinite;
+}
+@keyframes pwPkgQr {
+  0%, 67.5% { left: 67%; opacity: 0; }
+  68.5% { left: 68%; opacity: 1; }
+  75% { left: 86%; opacity: 1; }
+  76.2%, 100% { left: 87%; opacity: 0; }
+}
+
+/* Calm Desktop Environmental Props */
+.pw-steam-1,
+.pw-steam-2,
+.pw-plant-sway,
+.pw-gate-glow {
+  transform-box: fill-box;
+}
+.pw-steam-1 { animation: pwSteam 3.6s ease-in-out infinite; }
+.pw-steam-2 { animation: pwSteam 3.6s ease-in-out 1.6s infinite; }
+
+@keyframes pwSteam {
+  0% { opacity: 0; transform: translateY(3px); }
+  35% { opacity: 0.7; transform: translateY(0); }
+  75% { opacity: 0.4; transform: translateY(-3px); }
+  100% { opacity: 0; transform: translateY(-5px); }
+}
+
+.pw-plant-sway {
+  transform-origin: center bottom;
+  animation: pwPlantSway 7s ease-in-out infinite;
+}
+@keyframes pwPlantSway {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(2.5deg); }
+}
+
+/* Signal Gate Post between Station 2 & 3 flashes emerald as Package 2 passes underneath (~46–50%) */
+.pw-gate-lamp {
+  animation: pwGateLamp 16s steps(1, end) infinite;
+}
+@keyframes pwGateLamp {
+  0%, 45.5%, 50.5%, 100% { fill: #64748b; }
+  46%, 50% { fill: #10b981; }
+}
+
+.pw-gate-glow {
+  transform-origin: center center;
+  animation: pwGateGlow 16s ease-out infinite;
+}
+@keyframes pwGateGlow {
+  0%, 45.5%, 51%, 100% { opacity: 0; transform: scale(0.5); }
+  47.5% { opacity: 1; transform: scale(1.1); }
+  49.5% { opacity: 0.8; transform: scale(1); }
+}
+
+/* Idle eye blinks for stations 1 & 2 */
+.pw-blink-1,
+.pw-blink-2 {
+  transform-box: fill-box;
+  transform-origin: center center;
+}
+.pw-blink-1 { animation: pwBlink 5.4s steps(1, end) infinite; }
+.pw-blink-2 { animation: pwBlink 6.2s steps(1, end) 1.8s infinite; }
+
+@keyframes pwBlink {
+  0%, 93%, 100% { transform: scaleY(1); }
+  95%, 97% { transform: scaleY(0.15); }
+}
+
+/* --- Station 1 (0–4s · Amber / FolioPeek · Walk, Sketch, Sign & Cheer Hop) --- */
+.pw-s1-char,
+.pw-s1-leg-l,
+.pw-s1-leg-r,
+.pw-s1-arm,
+.pw-s1-line1,
+.pw-s1-line2,
+.pw-s1-line3,
+.pw-s1-sig,
+.pw-s1-spark {
+  transform-box: fill-box;
+}
+.pw-s1-char {
+  transform-origin: center bottom;
+  animation: pwS1Char 16s ease-in-out infinite;
+}
+@keyframes pwS1Char {
+  0%, 25%, 100% { transform: translate(0, 0) scale(1, 1); }
+  /* 2-3 pixel steps toward easel */
+  2.5% { transform: translate(3px, -1px); }
+  4.5%, 18% { transform: translate(6px, 0) scale(1, 1); }
+  /* Mini celebratory hop when finished */
+  19.5% { transform: translate(6px, 1px) scale(1.08, 0.92); }
+  21% { transform: translate(6px, -4px) scale(0.94, 1.08); }
+  22.5% { transform: translate(6px, 0) scale(1, 1); }
+  /* Step back to idle spot */
+  23.8% { transform: translate(3px, -1px); }
+}
+
+.pw-s1-leg-l { animation: pwS1LegL 16s steps(1, end) infinite; }
+.pw-s1-leg-r { animation: pwS1LegR 16s steps(1, end) infinite; }
+@keyframes pwS1LegL {
+  0%, 4.5%, 22.5%, 25%, 100% { transform: translateY(0); }
+  1.2%, 3.2%, 23.4% { transform: translateY(-2px); }
+}
+@keyframes pwS1LegR {
+  0%, 1.2%, 4.5%, 22.5%, 25%, 100% { transform: translateY(0); }
+  2.2%, 24.2% { transform: translateY(-2px); }
+}
+
+.pw-s1-arm {
+  transform-origin: left center;
+  animation: pwS1Arm 16s ease-in-out infinite;
+}
+@keyframes pwS1Arm {
+  0%, 3.5%, 23%, 100% { transform: translate(0, 0); }
+  5% { transform: translate(4px, -6px); }
+  8% { transform: translate(8px, -6px); }
+  10% { transform: translate(4px, -2px); }
+  13% { transform: translate(8px, -2px); }
+  15% { transform: translate(4px, 2px); }
+  17.5% { transform: translate(9px, 4px); }
+}
+
+.pw-s1-line1 { transform-origin: left center; animation: pwS1Line1 16s ease-out infinite; }
+.pw-s1-line2 { transform-origin: left center; animation: pwS1Line2 16s ease-out infinite; }
+.pw-s1-line3 { transform-origin: left center; animation: pwS1Line3 16s ease-out infinite; }
+.pw-s1-sig { transform-origin: left center; animation: pwS1Sig 16s ease-out infinite; }
+
+@keyframes pwS1Line1 {
+  0%, 4% { transform: scaleX(0); opacity: 0; }
+  5% { opacity: 1; }
+  8.5%, 92% { transform: scaleX(1); opacity: 1; }
+  96%, 100% { transform: scaleX(0); opacity: 0; }
+}
+@keyframes pwS1Line2 {
+  0%, 8.5% { transform: scaleX(0); opacity: 0; }
+  9.5% { opacity: 1; }
+  13%, 92% { transform: scaleX(1); opacity: 1; }
+  96%, 100% { transform: scaleX(0); opacity: 0; }
+}
+@keyframes pwS1Line3 {
+  0%, 13% { transform: scaleX(0); opacity: 0; }
+  14% { opacity: 1; }
+  16.8%, 92% { transform: scaleX(1); opacity: 1; }
+  96%, 100% { transform: scaleX(0); opacity: 0; }
+}
+@keyframes pwS1Sig {
+  0%, 16.5% { transform: scaleX(0); opacity: 0; }
+  17% { opacity: 1; }
+  19%, 92% { transform: scaleX(1); opacity: 1; }
+  96%, 100% { transform: scaleX(0); opacity: 0; }
+}
+
+.pw-s1-spark {
+  transform-origin: center center;
+  animation: pwS1Spark 16s ease-out infinite;
+}
+@keyframes pwS1Spark {
+  0%, 18.5%, 25%, 100% { opacity: 0; transform: scale(0.4); }
+  20.5% { opacity: 1; transform: scale(1.15); }
+  23.5% { opacity: 0.9; transform: scale(1); }
+}
+
+/* --- Station 2 (4–8s · Emerald / TablePeek · Walk, Magnify, Align 2×2 & Hop) --- */
+.pw-s2-char,
+.pw-s2-leg-l,
+.pw-s2-leg-r,
+.pw-s2-glass,
+.pw-s2-b1,
+.pw-s2-b2,
+.pw-s2-b3,
+.pw-s2-b4,
+.pw-s2-spark {
+  transform-box: fill-box;
+}
+.pw-s2-char {
+  transform-origin: center bottom;
+  animation: pwS2Char 16s ease-in-out infinite;
+}
+@keyframes pwS2Char {
+  0%, 25%, 50%, 100% { transform: translate(0, 0) scale(1, 1); }
+  /* Step forward */
+  27% { transform: translate(3px, -1px); }
+  29%, 43% { transform: translate(6px, 0) scale(1, 1); }
+  /* Celebratory hop */
+  44.5% { transform: translate(6px, 1px) scale(1.08, 0.92); }
+  46% { transform: translate(6px, -4px) scale(0.94, 1.08); }
+  47.5% { transform: translate(6px, 0) scale(1, 1); }
+  /* Step back */
+  48.8% { transform: translate(3px, -1px); }
+}
+
+.pw-s2-leg-l { animation: pwS2LegL 16s steps(1, end) infinite; }
+.pw-s2-leg-r { animation: pwS2LegR 16s steps(1, end) infinite; }
+@keyframes pwS2LegL {
+  0%, 25.5%, 29%, 47.5%, 50%, 100% { transform: translateY(0); }
+  26.5%, 28%, 48.2% { transform: translateY(-2px); }
+}
+@keyframes pwS2LegR {
+  0%, 26.5%, 29%, 47.5%, 50%, 100% { transform: translateY(0); }
+  27.3%, 49% { transform: translateY(-2px); }
+}
+
+.pw-s2-glass {
+  transform-origin: left center;
+  animation: pwS2Glass 16s ease-in-out infinite;
+}
+@keyframes pwS2Glass {
+  0%, 27%, 48%, 100% { transform: translate(0, 0); }
+  30% { transform: translate(4px, 3px); }
+  34% { transform: translate(11px, 3px); }
+  38% { transform: translate(4px, -4px); }
+  42% { transform: translate(11px, -4px); }
+}
+
+.pw-s2-b1 { animation: pwS2B1 16s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+.pw-s2-b2 { animation: pwS2B2 16s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+.pw-s2-b3 { animation: pwS2B3 16s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+.pw-s2-b4 { animation: pwS2B4 16s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+
+@keyframes pwS2B1 {
+  0%, 28%, 96%, 100% { transform: translate(-4px, 0); }
+  31.5%, 91% { transform: translate(0, 0); }
+}
+@keyframes pwS2B2 {
+  0%, 31.5%, 96%, 100% { transform: translate(5px, -2px); }
+  35%, 91% { transform: translate(0, 0); }
+}
+@keyframes pwS2B3 {
+  0%, 35%, 96%, 100% { transform: translate(-4px, -5px); }
+  38.5%, 91% { transform: translate(0, 0); }
+}
+@keyframes pwS2B4 {
+  0%, 38.5%, 96%, 100% { transform: translate(4px, -6px); }
+  43%, 91% { transform: translate(0, 0); }
+}
+
+.pw-s2-spark {
+  transform-origin: center center;
+  animation: pwS2Spark 16s ease-out infinite;
+}
+@keyframes pwS2Spark {
+  0%, 42.5%, 50%, 100% { opacity: 0; transform: scale(0.4); }
+  45% { opacity: 1; transform: scale(1.15); }
+  48% { opacity: 0.9; transform: scale(1); }
+}
+
+/* --- Station 3 (8–12s · Cobalt / QRPeek · Walk, Laser Scan, Status Lamp & Hop) --- */
+.pw-s3-char,
+.pw-s3-leg-l,
+.pw-s3-leg-r,
+.pw-s3-matrix,
+.pw-s3-core,
+.pw-s3-spark {
+  transform-box: fill-box;
+}
+.pw-s3-char {
+  transform-origin: center bottom;
+  animation: pwS3Char 16s ease-in-out infinite;
+}
+@keyframes pwS3Char {
+  0%, 50%, 75%, 100% { transform: translate(0, 0) scale(1, 1); }
+  /* Step forward to scan */
+  52% { transform: translate(3px, -1px); }
+  54%, 68% { transform: translate(5px, 0) scale(1, 1); }
+  /* Celebratory hop */
+  69.5% { transform: translate(5px, 1px) scale(1.08, 0.92); }
+  71% { transform: translate(5px, -4px) scale(0.94, 1.08); }
+  72.5% { transform: translate(5px, 0) scale(1, 1); }
+  /* Step back */
+  73.8% { transform: translate(2px, -1px); }
+}
+
+.pw-s3-leg-l { animation: pwS3LegL 16s steps(1, end) infinite; }
+.pw-s3-leg-r { animation: pwS3LegR 16s steps(1, end) infinite; }
+@keyframes pwS3LegL {
+  0%, 50.5%, 54%, 72.5%, 75%, 100% { transform: translateY(0); }
+  51.5%, 53%, 73.2% { transform: translateY(-2px); }
+}
+@keyframes pwS3LegR {
+  0%, 51.5%, 54%, 72.5%, 75%, 100% { transform: translateY(0); }
+  52.3%, 74% { transform: translateY(-2px); }
+}
+
+.pw-s3-beam {
+  animation: pwS3Beam 16s linear infinite;
+}
+@keyframes pwS3Beam {
+  0%, 53%, 70%, 100% { opacity: 0; stroke-dashoffset: 0; }
+  54.5% { opacity: 0.95; stroke-dashoffset: 0; }
+  68.5% { opacity: 0.95; stroke-dashoffset: -28; }
+}
+
+.pw-s3-visor {
+  animation: pwS3Visor 16s ease-in-out infinite;
+}
+@keyframes pwS3Visor {
+  0%, 52%, 72%, 100% { fill: #7dd3fc; }
+  54%, 69% { fill: #ffffff; }
+}
+
+.pw-s3-antenna-tip {
+  animation: pwS3Antenna 16s steps(1, end) infinite;
+}
+@keyframes pwS3Antenna {
+  0%, 52%, 72%, 100% { fill: #60a5fa; }
+  54%, 60%, 66% { fill: #ffffff; }
+  57%, 63%, 69% { fill: #2563eb; }
+}
+
+.pw-s3-lamp {
+  animation: pwS3Lamp 16s steps(1, end) infinite;
+}
+@keyframes pwS3Lamp {
+  0%, 66%, 74%, 100% { fill: #64748b; }
+  67%, 73% { fill: #10b981; }
+}
+
+.pw-s3-matrix {
+  transform-origin: center center;
+  animation: pwS3Matrix 16s ease-in-out infinite;
+}
+@keyframes pwS3Matrix {
+  0%, 52%, 74%, 100% { transform: translateY(0); }
+  57% { transform: translateY(-2px); }
+  63% { transform: translateY(1px); }
+  68% { transform: translateY(-2px); }
+}
+
+.pw-s3-core {
+  animation: pwS3Core 16s ease-in-out infinite;
+}
+@keyframes pwS3Core {
+  0%, 56%, 74%, 100% { fill: #1e40af; }
+  61%, 70% { fill: #93c5fd; }
+}
+
+.pw-s3-spark {
+  transform-origin: center center;
+  animation: pwS3Spark 16s ease-out infinite;
+}
+@keyframes pwS3Spark {
+  0%, 67%, 75%, 100% { opacity: 0; transform: scale(0.4); }
+  70% { opacity: 1; transform: scale(1.15); }
+  73% { opacity: 0.9; transform: scale(1); }
+}
+
+/* --- Station 4 (12–16s · Blue-Slate / MediaGrab · Nap, Squash-Stretch Catch & Stack) --- */
+.pw-s4-char,
+.pw-s4-leg-l,
+.pw-s4-leg-r,
+.pw-s4-block,
+.pw-s4-burst,
+.pw-s4-z1,
+.pw-s4-z2 {
+  transform-box: fill-box;
+}
+
+.pw-s4-char {
+  transform-origin: center bottom;
+  animation: pwS4Char 16s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes pwS4Char {
+  0%, 35%, 73% { transform: translateY(1px) scale(1.03, 0.96); }
+  18%, 54% { transform: translateY(0) scale(1, 1); }
+  /* 75% signal hits -> squash anticipation + quick step */
+  75.8% { transform: translateX(2px) translateY(2px) scale(1.18, 0.8); }
+  /* Squash-and-stretch upward jump to catch falling block */
+  80.5% { transform: translateX(8px) translateY(-11px) scale(0.84, 1.22); }
+  /* Soft landing squash while stacking */
+  85% { transform: translateX(6px) translateY(1px) scale(1.12, 0.88); }
+  /* Proud upright bounce, then step back to nap */
+  89% { transform: translateX(4px) translateY(0) scale(1, 1); }
+  94% { transform: translateX(0) translateY(0) scale(1, 1); }
+  100% { transform: translateY(1px) scale(1.03, 0.96); }
+}
+
+.pw-s4-leg-l { animation: pwS4LegL 16s steps(1, end) infinite; }
+.pw-s4-leg-r { animation: pwS4LegR 16s steps(1, end) infinite; }
+@keyframes pwS4LegL {
+  0%, 89%, 95%, 100% { transform: translateY(0); }
+  90.5%, 93% { transform: translateY(-2px); }
+}
+@keyframes pwS4LegR {
+  0%, 90.5%, 95%, 100% { transform: translateY(0); }
+  91.8%, 94% { transform: translateY(-2px); }
+}
+
+.pw-s4-eyes-sleep {
+  animation: pwS4EyesSleep 16s steps(1, end) infinite;
+}
+@keyframes pwS4EyesSleep {
+  0%, 74.5% { opacity: 1; }
+  75%, 95.5% { opacity: 0; }
+  96%, 100% { opacity: 1; }
+}
+
+.pw-s4-eyes-awake {
+  animation: pwS4EyesAwake 16s steps(1, end) infinite;
+}
+@keyframes pwS4EyesAwake {
+  0%, 74.5% { opacity: 0; }
+  75%, 95.5% { opacity: 1; }
+  96%, 100% { opacity: 0; }
+}
+
+.pw-s4-z1 {
+  animation: pwS4Z1 16s ease-in-out infinite;
+}
+@keyframes pwS4Z1 {
+  0%, 20%, 40%, 60% { opacity: 0; transform: translate(0, 2px); }
+  8%, 28%, 48%, 67% { opacity: 0.85; transform: translate(2px, -3px); }
+  16%, 36%, 56%, 73% { opacity: 0; transform: translate(4px, -7px); }
+  74%, 100% { opacity: 0; transform: translate(0, 2px); }
+}
+
+.pw-s4-z2 {
+  animation: pwS4Z2 16s ease-in-out infinite;
+}
+@keyframes pwS4Z2 {
+  0%, 6%, 26%, 46%, 66%, 74%, 100% { opacity: 0; transform: translate(0, 2px); }
+  14%, 34%, 54%, 70% { opacity: 0.7; transform: translate(3px, -4px); }
+  22%, 42%, 62%, 73% { opacity: 0; transform: translate(5px, -8px); }
+}
+
+.pw-s4-block {
+  transform-origin: center center;
+  animation: pwS4Block 16s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes pwS4Block {
+  0%, 74.5% { opacity: 0; transform: translate(-24px, -22px); }
+  76.5% { opacity: 1; transform: translate(-22px, -17px); }
+  /* Caught mid-air */
+  80.5% { opacity: 1; transform: translate(-15px, -11px); }
+  /* Stacked cleanly on 3rd tier */
+  85.5%, 96% { opacity: 1; transform: translate(0, 0); }
+  99%, 100% { opacity: 0; transform: translate(0, 0); }
+}
+
+.pw-s4-burst {
+  transform-origin: center center;
+  animation: pwS4Burst 16s ease-out infinite;
+}
+@keyframes pwS4Burst {
+  0%, 84.5%, 95.5%, 100% { opacity: 0; transform: scale(0.35); }
+  87.5% { opacity: 1; transform: scale(1.1); }
+  92.5% { opacity: 0.9; transform: scale(1.2) translateY(-2px); }
+}
+
+/* Reduced motion: clean calm idle pose across all 4 stations & props */
+@media (prefers-reduced-motion: reduce) {
+  .pw-workshop *,
+  .pw-station:hover .pw-hover-hop {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .pw-pkg,
+  .pw-steam-1,
+  .pw-steam-2,
+  .pw-gate-glow,
+  .pw-s1-spark,
+  .pw-s2-spark,
+  .pw-s3-beam,
+  .pw-s3-spark,
+  .pw-s4-z1,
+  .pw-s4-z2,
+  .pw-s4-burst,
+  .pw-s4-eyes-sleep {
+    opacity: 0 !important;
+  }
+
+  .pw-s1-line1,
+  .pw-s1-line2,
+  .pw-s1-line3,
+  .pw-s1-sig,
+  .pw-s2-b1,
+  .pw-s2-b2,
+  .pw-s2-b3,
+  .pw-s2-b4,
+  .pw-s4-block,
+  .pw-s4-eyes-awake {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   Local Dark Microsoft Store Badge & Pixel Mascot Peek (Zero-JS, Pure CSS)
+   ========================================================================== */
+.store-badge-btn {
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 240ms ease;
+}
+
+.store-badge-btn:hover,
+.store-badge-btn:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--badge-accent, #0071e3) 68%, #ffffff 32%);
+  box-shadow:
+    0 14px 28px -10px rgba(0, 0, 0, 0.38),
+    0 4px 12px -4px rgba(0, 0, 0, 0.22);
+}
+
+/* Single-pass diagonal glass shimmer sheen */
+.store-badge-sheen::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -65%;
+  width: 44%;
+  height: 180%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.16) 50%,
+    transparent 100%
+  );
+  transform: skewX(-24deg) translateX(0);
+  opacity: 0;
+}
+
+.store-badge-btn:hover .store-badge-sheen::after,
+.store-badge-btn:focus-visible .store-badge-sheen::after {
+  animation: storeBadgeSheen 720ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes storeBadgeSheen {
+  0% {
+    opacity: 0;
+    transform: skewX(-24deg) translateX(0);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: skewX(-24deg) translateX(430%);
+  }
+}
+
+/* Pixel Mascot Peek behind top-right edge of StoreBadge */
+.peek-mascot {
+  transform: translateY(2px) rotate(0deg);
+  transform-origin: center bottom;
+  transition: transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.store-badge-wrap:hover .peek-mascot,
+.store-badge-wrap:focus-within .peek-mascot {
+  transform: translateY(-10px) rotate(-4deg);
+}
+
+.peek-tool {
+  transform-box: fill-box;
+  transform-origin: left bottom;
+  transform: translateY(2px);
+  transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.store-badge-wrap:hover .peek-tool,
+.store-badge-wrap:focus-within .peek-tool {
+  transform: translateY(-3px) rotate(-6deg);
+}
+
+.peek-sparks {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  opacity: 0;
+  transform: scale(0.45) translateY(3px);
+  transition:
+    opacity 220ms ease,
+    transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.store-badge-wrap:hover .peek-sparks,
+.store-badge-wrap:focus-within .peek-sparks {
+  opacity: 1;
+  transform: scale(1) translateY(-1px);
+}
+
+.peek-blink {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: pwBlink 5.8s steps(1, end) 0.9s infinite;
+}
+
+.peek-visor {
+  transition: fill 200ms ease;
+}
+
+.store-badge-wrap:hover .peek-visor,
+.store-badge-wrap:focus-within .peek-visor {
+  fill: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .store-badge-btn:hover,
+  .store-badge-btn:focus-visible {
+    transform: none;
+  }
+
+  .store-badge-btn:hover .store-badge-sheen::after,
+  .store-badge-btn:focus-visible .store-badge-sheen::after {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  .peek-mascot,
+  .store-badge-wrap:hover .peek-mascot,
+  .store-badge-wrap:focus-within .peek-mascot {
+    transform: translateY(2px) rotate(0deg) !important;
+    transition: none !important;
+  }
+
+  .peek-tool,
+  .store-badge-wrap:hover .peek-tool,
+  .store-badge-wrap:focus-within .peek-tool {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .peek-sparks,
+  .peek-blink {
+    animation: none !important;
+  }
+}
+
+/* ==========================================================================
+   404 Explorer Pixel Mascot (Zero-JS, Pure CSS, Reduced-Motion Safe)
+   ========================================================================== */
+.nf-qmark,
+.nf-magnifier,
+.nf-pupils {
+  transform-box: fill-box;
+}
+
+.nf-qmark {
+  transform-origin: center bottom;
+  animation: nfQmarkBob 2.8s ease-in-out infinite;
+}
+
+@keyframes nfQmarkBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+.nf-magnifier {
+  transform-origin: left bottom;
+  animation: nfMagnifierScan 4.2s ease-in-out infinite;
+}
+
+@keyframes nfMagnifierScan {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(1px, -1px) rotate(6deg); }
+  70% { transform: translate(-1px, 0) rotate(-4deg); }
+}
+
+.nf-pupils {
+  animation: nfPupilsLook 4.2s steps(1, end) infinite;
+}
+
+@keyframes nfPupilsLook {
+  0%, 24%, 100% { transform: translateX(0); }
+  25%, 58% { transform: translateX(1px); }
+  59%, 84% { transform: translateX(-1px); }
+  85%, 99% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf-qmark,
+  .nf-magnifier,
+  .nf-pupils {
+    animation: none !important;
+    transform: none !important;
+  }
+}
