@@ -15,7 +15,8 @@ export default defineConfig({
   },
   integrations: [
     sitemap({
-      filter: (page) => !page.endsWith('/404/') && !page.endsWith('/404.html'),
+      filter: (page) =>
+        !page.endsWith('/404/') && !page.endsWith('/404.html') && !page.endsWith('/cv/'),
       i18n: {
         defaultLocale: 'tr',
         locales: {

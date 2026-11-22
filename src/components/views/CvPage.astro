@@ -1,0 +1,423 @@
+---
+import { getCollection } from 'astro:content';
+import type { Locale } from '../../data/site';
+import { SITE_DATA, SITE_OWNER } from '../../data/site';
+import { getLocalePath } from '../../data/ui';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const data = SITE_DATA[locale];
+const apps = (await getCollection('apps')).sort((a, b) => a.data.order - b.data.order);
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+
+const title =
+  locale === 'tr'
+    ? `Tek Sayfalık Özet (CV) · ${SITE_OWNER.fullName}`
+    : `One-Page Summary (CV) · ${SITE_OWNER.fullName}`;
+
+const copy =
+  locale === 'tr'
+    ? {
+        backToAbout: 'Hakkımda',
+        printCta: 'Yazdır / PDF Kaydet',
+        roleLine: 'Bilgisayar Mühendisi · Ankara, Türkiye',
+        summary:
+          'Günlük işleri gerçekten kolaylaştıran, veriyi cihazda tutan sade Windows uygulamaları ve doğrulanabilir mühendislik araçları geliştiriyorum. Microsoft Store’da yayımladığım masaüstü ürünlerinin yanında; .NET, Python, yazılım mimarisi, yerel yapay zekâ ve ajan güvenilirliği üzerine açık kaynak çalışmalar yürütüyorum.',
+        appsHeading: 'Yayımlanan Windows Uygulamaları',
+        appsSub: 'Microsoft Store · Windows 10 & 11',
+        appDetailLabel: 'Detay',
+        projectsHeading: 'Seçilmiş Mühendislik Projeleri',
+        educationHeading: 'Eğitim',
+        educationSchool: 'Kırıkkale Üniversitesi',
+        educationDegree: 'Bilgisayar Mühendisliği (Lisans)',
+        educationMeta: '2020–2025 · Kırıkkale, Türkiye',
+        publicationHeading: 'Hakemli Yayın',
+        approachHeading: 'Odak & Çalışma Yaklaşımı',
+        approachItems: [
+          {
+            title: 'Yerel ve Sade Ürünler',
+            detail: '.NET / WPF · MSIX · Hesapsız ve çevrimdışı araçlar',
+          },
+          {
+            title: 'Temiz ve Sürdürülebilir Mimari',
+            detail: 'ASP.NET Core · Clean Architecture · CQRS',
+          },
+          {
+            title: 'Doğrulanabilir Mühendislik ve AI',
+            detail: 'Python · Yerel RAG · AST analizi ve test',
+          },
+        ],
+        languagesHeading: 'Diller',
+        languages: [
+          { name: 'Türkçe', level: 'Ana dil' },
+          { name: 'İngilizce', level: 'Profesyonel çalışma düzeyi' },
+        ],
+      }
+    : {
+        backToAbout: 'About',
+        printCta: 'Print / Save PDF',
+        roleLine: 'Computer Engineer · Ankara, Turkey',
+        summary:
+          'I build simple, local-first Windows applications and verifiable engineering tools designed to make everyday tasks easier. Alongside my desktop apps on the Microsoft Store, I work on open-source projects across .NET, Python, software architecture, local AI, and agent reliability.',
+        appsHeading: 'Published Windows Applications',
+        appsSub: 'Microsoft Store · Windows 10 & 11',
+        appDetailLabel: 'Details',
+        projectsHeading: 'Selected Engineering Projects',
+        educationHeading: 'Education',
+        educationSchool: 'Kırıkkale University',
+        educationDegree: 'B.S. Computer Engineering',
+        educationMeta: '2020–2025 · Kırıkkale, Türkiye',
+        publicationHeading: 'Peer-Reviewed Publication',
+        approachHeading: 'Focus & Approach',
+        approachItems: [
+          {
+            title: 'Local & Lightweight Utilities',
+            detail: '.NET / WPF · MSIX · Account-free local tools',
+          },
+          {
+            title: 'Clean & Maintainable Architecture',
+            detail: 'ASP.NET Core · Clean Architecture · CQRS',
+          },
+          {
+            title: 'Mindful AI & Verification',
+            detail: 'Python · Local RAG · AST checks & testing',
+          },
+        ],
+        languagesHeading: 'Languages',
+        languages: [
+          { name: 'Turkish', level: 'Native' },
+          { name: 'English', level: 'Professional working proficiency' },
+        ],
+      };
+---
+
+<BaseLayout
+  locale={locale}
+  title={title}
+  description={copy.summary}
+  noindex={true}
+  robots="noindex, follow"
+  showClosingCard={false}
+>
+  <section class="cv-page mx-auto max-w-[940px] px-4 pt-8 pb-16 sm:px-6 sm:pt-10 lg:px-8">
+    <!-- Top Utility Bar (Hidden in @media print) -->
+    <div class="cv-no-print mb-5 flex flex-wrap items-center justify-between gap-3">
+      <a
+        href={getLocalePath(locale, '/about/')}
+        class="inline-flex items-center gap-1.5 text-sm font-medium text-ink-secondary transition-colors hover:text-ink-primary"
+      >
+        <span aria-hidden="true">←</span>
+        <span>{copy.backToAbout}</span>
+      </a>
+
+      <button
+        type="button"
+        data-print-cv
+        class="inline-flex cursor-pointer items-center gap-2 rounded-full bg-[#161618] px-4 py-2 text-sm font-medium text-white shadow-xs transition-colors hover:bg-[#2a2a2e]"
+      >
+        <svg
+          aria-hidden="true"
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="6 9 6 2 18 2 18 9" />
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+          <rect x="6" y="14" width="12" height="8" />
+        </svg>
+        <span>{copy.printCta}</span>
+      </button>
+    </div>
+
+    <!-- Human-Centric Single-Page Editorial CV Sheet -->
+    <article class="cv-sheet overflow-hidden rounded-3xl border border-border-subtle bg-white shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      <!-- Subtle 4-App Color Accent Hairline -->
+      <div aria-hidden="true" class="cv-accent-bar grid h-[3px] w-full grid-cols-4">
+        <span class="bg-[#ea7b24]"></span>
+        <span class="bg-[#10b981]"></span>
+        <span class="bg-[#3b82f6]"></span>
+        <span class="bg-[#4f7ec2]"></span>
+      </div>
+
+      <div class="cv-sheet-inner p-6 sm:p-9 lg:p-10">
+        <!-- Header: Identity + Public Contact Strip -->
+        <header class="cv-header border-b border-border-subtle pb-5">
+          <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
+            <h1 class="cv-name text-2xl font-semibold tracking-[-0.03em] text-ink-primary sm:text-[30px]">
+              {SITE_OWNER.fullName}
+            </h1>
+            <p class="cv-role text-sm font-medium text-ink-secondary">
+              {copy.roleLine}
+            </p>
+          </div>
+
+          <div class="cv-contacts mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs font-medium text-ink-secondary">
+            <a
+              href={`mailto:${SITE_OWNER.email}`}
+              class="inline-flex items-center gap-1.5 text-ink-primary transition-colors hover:text-accent-link"
+            >
+              <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="opacity-70">
+                <rect x="2" y="4" width="20" height="16" rx="2.5" />
+                <path d="m3 7 9 6 9-6" />
+              </svg>
+              <span>{SITE_OWNER.email}</span>
+            </a>
+
+            <a
+              href={SITE_OWNER.siteUrl}
+              class="inline-flex items-center gap-1.5 transition-colors hover:text-accent-link"
+            >
+              <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="opacity-70">
+                <circle cx="12" cy="12" r="9.5" />
+                <path d="M2.5 12h19" />
+                <path d="M12 2.5a14.5 14.5 0 0 1 0 19 14.5 14.5 0 0 1 0-19Z" />
+              </svg>
+              <span>umitkrkmz.github.io</span>
+            </a>
+
+            <a
+              href={SITE_OWNER.links.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 transition-colors hover:text-accent-link"
+            >
+              <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="opacity-70">
+                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65S8.93 17.38 9 18v4" />
+                <path d="M9 18c-4.51 2-5-2-7-2" />
+              </svg>
+              <span>github.com/umitkrkmz</span>
+            </a>
+
+            <a
+              href={SITE_OWNER.links.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 transition-colors hover:text-accent-link"
+            >
+              <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="opacity-70">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                <rect x="2" y="9" width="4" height="12" />
+                <circle cx="4" cy="4" r="2" />
+              </svg>
+              <span>linkedin.com/in/zeynel-umit-korkmaz</span>
+            </a>
+          </div>
+
+          <p class="cv-summary mt-3.5 text-sm leading-relaxed text-ink-secondary">
+            {copy.summary}
+          </p>
+        </header>
+
+        <!-- Two-Column Body: Main (Apps + Projects) & Side (Education, Publication, Approach, Languages) -->
+        <div class="cv-grid mt-6 grid grid-cols-1 gap-7 lg:grid-cols-[1.52fr_1fr] lg:gap-8">
+          <!-- Main Column -->
+          <div class="cv-main space-y-6">
+            <!-- Published Windows Applications (Live from src/content/apps/) -->
+            <section>
+              <div class="flex items-baseline justify-between gap-2">
+                <h2 class="cv-section-title text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+                  {copy.appsHeading}
+                </h2>
+                <span class="text-[11px] text-ink-secondary">{copy.appsSub}</span>
+              </div>
+
+              <div class="cv-apps-list mt-3 space-y-2.5">
+                {apps.map(({ data: app }) => {
+                  const localized = app[locale];
+                  return (
+                    <div class="cv-app-card relative overflow-hidden rounded-2xl border border-border-subtle bg-surface-google/70 px-3.5 py-3">
+                      <span
+                        aria-hidden="true"
+                        style={`background-color: ${app.theme.accent};`}
+                        class="absolute inset-y-2.5 left-0 w-[3px] rounded-r-full"
+                      />
+                      <div class="flex items-start gap-3 pl-1">
+                        <img
+                          src={app.icon}
+                          alt=""
+                          width="22"
+                          height="22"
+                          loading="eager"
+                          decoding="async"
+                          aria-hidden="true"
+                          class="mt-0.5 h-[22px] w-[22px] shrink-0 rounded-[5px]"
+                        />
+                        <div class="min-w-0 flex-1">
+                          <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                            <div class="flex items-center gap-2">
+                              <h3 class="text-sm font-semibold tracking-[-0.015em] text-ink-primary">
+                                {app.name}
+                              </h3>
+                              <span
+                                style={`background-color: ${app.theme.badgeBg}; color: ${app.theme.badgeText};`}
+                                class="rounded-md px-1.5 py-0.5 text-[10px] font-semibold"
+                              >
+                                v{app.version}
+                              </span>
+                            </div>
+
+                            <div class="flex items-center gap-2.5 text-[11px] font-medium">
+                              <a
+                                href={getLocalePath(locale, `/apps/${app.slug}/`)}
+                                class="text-accent-link hover:underline"
+                              >
+                                {copy.appDetailLabel} →
+                              </a>
+                              <a
+                                href={app.storeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-ink-secondary transition-colors hover:text-ink-primary"
+                              >
+                                Store ↗
+                              </a>
+                            </div>
+                          </div>
+                          <p class="mt-1 text-xs leading-snug text-ink-secondary">
+                            {localized.tagline}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <!-- Selected Engineering Projects (Live from src/content/projects/) -->
+            <section>
+              <h2 class="cv-section-title text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+                {copy.projectsHeading}
+              </h2>
+
+              <ul class="cv-projects-list mt-3 divide-y divide-border-subtle/80 rounded-2xl border border-border-subtle bg-white px-4">
+                {projects.map(({ data: proj }) => {
+                  const localized = proj[locale];
+                  return (
+                    <li class="cv-project-row py-2.5">
+                      <div class="flex items-baseline justify-between gap-3">
+                        <h3 class="text-[13px] font-semibold tracking-[-0.01em] text-ink-primary">
+                          {localized.title}
+                        </h3>
+                        <a
+                          href={proj.repoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="shrink-0 text-[11px] font-medium text-accent-link hover:underline"
+                        >
+                          GitHub ↗
+                        </a>
+                      </div>
+                      <p class="mt-0.5 text-xs leading-snug text-ink-secondary">
+                        {localized.subtitle}
+                      </p>
+                      <p class="mt-1 text-[10.5px] font-medium text-ink-secondary/80">
+                        {proj.tags.slice(0, 3).join(' · ')}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          </div>
+
+          <!-- Side Column -->
+          <aside class="cv-side space-y-5">
+            <!-- Education -->
+            <section class="cv-side-card rounded-2xl border border-border-subtle bg-surface-google/70 p-4">
+              <h2 class="cv-section-title text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+                {copy.educationHeading}
+              </h2>
+              <p class="mt-2 text-sm font-semibold tracking-[-0.01em] text-ink-primary">
+                {copy.educationSchool}
+              </p>
+              <p class="mt-0.5 text-xs font-medium text-ink-primary/90">
+                {copy.educationDegree}
+              </p>
+              <p class="mt-1 text-[11px] text-ink-secondary">
+                {copy.educationMeta}
+              </p>
+            </section>
+
+            <!-- Peer-Reviewed Publication -->
+            <section class="cv-side-card rounded-2xl border border-border-subtle bg-surface-google/70 p-4">
+              <h2 class="cv-section-title text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+                {copy.publicationHeading}
+              </h2>
+              <p class="mt-2 text-xs font-semibold leading-snug text-ink-primary">
+                {data.publication.title}
+              </p>
+              <p class="mt-1 text-[11px] italic text-ink-secondary">
+                {data.publication.journal}, {data.publication.year} ({data.publication.volumeIssuePages})
+              </p>
+              <div class="mt-2 flex flex-wrap items-center gap-3 text-[11px] font-medium">
+                <a
+                  href={data.publication.doiUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-accent-link hover:underline"
+                >
+                  DOI: {data.publication.doi} ↗
+                </a>
+                <a
+                  href={SITE_OWNER.links.orcid}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-ink-secondary transition-colors hover:text-ink-primary"
+                >
+                  ORCID ↗
+                </a>
+              </div>
+            </section>
+
+            <!-- Focus & Working Approach (3 Concise Points) -->
+            <section class="cv-side-card rounded-2xl border border-border-subtle bg-surface-google/70 p-4">
+              <h2 class="cv-section-title text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+                {copy.approachHeading}
+              </h2>
+              <ul class="mt-2.5 space-y-2.5">
+                {copy.approachItems.map((item) => (
+                  <li>
+                    <p class="text-xs font-semibold text-ink-primary">{item.title}</p>
+                    <p class="mt-0.5 text-[11px] leading-snug text-ink-secondary">{item.detail}</p>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <!-- Languages -->
+            <section class="cv-side-card rounded-2xl border border-border-subtle bg-surface-google/70 p-4">
+              <h2 class="cv-section-title text-[11px] font-semibold tracking-wider text-ink-secondary uppercase">
+                {copy.languagesHeading}
+              </h2>
+              <dl class="mt-2 space-y-1.5 text-xs">
+                {copy.languages.map((lang) => (
+                  <div class="flex items-baseline justify-between gap-2">
+                    <dt class="font-semibold text-ink-primary">{lang.name}</dt>
+                    <dd class="text-right text-[11px] text-ink-secondary">{lang.level}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <script is:inline>
+    (() => {
+      const btn = document.querySelector('[data-print-cv]');
+      if (btn) btn.addEventListener('click', () => window.print());
+    })();
+  </script>
+</BaseLayout>

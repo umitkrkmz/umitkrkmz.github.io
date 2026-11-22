@@ -12,10 +12,12 @@ interface Props {
   description: string;
   ogImage?: string;
   noindex?: boolean;
+  robots?: string;
   showClosingCard?: boolean;
 }
 
-const { locale, title, description, ogImage, noindex = false, showClosingCard = true } = Astro.props;
+const { locale, title, description, ogImage, noindex = false, robots, showClosingCard = true } = Astro.props;
+const robotsContent = robots ?? (noindex ? 'noindex' : undefined);
 const ui = UI_STRINGS[locale];
 
 const siteOrigin = Astro.site?.toString().replace(/\/$/, '') ?? SITE_OWNER.siteUrl;
@@ -50,8 +52,8 @@ const ogImageAlt =
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    {noindex ? (
-      <meta name="robots" content="noindex" />
+    {robotsContent ? (
+      <meta name="robots" content={robotsContent} />
     ) : (
       <>
         <!-- Canonical & Hreflang -->
