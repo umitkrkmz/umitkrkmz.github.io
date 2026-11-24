@@ -3,7 +3,7 @@ appSlug: foliopeek
 docType: support
 lang: tr
 title: FolioPeek — Destek ve Kullanım Kılavuzu
-description: FolioPeek iletişim kanalları, temel kullanım adımları, canlı önizlemeli yazdırma, Pro araçları ve klavye kısayolları.
+description: FolioPeek iletişim kanalları, temel kullanım adımları, Notlarım, canlı önizlemeli yazdırma, Pro araçları ve klavye kısayolları.
 lastUpdated: "2026-11-24"
 ---
 
@@ -24,13 +24,15 @@ Yazarken şunları eklemeniz çözümü hızlandırır: Windows sürümünüz, F
 * **PDF açma:** *Dosya → PDF aç…* (`Ctrl + O`), giriş ekranındaki **PDF aç** düğmesi ya da sürükle-bırak. Her belge kendi sekmesinde açılır (`Ctrl + W` kapatır).
 * **Kaydetme:** `Ctrl + S` aynı dosyaya, `Ctrl + Shift + S` yeni bir dosyaya kaydeder. Kaydedilmemiş değişiklik varken sekme adının başında `*` görünür.
 * **Okuma modları:** Durum çubuğundan veya *Görünüm → Okuma modu* menüsünden **Özgün**, **Koyu** ve **Sepya** arasında geçiş yapabilirsiniz; belge dosyasına yazılmaz.
+* **Web’de arama:** Seçili metne sağ tıklayıp *Bing ile ara: "…"* seçeneğini kullanabilirsiniz; arama motoru *Ayarlar → Okuma → Web’de arama* bölümünden seçilir (Bing, Google, DuckDuckGo; en fazla ilk 200 karakter). Arama varsayılan tarayıcınızda açılır, FolioPeek yine internete bağlanmaz.
 
-## Notlar, imza, birleştirme ve Pro
+## Notlar, Notlarım, imza ve Pro
 
-* **Notlar:** Vurgulama, serbest çizim ve metin notları standart PDF notu olarak kaydedilir; Edge ve Acrobat gibi uygulamalarda da görünür.
+* **Notlar:** Vurgulama, serbest çizim ve metin notları standart PDF notu olarak kaydedilir; Edge ve Acrobat gibi uygulamalarda da görünür. Bir **vurguya sağ tıklayınca** *Vurguyu sil* veya *Notlarıma kaydet* seçenekli menü açılır; serbest çizim ve metin notları sağ tıkla hemen silinir (`Ctrl + Z` geri getirir).
+* **Notlarım (`Ctrl + Shift + N`):** Belgelerden alıntıları dosya yolu ve sayfa numarasıyla tek bir yerel not defterinde toplar (alıntı eklemek Pro’dadır; kaydedilmiş notları okumak, açmak, silmek ve dışa aktarmak her zaman ücretsizdir). *Araçlar → Notlarım* veya giriş ekranındaki **Notlarım** kartından açılır; belgeye göre grupludur, her alıntıya yorum eklenebilir, **Sayfaya git** belgeyi açıp alıntıyı parlatır ve Markdown (`.md`) / metin (`.txt`) dışa aktarılır. Notlar yalnızca bu bilgisayarda tutulur ve FolioPeek kaldırılınca silinir; saklamak veya taşımak için dışa aktarın.
 * **Form ve imza:** İmzayı çizebilir, yazabilir veya görselden ekleyebilirsiniz. *Son imzayı kullan* yalnızca uygulama açıkken bellekte tutulur.
 * **Birleştirme tuvali:** Her PDF ayrı bir deste olarak görünür; sayfaları sürükleyip desteleri kablolarla **Sonuç** kartına bağlayarak sırayı belirleyebilirsiniz. İçindekiler, bağlantılar, form alanları ve notlar korunur.
-* **Pro araçlar (tek seferlik):** Kalıcı karartma, çevrimdışı yazı tanıma (OCR) ve aranabilir PDF, AES-128 parola, meta veri düzenleme/temizleme, filigran ve sayfa numarası.
+* **Pro araçlar (tek seferlik):** Kalıcı karartma, çevrimdışı yazı tanıma (OCR) ve aranabilir PDF, Notlarım alıntı defteri, AES-128 parola, meta veri düzenleme/temizleme, filigran ve sayfa numarası.
 
 ## Yazdırma
 
@@ -50,6 +52,7 @@ Yazarken şunları eklemeniz çözümü hızlandırır: Windows sürümünüz, F
 | `Ctrl + P` | Yazdır (canlı önizlemeli) |
 | `Ctrl + Shift + P` | Windows yazdırma penceresiyle yazdır |
 | `Ctrl + D` | Belge özellikleri |
+| `Ctrl + Shift + N` | Notlarım |
 | `Ctrl + W` | Sekmeyi kapat |
 | `Ctrl + Z` / `Ctrl + Y` | Geri al / Yinele |
 | `Ctrl + F`, `F3` / `Shift + F3` | Bul, sonraki / önceki eşleşme |

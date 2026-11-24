@@ -3,7 +3,7 @@ appSlug: foliopeek
 docType: support
 lang: en
 title: FolioPeek — Support & User Guide
-description: Contact channels, getting started, live-preview printing, Pro features, and keyboard shortcuts for FolioPeek.
+description: Contact channels, getting started, My notes, live-preview printing, Pro features, and keyboard shortcuts for FolioPeek.
 lastUpdated: "2026-11-24"
 ---
 
@@ -24,13 +24,15 @@ When writing, it helps to include your Windows version, FolioPeek version (*Sett
 * **Opening PDFs:** Use *File → Open PDF…* (`Ctrl + O`), the **Open PDF** button on the home screen, or drag and drop onto the window. Each document opens in its own tab (`Ctrl + W` closes it).
 * **Saving:** `Ctrl + S` saves to the same file, `Ctrl + Shift + S` saves a new copy. A `*` prefix on the tab title marks unsaved changes.
 * **Reading modes:** Switch between **Original**, **Dark**, and **Sepia** from the status bar or *View → Reading mode*. The mode affects screen display only.
+* **Searching the web:** Right-click selected text → *Search Bing for "…"* (pick Bing, Google, or DuckDuckGo under *Settings → Reading → Web search*; up to the first 200 characters). The search opens in your default browser; FolioPeek itself still never goes online.
 
-## Notes, signing, merging, and Pro
+## Notes, My notes, signing, and Pro
 
-* **Notes:** Highlights, freehand ink, and text notes are saved as standard PDF annotations visible in other viewers such as Edge and Acrobat.
+* **Notes:** Highlights, freehand ink, and text notes are saved as standard PDF annotations visible in other viewers such as Edge and Acrobat. **Right-clicking a highlight** opens a menu with *Delete highlight* and *Save to my notes*; freehand ink and text notes delete immediately on right-click (`Ctrl + Z` restores them).
+* **My notes (`Ctrl + Shift + N`):** Collects quotes from your PDFs with their file path and page number in one local notebook (adding quotes is Pro; reading, opening, deleting, and exporting saved notes are always free). Open from *Tools → My notes* or the **My notes** home card—notes are grouped by document, searchable, support personal comments, jump back and glow on the page with **Go to page**, and export to Markdown (`.md`) or TXT (`.txt`). Notes stay on this PC only and are removed if FolioPeek is uninstalled; export them to keep or move to another PC.
 * **Fill and sign:** Draw your signature, type it, or insert it from a photo/scan. *Use last signature* lives in memory only until the app exits.
 * **Merge board:** Each PDF appears as a deck; drag pages across decks and wire decks to the **Result** card to define the final order. Bookmarks, internal links, form fields, and annotations are preserved.
-* **Pro tools (one-time):** Verified permanent redaction, offline OCR and searchable PDFs, AES-128 password protection, metadata editing/clearing, watermarks, and page numbers.
+* **Pro tools (one-time):** Verified permanent redaction, offline OCR and searchable PDFs, My notes quote notebook, AES-128 password protection, metadata editing/clearing, watermarks, and page numbers.
 
 ## Printing
 
@@ -50,6 +52,7 @@ When writing, it helps to include your Windows version, FolioPeek version (*Sett
 | `Ctrl + P` | Print (with live preview) |
 | `Ctrl + Shift + P` | Print with the Windows dialog |
 | `Ctrl + D` | Document properties |
+| `Ctrl + Shift + N` | My notes |
 | `Ctrl + W` | Close tab |
 | `Ctrl + Z` / `Ctrl + Y` | Undo / Redo |
 | `Ctrl + F`, `F3` / `Shift + F3` | Find, next / previous match |

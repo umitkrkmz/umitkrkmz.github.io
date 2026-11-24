@@ -4,7 +4,7 @@ docType: privacy
 lang: en
 title: FolioPeek — Privacy Policy
 description: FolioPeek runs strictly offline with no network capability, no accounts, no ads, and no telemetry.
-lastUpdated: "2026-11-20"
+lastUpdated: "2026-11-24"
 ---
 
 ## In short
@@ -23,13 +23,16 @@ lastUpdated: "2026-11-20"
 * **Document properties:** Information such as title and author is read from the document itself. Values you edit or clear with Pro are written only to the new file you save.
 * **Clipboard:** When you copy, the selected text or region goes only to the Windows clipboard.
 * **Text recognition:** The text recognition language packs installed in Windows are used. For a missing pack, FolioPeek only opens Windows language settings.
+* **Search the web:** When you right-click selected text and choose *Search Bing / Google / DuckDuckGo for…*, the start of the selection (at most 200 characters) is placed into the search URL and opened in your default browser. Your browser and chosen search engine run the search only when you click; FolioPeek itself still never goes online.
+* **My notes:** Quotes you save with *Save to my notes*, along with the file path, page number, and your comments, stay strictly on this PC. When you export them, they are written only to the file you choose.
 
 ## Data stored on your PC
 
 All of it lives in `%LOCALAPPDATA%\FolioPeek`, on this PC only:
 
-* **`settings.json` — settings:** Language, theme and accent colour, reading mode, zoom, note colours, and note author name; paths of recently opened documents and timestamps; optionally last page read and open tabs.
+* **`settings.json` — settings:** Language, theme and accent colour, reading mode, zoom, note colours, note author name, and chosen search engine; paths of recently opened documents and timestamps; optionally last page read and open tabs; a small counter of completed jobs and whether you have been asked, so rating the app is requested at most once.
 * **`license.dat` — Pro license cache:** If you bought the Pro add-on, its status is encrypted with the Windows Data Protection API (DPAPI) so the app can open as Pro offline too.
+* **`notebook.json` — My notes:** The quotes you saved, your comments, and the source file path and page number. You can delete them individually in the My notes window.
 * **`error.log` — error log:** If an unexpected error occurs, only technical error details are written; document content is never logged.
 
 You can clear the recent documents list in Settings. In the Microsoft Store version this folder belongs to the app and Windows removes it when you uninstall FolioPeek.
@@ -40,7 +43,7 @@ The one-time **Pro** add-on is purchased entirely through the Microsoft Store. P
 
 ## Links
 
-The privacy policy and issue links in the app open in your default browser; links to Windows settings open in Windows Settings. A web link inside a PDF opens in your browser when you click it (after asking first, depending on your setting). External pages are governed by their own policies.
+After a few jobs finish successfully, FolioPeek may display Microsoft Store’s own rating window once; that window and any rating you submit are handled by Microsoft Store. The privacy policy and issue links in the app open in your default browser; links to Windows settings open in Windows Settings. A web link inside a PDF opens in your browser when you click it (after asking first, depending on your setting). External pages are governed by their own policies.
 
 ## Sharing and children
 
@@ -48,4 +51,4 @@ Because FolioPeek collects no data, no user or document data is shared with thir
 
 ## Changes and contact
 
-This policy is updated whenever a new capability or data handling is added, and the date at the top is renewed. For questions, email [zeynelumitkorkmaz@gmail.com](mailto:zeynelumitkorkmaz@gmail.com?subject=FolioPeek) or use the [GitHub Issues](https://github.com/umitkrkmz/FolioPeek/issues) page.
+This policy is updated whenever a new capability or data handling is added, and the date at the top is renewed. For questions, email [zeynelumitkorkmaz@gmail.com](mailto:zeynelumitkorkmaz@gmail.com?subject=FolioPeek) or use the [GitHub Issues](https://github.com/umitkrkmz/FolioPeek/issues) page. Help and common questions: [Support page](/en/apps/foliopeek/support/).

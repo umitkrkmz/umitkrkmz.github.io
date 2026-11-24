@@ -7,6 +7,13 @@ description: FolioPeek sürümlerindeki yenilikler ve iyileştirmeler.
 lastUpdated: "2026-11-24"
 ---
 
+## v1.2.0 — 2026-11-24
+
+* **Notlarım (alıntı eklemek Pro’da):** Seçili metne veya bir vurguya sağ tıklayıp *Notlarıma kaydet* diyerek alıntıları dosya ve sayfa bilgisiyle tek bir yerel not defterinde toplayabilirsiniz (`Ctrl + Shift + N`, *Araçlar* menüsü veya giriş ekranı kartı). Belgeye göre gruplu, aranabilir, her alıntıya kendi yorumunuzu ekleyebilirsiniz; **Sayfaya git** belgeyi açıp alıntıyı birkaç saniye parlatır. Markdown (`.md`) / TXT (`.txt`) dışa aktarılır. Kaydedilmiş notları okumak, açmak, silmek ve dışa aktarmak her zaman ücretsizdir; veriler yalnızca bu bilgisayarda tutulur.
+* **Web’de ara (ücretsiz):** Seçili metne sağ tık → *Bing ile ara: "…"* (arama motoru *Ayarlar → Okuma* bölümünden Bing, Google veya DuckDuckGo olarak seçilebilir). Aramayı tarayıcınız yapar; FolioPeek yine internete bağlanmaz.
+* **Vurgu sağ tık menüsü:** Bir vurguya sağ tıklamak artık vurguyu hemen silmez; *Vurguyu sil* ve *Notlarıma kaydet* seçenekli menüyü açar.
+* **Değerlendirme penceresi:** Birkaç işi başarıyla bitirdikten sonra Microsoft Store’un değerlendirme penceresi bir kez gösterilebilir; bir daha sorulmaz.
+
 ## v1.1.0 — 2026-11-24
 
 ### Yeni yazdırma penceresi (`Ctrl + P`, ücretsiz)
@@ -18,7 +25,7 @@ lastUpdated: "2026-11-24"
 * **Daha fazla ayar:** Kağıt boyutu ve türü, baskı kalitesi, yaprak başına 1–2–4–6–9 sayfa, gerçek boyut / kağıda sığdır / özel ölçek, kenar boşluğu, notlar, ters sıra ve kağıda tarih/saat ekleme.
 * **Yazıcı başına hatırlama:** Seçimleriniz her yazıcı için ayrı saklanır. Windows’un kendi yazdırma penceresi `Ctrl + Shift + P` ile hâlâ bir tık uzaktadır.
 
-## v1.0.1
+## v1.0.1 — 2026-11-23
 
 * **Yardım ve destek bağlantısı:** *Yardım → Destek ve sorun bildirme* artık GitHub girişi gerektirmeden okunabilen [yardım ve destek sayfasını](https://github.com/umitkrkmz/FolioPeek/blob/main/SUPPORT.md) açar.
 * **Uygulamayı değerlendir:** *Yardım* menüsüne ve *Ayarlar → Hakkında* bölümüne eklendi; Microsoft Store değerlendirme sayfasını açar (bağlanan Microsoft Store’dur, FolioPeek yine internete bağlanmaz).

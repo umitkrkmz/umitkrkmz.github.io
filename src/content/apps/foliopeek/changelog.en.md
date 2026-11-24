@@ -7,6 +7,13 @@ description: Notable changes and releases for FolioPeek.
 lastUpdated: "2026-11-24"
 ---
 
+## v1.2.0 — 2026-11-24
+
+* **My notes (adding quotes is Pro):** Right-click selected text or a highlight and choose *Save to my notes* to collect quotes with their file and page in one local notebook (`Ctrl + Shift + N`, *Tools* menu, or the home screen card). Grouped by document, searchable, with room for your own comment under each quote; **Go to page** opens the PDF and makes the quote glow for a few seconds. Export to Markdown (`.md`) or TXT (`.txt`). Reading, opening, deleting, and exporting saved notes are always free, and notes stay strictly on this PC.
+* **Search the web (free):** Right-click selected text → *Search Bing for "…"* (choose Bing, Google, or DuckDuckGo in *Settings → Reading*). Your default browser runs the search; FolioPeek itself still never goes online.
+* **Highlight right-click menu:** Right-clicking a highlight no longer deletes it immediately—it opens a menu with *Delete highlight* and *Save to my notes*.
+* **One-time rating prompt:** After a few jobs succeed, the Microsoft Store rating window may appear once and never asks again.
+
 ## v1.1.0 — 2026-11-24
 
 ### New print window (`Ctrl + P`, free)
@@ -18,7 +25,7 @@ lastUpdated: "2026-11-24"
 * **More settings:** Paper size and type, print quality, 1–2–4–6–9 pages per sheet, actual size / fit to paper / custom scale, margins, notes, reverse order, and date/time stamps on paper.
 * **Remembered per printer:** Choices are saved per printer. The built-in Windows print dialog remains one shortcut away via `Ctrl + Shift + P`.
 
-## v1.0.1
+## v1.0.1 — 2026-11-23
 
 * **Help & support link:** *Help → Help and report a problem* now opens the login-free [help and support page](https://github.com/umitkrkmz/FolioPeek/blob/main/SUPPORT.md).
 * **Rate this app:** Added under the *Help* menu and *Settings → About*; opens the rating page in Microsoft Store (Microsoft Store connects, while FolioPeek itself still never goes online).

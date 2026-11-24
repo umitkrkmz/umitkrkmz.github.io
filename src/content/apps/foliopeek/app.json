@@ -2,7 +2,7 @@
   "slug": "foliopeek",
   "name": "FolioPeek",
   "order": 1,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "releaseDate": "2026-11-24",
   "storeId": "9N345C2XQVXB",
   "storeUrl": "https://apps.microsoft.com/detail/9N345C2XQVXB",
@@ -38,7 +38,7 @@
       {
         "label": "FolioPeek Pro (Tek Seferlik)",
         "price": "₺350",
-        "note": "Doğrulanmış kalıcı karartma, çevrimdışı yazı tanıma (OCR) ve aranabilir PDF, AES-128 parola, meta veri temizleme, filigran ve sayfa numarası."
+        "note": "Doğrulanmış kalıcı karartma, çevrimdışı yazı tanıma (OCR) ve aranabilir PDF, Notlarım alıntı defteri (Markdown/TXT dışa aktarma), AES-128 parola, meta veri temizleme, filigran ve sayfa numarası."
       }
     ],
     "requirements": [
@@ -55,6 +55,8 @@
       "Sayfa döndürme, sıralama, silme, ayırma ve başka PDF’lerden sayfa ekleme",
       "Görsellerden PDF oluşturma ve PDF sayfalarını PNG / JPEG (150 veya 300 DPI) olarak kaydetme",
       "Canlı önizlemeli yeni yazdırma penceresi (Ctrl + P): otomatik yön, kitap/takvim çift taraflı baskı, yaprak başına 1–9 sayfa, özel ölçek ve yazıcı başına ayar hatırlama",
+      "Web’de ara: seçili metne sağ tıklayıp varsayılan tarayıcınızda Bing, Google veya DuckDuckGo’da arama (FolioPeek yine internete bağlanmaz)",
+      "Pro: Notlarım (Ctrl + Shift + N) — PDF’lerden alıntıları sayfasıyla yerel not defterinde toplama, yorum ekleme, Sayfaya git ile parlatma ve Markdown/TXT dışa aktarma",
       "Pro: Doğrulanmış kalıcı karartma (altındaki metin ve görseller gerçekten silinir)",
       "Pro: Windows’un yerleşik yazı tanımasıyla çevrimdışı OCR ve aranabilir PDF, AES-128 parola, meta veri temizleme ve filigran"
     ],
@@ -138,7 +140,7 @@
       {
         "label": "FolioPeek Pro (One-Time)",
         "price": "$14.99",
-        "note": "Verified permanent redaction, offline OCR & searchable PDFs, AES-128 password protection, metadata cleanup, watermarks, and page numbers."
+        "note": "Verified permanent redaction, offline OCR & searchable PDFs, My notes quote notebook (Markdown/TXT export), AES-128 password protection, metadata cleanup, watermarks, and page numbers."
       }
     ],
     "requirements": [
@@ -155,6 +157,8 @@
       "Rotate, reorder, delete, extract, and insert pages from other PDF documents",
       "Images to PDF and export PDF pages to PNG / JPEG at 150 or 300 DPI",
       "Live-preview print window (Ctrl + P): automatic orientation, book/calendar two-sided printing, 1–9 pages per sheet, custom scale, and per-printer remembered settings",
+      "Search the web: right-click selected text to search on Bing, Google, or DuckDuckGo in your browser (FolioPeek itself still never goes online)",
+      "Pro: My notes (Ctrl + Shift + N) — collect PDF quotes with page links in a local notebook, add comments, jump & highlight on the page, and export to Markdown/TXT",
       "Pro: Verified permanent redaction that removes underlying text, drawings, and images",
       "Pro: Offline Windows OCR and searchable PDFs, AES-128 encryption, metadata editing, and watermarks"
     ],
