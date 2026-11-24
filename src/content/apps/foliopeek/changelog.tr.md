@@ -4,8 +4,25 @@ docType: changelog
 lang: tr
 title: FolioPeek — Sürüm Notları
 description: FolioPeek sürümlerindeki yenilikler ve iyileştirmeler.
-lastUpdated: "2026-11-20"
+lastUpdated: "2026-11-24"
 ---
+
+## v1.1.0 — 2026-11-24
+
+### Yeni yazdırma penceresi (`Ctrl + P`, ücretsiz)
+
+* **Canlı önizleme:** Önizlemede ne görüyorsanız kağıda o basılır; fare tekerleğiyle kaydırılabilir, yakınlaştırılabilir ve sığınca iki kağıt yan yana gösterilir.
+* **Yazıcı durumu ve akıllı sayfa seçimi:** Yazıcının güncel durumu (*hazır*, *çevrimdışı*, *dikkat istiyor*) gösterilir; *bu sayfa* seçeneği önizlemede görüntülenen sayfayı izler.
+* **Otomatik yön ve renk:** Her sayfa kendi yönüyle kağıda oturtulur; kopya, harmanlama ve renkli/siyah-beyaz seçenekleri doğrudan elinizin altındadır.
+* **Kolay iki taraflı baskı:** *Kitap gibi* ya da *Takvim gibi* olarak seçilir; kağıdın hangi kenarından döneceğini FolioPeek otomatik belirler.
+* **Daha fazla ayar:** Kağıt boyutu ve türü, baskı kalitesi, yaprak başına 1–2–4–6–9 sayfa, gerçek boyut / kağıda sığdır / özel ölçek, kenar boşluğu, notlar, ters sıra ve kağıda tarih/saat ekleme.
+* **Yazıcı başına hatırlama:** Seçimleriniz her yazıcı için ayrı saklanır. Windows’un kendi yazdırma penceresi `Ctrl + Shift + P` ile hâlâ bir tık uzaktadır.
+
+## v1.0.1
+
+* **Yardım ve destek bağlantısı:** *Yardım → Destek ve sorun bildirme* artık GitHub girişi gerektirmeden okunabilen [yardım ve destek sayfasını](https://github.com/umitkrkmz/FolioPeek/blob/main/SUPPORT.md) açar.
+* **Uygulamayı değerlendir:** *Yardım* menüsüne ve *Ayarlar → Hakkında* bölümüne eklendi; Microsoft Store değerlendirme sayfasını açar (bağlanan Microsoft Store’dur, FolioPeek yine internete bağlanmaz).
+* **FolioPeek Pro:** Microsoft Store’da tek seferlik satın alma olarak sunulur; başka bir bilgisayarda veya yeniden kurulumda *Satın alımı geri yükle* ile etkinleştirilir.
 
 ## v1.0.0 — 2026-11-20
 

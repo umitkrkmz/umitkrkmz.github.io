@@ -62,6 +62,7 @@ const apps = defineCollection({
     storeUrl: z.string().url(),
     githubUrl: z.string().url(),
     issuesUrl: z.string().url(),
+    supportUrl: z.string().url().optional(),
     sourceModel: z.enum(['open-source', 'closed-source-open-docs']),
     licenseLabel: z.string(),
     networkModel: z.enum(['offline', 'local-first']),

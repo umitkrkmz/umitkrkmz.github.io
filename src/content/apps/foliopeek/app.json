@@ -2,12 +2,13 @@
   "slug": "foliopeek",
   "name": "FolioPeek",
   "order": 1,
-  "version": "1.0.0",
-  "releaseDate": "2026-11-20",
+  "version": "1.1.0",
+  "releaseDate": "2026-11-24",
   "storeId": "9N345C2XQVXB",
   "storeUrl": "https://apps.microsoft.com/detail/9N345C2XQVXB",
   "githubUrl": "https://github.com/umitkrkmz/FolioPeek",
   "issuesUrl": "https://github.com/umitkrkmz/FolioPeek/issues",
+  "supportUrl": "https://github.com/umitkrkmz/FolioPeek/blob/main/SUPPORT.md",
   "sourceModel": "closed-source-open-docs",
   "licenseLabel": "Kapalı Kaynak · Belgeler CC BY 4.0",
   "networkModel": "offline",
@@ -32,7 +33,7 @@
       {
         "label": "FolioPeek (Microsoft Store)",
         "price": "Ücretsiz",
-        "note": "Sekmeli okuma, not alma, form doldurma & imza, birleştirme tuvali, sayfa düzenleme, görsel dönüşümleri ve yazdırma sınırsız."
+        "note": "Sekmeli okuma, not alma, form doldurma & imza, birleştirme tuvali, sayfa düzenleme, görsel dönüşümleri ve canlı önizlemeli yazdırma sınırsız."
       },
       {
         "label": "FolioPeek Pro (Tek Seferlik)",
@@ -53,6 +54,7 @@
       "Görsel birleştirme tuvali: PDF’leri deste deste yerleştirin, sayfaları sürükleyin, sırayı kablolarla kurun",
       "Sayfa döndürme, sıralama, silme, ayırma ve başka PDF’lerden sayfa ekleme",
       "Görsellerden PDF oluşturma ve PDF sayfalarını PNG / JPEG (150 veya 300 DPI) olarak kaydetme",
+      "Canlı önizlemeli yeni yazdırma penceresi (Ctrl + P): otomatik yön, kitap/takvim çift taraflı baskı, yaprak başına 1–9 sayfa, özel ölçek ve yazıcı başına ayar hatırlama",
       "Pro: Doğrulanmış kalıcı karartma (altındaki metin ve görseller gerçekten silinir)",
       "Pro: Windows’un yerleşik yazı tanımasıyla çevrimdışı OCR ve aranabilir PDF, AES-128 parola, meta veri temizleme ve filigran"
     ],
@@ -112,6 +114,10 @@
         "answer": "FolioPeek, Windows’un yerleşik çevrimdışı OCR bileşenini kullanır. Windows Ayarları → Saat ve dil → Dil ve bölge bölümünden ilgili dil paketini ekledikten sonra FolioPeek içinde Ayarlar → Yazı tanıma menüsünden seçebilirsiniz."
       },
       {
+        "question": "Yazıcı kenardaki çizgileri ya da yazıları kesiyor, ne yapmalıyım?",
+        "answer": "Yeni yazdırma penceresinde (Ctrl + P) Daha fazla ayar → Ölçek altından Kağıda sığdır seçeneğini işaretleyin veya ölçeği %95 yapın; gerekirse kenar boşluğunu Normal (10 mm) seçin. Sol taraftaki canlı önizleme kağıda tam olarak ne basılacağını gösterir."
+      },
+      {
         "question": "PDF’ler çift tıklayınca FolioPeek ile nasıl açılır?",
         "answer": "Ayarlar → Genel → Varsayılan PDF uygulaması düğmesiyle Windows ayarlarını açın ve .pdf dosya türü için FolioPeek’i seçin."
       }
@@ -127,7 +133,7 @@
       {
         "label": "FolioPeek (Microsoft Store)",
         "price": "Free",
-        "note": "Tabbed reading, annotations, fill & sign, visual merge board, page editing, image conversion, and printing without limits."
+        "note": "Tabbed reading, annotations, fill & sign, visual merge board, page editing, image conversion, and live-preview printing without limits."
       },
       {
         "label": "FolioPeek Pro (One-Time)",
@@ -148,6 +154,7 @@
       "Visual merge board: lay out PDFs as decks, drag pages between them, and wire the order with cables",
       "Rotate, reorder, delete, extract, and insert pages from other PDF documents",
       "Images to PDF and export PDF pages to PNG / JPEG at 150 or 300 DPI",
+      "Live-preview print window (Ctrl + P): automatic orientation, book/calendar two-sided printing, 1–9 pages per sheet, custom scale, and per-printer remembered settings",
       "Pro: Verified permanent redaction that removes underlying text, drawings, and images",
       "Pro: Offline Windows OCR and searchable PDFs, AES-128 encryption, metadata editing, and watermarks"
     ],
@@ -205,6 +212,10 @@
       {
         "question": "Text recognition does not work or says no language is installed.",
         "answer": "FolioPeek uses Windows built-in offline OCR. Add the document’s language pack under Windows Settings → Time & language → Language & region, then select it in FolioPeek under Settings → Text recognition."
+      },
+      {
+        "question": "The printer cuts off lines or text at the edges.",
+        "answer": "In the print window (Ctrl + P), open More settings → Scale and choose Fit to paper or set the scale to 95%; if needed, select Normal (10 mm) margins. The live preview shows exactly what will print on the sheet."
       },
       {
         "question": "How do I make PDFs open in FolioPeek by default?",

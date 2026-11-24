@@ -4,8 +4,25 @@ docType: changelog
 lang: en
 title: FolioPeek — Release Notes
 description: Notable changes and releases for FolioPeek.
-lastUpdated: "2026-11-20"
+lastUpdated: "2026-11-24"
 ---
+
+## v1.1.0 — 2026-11-24
+
+### New print window (`Ctrl + P`, free)
+
+* **Live preview:** What you see in the preview is what lands on paper; scrolls, zooms, and shows two sheets side by side when they fit.
+* **Printer state & active page:** Shows the printer’s live status (*ready*, *offline*, *needs attention*), and *this page* follows the page currently visible in the preview.
+* **Automatic orientation & colour:** Lays out each page in its own orientation, with copies, collation, and colour or black-and-white options right at hand.
+* **Simple two-sided printing:** Pick *Like a book* or *Like a calendar*, and FolioPeek automatically chooses the long or short flip edge.
+* **More settings:** Paper size and type, print quality, 1–2–4–6–9 pages per sheet, actual size / fit to paper / custom scale, margins, notes, reverse order, and date/time stamps on paper.
+* **Remembered per printer:** Choices are saved per printer. The built-in Windows print dialog remains one shortcut away via `Ctrl + Shift + P`.
+
+## v1.0.1
+
+* **Help & support link:** *Help → Help and report a problem* now opens the login-free [help and support page](https://github.com/umitkrkmz/FolioPeek/blob/main/SUPPORT.md).
+* **Rate this app:** Added under the *Help* menu and *Settings → About*; opens the rating page in Microsoft Store (Microsoft Store connects, while FolioPeek itself still never goes online).
+* **FolioPeek Pro:** Available in Microsoft Store as a one-time purchase; use *Restore purchase* on another PC or after reinstalling.
 
 ## v1.0.0 — 2026-11-20
 

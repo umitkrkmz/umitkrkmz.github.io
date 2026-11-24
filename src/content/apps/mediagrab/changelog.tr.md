@@ -4,8 +4,32 @@ docType: changelog
 lang: tr
 title: MediaGrab — Sürüm Notları
 description: MediaGrab sürümlerindeki önemli yenilikler ve düzeltmeler.
-lastUpdated: "2026-11-14"
+lastUpdated: "2026-11-24"
 ---
+
+## v2.5.3 — 2026-11-24
+
+Yardım ve destek sayfası eklendi.
+
+### Eklenen
+
+* **Yardım ve destek sayfası (`SUPPORT.md`):** Türkçe ve İngilizce olarak e-posta ile iletişim, başlarken, indirme, telefondan kullanım, Microsoft Store sürümü notları ve sık karşılaşılan sorunların çözümleri eklendi. GitHub hesabı olmadan okunabilir; uygulama içindeki *Ayarlar → Geri Bildirim → Yardım ve Destek* düğmesi ve *Hakkında* sayfası doğrudan buraya bağlanır.
+
+### Değiştirilen
+
+* **Gizlilik politikasında iletişim:** Hesap gerektiren GitHub sorun formu yerine destek sayfasındaki doğrudan e-posta adresi öne çıkarıldı.
+
+## v2.5.2 — 2026-11-24
+
+Uzun YouTube videolarında yarıda kalan indirmeler için düzeltme.
+
+### Düzeltilen
+
+* **Uzun YouTube HLS indirmeleri:** YouTube’un yalnızca HLS biçiminde sunduğu videolarda paralel parça indirmesinin birkaç dakika sonra `401 Unauthorized` ve `.part-FragNN` hatasıyla durması giderildi. YouTube parçaları artık sırayla indirilir; diğer siteler etkilenmedi.
+
+### Değiştirilen
+
+* **Paketlenen bileşenler güncellendi:** `yt-dlp 2026.11.23` ve güncel Python bağımlılıkları (Windows kurulum programı ve Microsoft Store sürümü).
 
 ## v2.5.1 — 2026-11-14
 

@@ -4,8 +4,32 @@ docType: changelog
 lang: en
 title: MediaGrab — Release Notes
 description: Notable changes and fixes across MediaGrab releases.
-lastUpdated: "2026-11-14"
+lastUpdated: "2026-11-24"
 ---
+
+## v2.5.3 — 2026-11-24
+
+Added a dedicated help and support page.
+
+### Added
+
+* **Help and support page (`SUPPORT.md`):** Bilingual Turkish and English guide covering direct email contact, getting started, downloading, phone access, Microsoft Store version notes, and troubleshooting. Readable without a GitHub account; linked directly from *Settings → Feedback → Help & Support* and the *About* page inside the app.
+
+### Changed
+
+* **Privacy policy contact:** Points directly to the email address on the support page instead of requiring a GitHub account for the issue form.
+
+## v2.5.2 — 2026-11-24
+
+Fixed long YouTube downloads stopping halfway.
+
+### Fixed
+
+* **Long YouTube HLS downloads:** Fixed HLS-only YouTube downloads stopping after a few minutes with `401 Unauthorized` and missing `.part-FragNN` errors caused by fetching four fragments concurrently. YouTube fragments are now downloaded one at a time; other sites are unaffected.
+
+### Changed
+
+* **Updated bundled components:** Updated to `yt-dlp 2026.11.23` and current Python dependencies across both the Windows installer and Microsoft Store builds.
 
 ## v2.5.1 — 2026-11-14
 

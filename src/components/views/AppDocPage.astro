@@ -42,6 +42,7 @@ const copy =
         tocHeading: 'Bu Sayfada',
         quickAccessHeading: 'Hızlı Erişim',
         storeLink: 'Microsoft Store',
+        supportGuideLink: 'GitHub Destek Sayfası',
         reportIssue: 'Sorun Bildir',
         emailLink: 'E-posta Gönder',
       }
@@ -52,6 +53,7 @@ const copy =
         tocHeading: 'On This Page',
         quickAccessHeading: 'Quick Access',
         storeLink: 'Microsoft Store',
+        supportGuideLink: 'GitHub Support Page',
         reportIssue: 'Report an Issue',
         emailLink: 'Send Email',
       };
@@ -175,6 +177,19 @@ const emailHref = `mailto:${SITE_OWNER.email}?subject=${encodeURIComponent(app.n
                 <span aria-hidden="true">↗</span>
               </a>
             </li>
+            {app.supportUrl && (
+              <li>
+                <a
+                  href={app.supportUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 text-ink-secondary transition-colors hover:text-ink-primary"
+                >
+                  <span>{copy.supportGuideLink}</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </li>
+            )}
             <li>
               <a
                 href={app.issuesUrl}

@@ -2,12 +2,13 @@
   "slug": "mediagrab",
   "name": "MediaGrab",
   "order": 4,
-  "version": "2.5.1",
-  "releaseDate": "2026-11-14",
+  "version": "2.5.3",
+  "releaseDate": "2026-11-24",
   "storeId": "9PPKZMBMHTH9",
   "storeUrl": "https://apps.microsoft.com/detail/9PPKZMBMHTH9",
   "githubUrl": "https://github.com/umitkrkmz/mediagrab",
   "issuesUrl": "https://github.com/umitkrkmz/mediagrab/issues/new/choose",
+  "supportUrl": "https://github.com/umitkrkmz/mediagrab/blob/master/SUPPORT.md",
   "sourceModel": "open-source",
   "licenseLabel": "GPL-3.0-or-later (Açık Kaynak)",
   "networkModel": "local-first",
@@ -112,6 +113,10 @@
         "answer": "Bazı Android tarayıcılarında .local çözümlemesi güvenilir çalışmayabilir. Bunun yerine Ayarlar → Uzaktan Erişim ekranındaki yerel IP adresini veya QR kodu doğrudan kullanın."
       },
       {
+        "question": "Bir video inmiyor ya da yarıda kalıyor, ne yapmalıyım?",
+        "answer": "Video siteleri zaman zaman değiştiği için indirme motorunun güncel kalması gerekir. Microsoft Store sürümünde önce Kitaplık → Güncellemeleri al ile en son sürümü yükleyin. Sorun sürerse Ayarlar → Geri Bildirim → Tanılama bilgisini kopyala çıktısını ve video bağlantısını e-postayla gönderebilirsiniz."
+      },
+      {
         "question": "Yasal kullanım kapsamı nedir?",
         "answer": "MediaGrab yalnızca kişisel arşivleme amaçlıdır. İndirdiğiniz içeriğin telif durumundan ve ilgili platformun kullanım koşullarına uyumdan kullanıcı sorumludur."
       }
@@ -206,6 +211,10 @@
       {
         "question": "mediagrab.local does not open on my Android phone.",
         "answer": "Some Android browsers do not resolve .local addresses reliably. Use the direct local IP address or QR code shown under Settings → Remote Access instead."
+      },
+      {
+        "question": "A video does not download or stops halfway—what should I do?",
+        "answer": "Media sites change periodically and require an updated download engine. In the Microsoft Store edition, check Library → Get updates first. If the issue persists, copy the output from Settings → Feedback → Copy diagnostic info and email it along with the video link."
       },
       {
         "question": "What is the intended legal use?",

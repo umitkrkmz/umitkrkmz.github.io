@@ -4,7 +4,7 @@ docType: privacy
 lang: en
 title: MediaGrab — Privacy Policy
 description: MediaGrab runs locally on your own device with no account, ads, analytics, or telemetry.
-lastUpdated: "2026-11-07"
+lastUpdated: "2026-11-24"
 ---
 
 ## In short
@@ -32,4 +32,4 @@ In the Microsoft Store version, app settings reside in the Windows app container
 
 ## Sharing, children, and contact
 
-The developer collects and shares no data; Microsoft handles Store payments and licensing. MediaGrab is not directed at children and does not knowingly collect personal information. Questions: [zeynelumitkorkmaz@gmail.com](mailto:zeynelumitkorkmaz@gmail.com?subject=MediaGrab) or [GitHub Issues](https://github.com/umitkrkmz/mediagrab/issues/new/choose).
+The developer collects and shares no data; Microsoft handles Store payments and licensing. MediaGrab is not directed at children and does not knowingly collect personal information. Questions: use the email address on the [support page](/en/apps/mediagrab/support/) ([zeynelumitkorkmaz@gmail.com](mailto:zeynelumitkorkmaz@gmail.com?subject=MediaGrab)) or [GitHub Issues](https://github.com/umitkrkmz/mediagrab/issues); you can verify all of the above in the open-source [repository](https://github.com/umitkrkmz/mediagrab).

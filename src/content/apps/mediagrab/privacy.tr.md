@@ -4,7 +4,7 @@ docType: privacy
 lang: tr
 title: MediaGrab — Gizlilik Politikası
 description: MediaGrab kendi cihazınızda çalışır; hesap, reklam, analiz veya telemetri içermez.
-lastUpdated: "2026-11-07"
+lastUpdated: "2026-11-24"
 ---
 
 ## Kısaca
@@ -32,4 +32,4 @@ Microsoft Store sürümünde uygulama verileri Windows’un ayırdığı klasör
 
 ## Paylaşım, çocuklar ve iletişim
 
-Geliştirici hiçbir veri toplamaz ve üçüncü taraflarla paylaşmaz; Microsoft Store ödemelerini Microsoft yürütür. MediaGrab çocuklara yönelik değildir ve kimseden bilerek kişisel veri toplamaz. Sorularınız için [zeynelumitkorkmaz@gmail.com](mailto:zeynelumitkorkmaz@gmail.com?subject=MediaGrab) adresine yazabilir veya [GitHub Issues](https://github.com/umitkrkmz/mediagrab/issues/new/choose) üzerinden ulaşabilirsiniz.
+Geliştirici hiçbir veri toplamaz ve üçüncü taraflarla paylaşmaz; Microsoft Store ödemelerini Microsoft yürütür. MediaGrab çocuklara yönelik değildir ve kimseden bilerek kişisel veri toplamaz. Sorularınız için [destek sayfasındaki](/apps/mediagrab/support/) e-posta adresi ([zeynelumitkorkmaz@gmail.com](mailto:zeynelumitkorkmaz@gmail.com?subject=MediaGrab)) veya [GitHub Issues](https://github.com/umitkrkmz/mediagrab/issues) üzerinden ulaşabilirsiniz; tüm bunları açık kaynak [depoda](https://github.com/umitkrkmz/mediagrab) doğrulayabilirsiniz.
