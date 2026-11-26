@@ -57,7 +57,7 @@ export const SITE_DATA: Record<Locale, SiteLocaleData> = {
     heroEyebrow: 'Bilgisayar Mühendisi · Ankara',
     heroTitle: 'Sade masaüstü araçları ve mühendislik projeleri.',
     heroSubtitle:
-      'Bağımsız olarak geliştirdiğim Windows uygulamalarını; .NET, Python ve yapay zekâ alanındaki çalışmalarımı burada topluyorum.',
+      'Microsoft Store’da yayımladığım Windows uygulamalarını, açık kaynak projelerimi ve akademik çalışmalarımı burada bir araya getiriyorum.',
     aboutIntro:
       'Kullanıcı verisini cihazda tutan, sade ve güvenilir masaüstü yazılımları ile ölçülebilir mühendislik araçları tasarlıyorum.',
     aboutDetails: [
@@ -110,7 +110,7 @@ export const SITE_DATA: Record<Locale, SiteLocaleData> = {
     heroEyebrow: 'Computer Engineer · Ankara',
     heroTitle: 'Simple desktop tools and engineering projects.',
     heroSubtitle:
-      'A home for my independent Windows apps alongside my work in .NET, Python, and AI engineering.',
+      'I share the Windows apps I’ve published on the Microsoft Store, along with my open-source projects and academic work.',
     aboutIntro:
       'I design straightforward, dependable desktop software that keeps user data on the device, alongside verifiable engineering tools.',
     aboutDetails: [
